@@ -1,12 +1,12 @@
-# Hexo Configuration
+﻿# Hexo Configuration
 ## Docs: https://hexo.io/docs/configuration.html
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Huzb
-subtitle:
-description: 123123
-author: Huzb
+title: huzb的博客
+subtitle: 念念不忘，必有回响
+description: 一枚前行的小码农
+author: huzb
 language: zh-Hans
 timezone:
 
@@ -47,8 +47,8 @@ highlight:
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
 # order_by: Posts order. (Order by date descending by default)
-index_generator:
-  path: ''
+index_generator: 
+  path: 
   per_page: 10
   order_by: -date
   
@@ -80,3 +80,23 @@ deploy:
   type: git
   repo: https://github.com/zhebinhu/zhebinhu.github.io.git
   branch: master
+
+#所有文章
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: false
+    tags: true
