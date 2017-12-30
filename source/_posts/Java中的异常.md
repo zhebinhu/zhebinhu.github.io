@@ -18,11 +18,9 @@ Java中的异常都继承自Throwable类。Throwable是java语言中所有错误
 
 - Error：Error为错误，是程序无法处理的。如OutOfMemoryError、ThreadDeath等，出现这种情况只能听之任之，交由JVM处理。一般情况下JVM也没法子，只好终止线程。
 - Exception：Exception是程序可以处理的异常。它有很多子类，比如IOException,RuntimeException,SQLException等等。其中RuntimeException比较特殊，它表示程序运行中发生的异常，在编译时可以不接受检查。而其它异常编译时就要接受检查，对于抛出异常的部分，要么throw给子类，要么用try...catch处理。
-
+<!--more-->
 常见异常继承关系：
 <img src="./Java中的异常/常见异常继承关系.png" width="70%" heigth="70%"/>
-
-<!--more-->
 
 ## Java中常见的异常
 
