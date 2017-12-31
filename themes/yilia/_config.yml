@@ -91,7 +91,7 @@ changyan_conf: false
 disqus: false
 
 #5、Gitment
-gitment_owner: zhebinhu     #你的 GitHub ID
+gitment_owner: false     #你的 GitHub ID
 gitment_repo: 'zhebinhu.github.io'          #存储评论的 repo
 gitment_oauth:
   client_id: '0ff941a9de6ccc9b531d'           #client ID
@@ -104,6 +104,14 @@ coding_comments:
   oauth: 
     client_id: '54948627a3a03f0a32ad551fbfd3a1ee'
     client_secret: '6211bfcb81adc4db4d2b9508d0ea28df1225f863'
+
+#7、gitalk
+gitalk: 
+  clientID: '0ff941a9de6ccc9b531d'
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc'
+  repo: 'zhebinhu.github.io'
+  owner: zhebinhu
+  admin: zhebinhu
 
 # 样式定制 - 一般不需要修改，除非有很强的定制欲望…
 style:
@@ -131,4 +139,4 @@ friends:
   hexo官网: https://hexo.io/
   yilia的github: https://github.com/litten/hexo-theme-yilia/
 
-aboutme: 坐标成都，一枚奋进的Java程序猿
+aboutme: 本科毕业于电子科大，现电子科大研究生在读<br>坐标成都，一枚奋进的Java程序猿

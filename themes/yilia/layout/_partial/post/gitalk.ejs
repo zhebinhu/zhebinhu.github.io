@@ -1,0 +1,17 @@
+<div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: "<%=url%>",
+  clientID: '<%=theme.gitalk.clientID%>',
+  clientSecret: '<%=theme.gitalk.clientSecret%>',
+  repo: '<%=theme.gitalk.repo%>',
+  owner: '<%=theme.gitalk.owner%>',
+  admin: '<%=theme.gitalk.admin%>',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
