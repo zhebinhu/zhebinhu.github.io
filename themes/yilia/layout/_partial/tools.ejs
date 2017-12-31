@@ -1,4 +1,4 @@
-<%
+﻿<%
   var hasInnerArchive = theme.smart_menu.innerArchive
   var hasFriends = theme.smart_menu.friends
   var hasAboutme = theme.smart_menu.aboutme
@@ -26,12 +26,12 @@
     <%if(hasInnerArchive){%>
     	<section class="tools-section tools-section-all" q-show="innerArchive">
         <div class="search-wrap">
-          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <input class="search-ipt" q-model="search" type="text" placeholder="搜索文章">
           <i class="icon-search icon" q-show="search|isEmptyStr"></i>
           <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
         </div>
         <div class="widget tagcloud search-tag">
-          <p class="search-tag-wording">tag:</p>
+          <p class="search-tag-wording">标签:</p>
           <label class="search-switch">
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
