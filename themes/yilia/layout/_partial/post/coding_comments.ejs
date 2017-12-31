@@ -1,0 +1,18 @@
+<link rel="stylesheet" href="//dn-coding-net-public-file.qbox.me/Coding-Comments/v0.0.3/default.css">
+<script src="//dn-coding-net-public-file.qbox.me/Coding-Comments/v0.0.3/gitment.min.js"></script>
+<div id="gitment-ctn">
+<div id="coding_comments_thread" class="coding_comments-thread"></div>
+<script>
+ var gitment = new Gitment({
+  id: "<%=url%>",
+  owner: '<%=theme.coding_comments.owner%>',
+  repo: '<%=theme.coding_comments.repo%>',
+  oauth: {
+    client_id: '<%=theme.coding_comments.oauth.client_id%>',
+    client_secret: '<%=theme.coding_comments.oauth.client_secret%>',
+  },
+})
+document.getElementById('coding_comments_thread').appendChild(gitment.render())
+
+</script>
+</div>
