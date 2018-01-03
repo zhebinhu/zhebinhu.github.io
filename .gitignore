@@ -5,3 +5,8 @@ db.json
 node_modules/
 public/
 .deploy*/
+min_photos/
+src_photos/
+ImageProcess.py
+tool.py
+.qiniu_pythonsdk_hostscache.json
