@@ -116,11 +116,11 @@
         var data = res.list[j].arr;
         var liTmpl = "";
         for (var i = 0, len = data.link.length; i < len; i++) {
-          var minSrc = 'http://litten.me/ins-min/' + data.link[i] + '.min.jpg';
-          var src = 'http://litten.me/ins/' + data.link[i];
+          var minSrc = 'http://p1x2xthig.bkt.clouddn.com//min_photos/' + data.link[i];
+          var src = 'http://p1x2xthig.bkt.clouddn.com//src_photos/' + data.link[i];
           var type = data.type[i];
-          var target = src + (type === 'video' ? '.mp4' : '.jpg');
-          src += '.jpg';
+          var target = src/* + (type === 'video' ? '.mp4' : '.jpg')*/;
+          /*src += '.jpg';*/
 
           liTmpl += '<figure class="thumb" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">\
                 <a href="' + src + '" itemprop="contentUrl" data-size="640x640" data-type="' + type + '" data-target="' + target + '">\
