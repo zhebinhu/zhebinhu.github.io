@@ -9,7 +9,7 @@
   <title>MySQL作图建库 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="workbench是MySQL自带的数据库可视化工具，相比另一款常用的数据库可视化工具Navicat最大的优势就是它是免费的。两者的操作逻辑没有太大区别，不过workbench英文的界面对初学者不是太友好。我花了一点时间学习了如何作图，希望能为以后节省时间。 E-R图是描述数据库关系最常用的方式。优点是直观、详尽。workbench当然也提供了这种图表的绘制方式，不过在里面叫EER图。经过我的一番">
-<meta name="keywords" content="原创,MySQL">
+<meta name="keywords" content="MySQL,原创">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL作图建库">
 <meta property="og:url" content="http://yoursite.com/2018/02/03/MySQL作图建库/index.html">
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/02/03/MySQL作图建库/ER图1.png">
 <meta property="og:image" content="http://yoursite.com/2018/02/03/MySQL作图建库/作图第一步.png">
-<meta property="og:updated_time" content="2018-03-14T01:05:16.800Z">
+<meta property="og:updated_time" content="2018-03-14T01:37:26.605Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL作图建库">
 <meta name="twitter:description" content="workbench是MySQL自带的数据库可视化工具，相比另一款常用的数据库可视化工具Navicat最大的优势就是它是免费的。两者的操作逻辑没有太大区别，不过workbench英文的界面对初学者不是太友好。我花了一点时间学习了如何作图，希望能为以后节省时间。 E-R图是描述数据库关系最常用的方式。优点是直观、详尽。workbench当然也提供了这种图表的绘制方式，不过在里面叫EER图。经过我的一番">
@@ -178,33 +178,18 @@
       
         <p>workbench是MySQL自带的数据库可视化工具，相比另一款常用的数据库可视化工具Navicat最大的优势就是它是免费的。两者的操作逻辑没有太大区别，不过workbench英文的界面对初学者不是太友好。我花了一点时间学习了如何作图，希望能为以后节省时间。</p>
 <p>E-R图是描述数据库关系最常用的方式。优点是直观、详尽。workbench当然也提供了这种图表的绘制方式，不过在里面叫EER图。经过我的一番考证，这个EER图就是我们常说的E-R图。</p>
-<h2 id="一、已有数据库，自动生成EER图："><a href="#一、已有数据库，自动生成EER图：" class="headerlink" title="一、已有数据库，自动生成EER图："></a>一、已有数据库，自动生成EER图：</h2><ul>
-<li><p>①、首先在mysql workbench里选中Database——&gt; reverse engineering</p>
-</li>
-<li><p>②、然后选择你建立的连接（也就是数据库）</p>
-</li>
-<li><p>③、接下来一路next，直到最后选择导出的数据库</p>
-</li>
-<li><p>④、自动生成的 E-R 图大概长相如图：</p>
-</li>
-</ul>
+<h2 id="一、已有数据库，自动生成EER图："><a href="#一、已有数据库，自动生成EER图：" class="headerlink" title="一、已有数据库，自动生成EER图："></a>一、已有数据库，自动生成EER图：</h2><p>①、首先在mysql workbench里选中Database——&gt; reverse engineering</p>
+<p>②、然后选择你建立的连接（也就是数据库）</p>
+<p>③、接下来一路next，直到最后选择导出的数据库</p>
+<p>④、自动生成的 E-R 图大概长相如图：</p>
 <a id="more"></a>
 <p><img src="/2018/02/03/MySQL作图建库/ER图1.png"></p>
-<h2 id="二、先画EER图，然后自动生成数据库："><a href="#二、先画EER图，然后自动生成数据库：" class="headerlink" title="二、先画EER图，然后自动生成数据库："></a>二、先画EER图，然后自动生成数据库：</h2><ul>
-<li><p>①、启动软件过后，注意不需要连接数据库（我第一次就是直接连接数据库了所以找不到设计ER模型的地方）</p>
-</li>
-<li><p>②、点击”+” ,进入模型设计界面</p>
-</li>
-</ul>
+<h2 id="二、先画EER图，然后自动生成数据库："><a href="#二、先画EER图，然后自动生成数据库：" class="headerlink" title="二、先画EER图，然后自动生成数据库："></a>二、先画EER图，然后自动生成数据库：</h2><p>①、启动软件过后，注意不需要连接数据库（我第一次就是直接连接数据库了所以找不到设计ER模型的地方）</p>
+<p>②、点击”+” ,进入模型设计界面</p>
 <p><img src="/2018/02/03/MySQL作图建库/作图第一步.png"></p>
-<ul>
-<li><p>③、双击 Add Diagram 进入如下设计界面</p>
-</li>
-<li><p>④、点击工具栏表格，并在设计区域点击，就会出现一个table1 并双击它</p>
-</li>
-<li><p>⑤、最后 执行 “File”-&gt;”Export” 按钮，选择 Forward Engineer SQL CREATE Script (ctrl+shift+G). 这样就可以把模型导出为SQL脚本文件。现在执行这个SQL文件就OK了</p>
-</li>
-</ul>
+<p>③、双击 Add Diagram 进入如下设计界面</p>
+<p>④、点击工具栏表格，并在设计区域点击，就会出现一个table1 并双击它</p>
+<p>⑤、最后 执行 “File”-&gt;”Export” 按钮，选择 Forward Engineer SQL CREATE Script (ctrl+shift+G). 这样就可以把模型导出为SQL脚本文件。现在执行这个SQL文件就OK了</p>
 
       
 
@@ -218,11 +203,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -461,7 +446,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -469,7 +454,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
