@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/16/分布式缓存的一致性Hash算法/一致性hash环.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/16/分布式缓存的一致性Hash算法/一致性hash环添加节点.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/16/分布式缓存的一致性Hash算法/使用虚拟节点的一致性hash环.png">
-<meta property="og:updated_time" content="2018-03-16T07:12:38.614Z">
+<meta property="og:updated_time" content="2018-03-16T07:21:35.401Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式缓存的一致性Hash算法">
 <meta name="twitter:description" content="分布式有利于提高网站的可用性、伸缩性和安全性。分布式缓存，顾名思义，就是将缓存服务器作分布式配置，提高集群性能和可伸缩性。然而对分布式缓存集群而言，不能像应用服务器一样使用简单的负载均衡手段来实现，因为分布式缓存服务器集群中不同服务器中缓存的数据各不相同，缓存访问请求不可以在缓存服务器集群中的任意一台处理，必须先找到缓存有需要数据的服务器，然后才能访问。这个特点会严重制约分布式缓存集群的伸缩性设计">
@@ -199,7 +199,7 @@
 <p>新加入的节点NODE3只影响了原来的节点NODE1，也就是说一部分原来需要访问NODE1的缓存数据现在需要访问NODE3（概率上是50%）。但是原来的节点NODE0和NODE2不受影响，这也就意味着，新引入的NODE3这个节点只减轻了NODE1的压力，假设原先三个节点的压力是一样大的，那么在引入NODE3这个节点后，NODE0和NODE2的缓存数据量和负载压力是NODE1与NODE3的两倍。这个是有违我们负载均衡的初衷的。</p>
 <p>怎么办？</p>
 <p>改！</p>
-<h3 id="改进后的一致性hash算法"><a href="#改进后的一致性hash算法" class="headerlink" title="改进后的一致性hash算法"></a>改进后的一致性hash算法</h3><p>我们可以通过<strong>增加一层虚拟层</strong>的方式解决这个问题。将每台物理缓存服务器虚拟为一组虚拟缓存服务器，将虚拟缓存服务器的hash值放置在hash环上，KEY在环上先找到虚拟服务器节点，再得到物理服务器的信息。</p>
+<h3 id="改进后的一致性hash算法"><a href="#改进后的一致性hash算法" class="headerlink" title="改进后的一致性hash算法"></a>改进后的一致性hash算法</h3><p>我们可以通过<strong>增加一层虚拟层</strong>的方式解决这个问题：将每台物理缓存服务器虚拟为一组虚拟缓存服务器，将虚拟缓存服务器的hash值放置在hash环上，KEY在环上先找到虚拟服务器节点，再得到物理服务器的信息。</p>
 <p>这样新加入物理服务器节点时，是将一组虚拟节点加入环中，如果虚拟节点的数目足够多，这组虚拟节点将会影响同样多数目的已经在环上存在的虚拟节点，这些已经存在的虚拟节点又对应不同的物理节点。最终的结果是：新加入一台缓存服务器，将会较为均匀地影响原来集群中已经存在的所有服务器，也就是说分摊原有缓存服务器集群中所有服务器的一小部分负载，其总的影响范围和上面讨论过的相同。如下图所示：</p>
 <p><img src="/2018/03/16/分布式缓存的一致性Hash算法/使用虚拟节点的一致性hash环.png"></p>
 <p>显然每个物理节点对应的虚拟节点越多，各个物理节点之间的负载越均衡，新加入物理服务器对原有的物理服务器的影响越保持一致（这就是一致性hash这个名称的由来）。那么在实践中，一台物理服务器虚拟为多少个虚拟服务器节点合适呢？太多会影响性能，太少又会导致负载不均衡，一般说来，经验值是150，当然根据集群规模和负载均衡的精度需求，这个值应该根据具体情况具体对待。</p>
@@ -462,11 +462,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>
