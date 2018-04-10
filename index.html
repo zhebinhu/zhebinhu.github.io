@@ -277,6 +277,85 @@
 
 
   
+    <article id="post-Centos7下使用systemd管理服务" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/30/Centos7下使用systemd管理服务/">Centos7下使用systemd管理服务</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/30/Centos7下使用systemd管理服务/" class="archive-article-date">
+  	<time datetime="2018-03-30T13:09:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可以统一交给Systemd管理，方便许多。</p>
+<h2 id="Systemd概述"><a href="#Systemd概述" class="headerlink" title="Systemd概述"></a>Systemd概述</h2><p>在Linux系统中，我们经常会遇到结尾为’d’的进程，比如initd，mysqld。根据Linux惯例，字母‘d’是守护进程（daemon）的缩写。systemd这个名字的含义，就是它是整个系统的守护进程。在Centos7中，它是系统的第一个进程（PID等于1），创建于系统启动的过程中，其他进程都是它的子进程。</p>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/30/Centos7下使用systemd管理服务/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-简单的密码学生成唯一邀请码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -299,17 +378,6 @@
       
         <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
 <h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
-<ul>
-<li>不可重复</li>
-<li>唯一确定</li>
-</ul>
-<p>这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要求的基础之上，我们还有一些进一步的需求：</p>
-<ul>
-<li>长度不能太长，6-10位是合适的区间</li>
-<li>不容易被推测出</li>
-<li>资源消耗尽可能小</li>
-</ul>
-<p>在这些需求的约束下，我们先来看看常见的通用的序列码生成算法。</p>
         
       
 
@@ -644,11 +712,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		
 		</ul>
@@ -778,7 +846,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -790,15 +858,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>

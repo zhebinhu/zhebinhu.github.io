@@ -8,23 +8,23 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>简单的密码学生成唯一邀请码 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
+  <meta name="description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
 <meta name="keywords" content="密码学">
 <meta property="og:type" content="article">
 <meta property="og:title" content="简单的密码学生成唯一邀请码">
 <meta property="og:url" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
+<meta property="og:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_2.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_1.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_2.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myResult_1.png">
-<meta property="og:updated_time" content="2018-04-10T03:05:50.415Z">
+<meta property="og:updated_time" content="2018-04-10T03:17:49.078Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简单的密码学生成唯一邀请码">
-<meta name="twitter:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
+<meta name="twitter:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
 <meta name="twitter:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
@@ -181,6 +181,7 @@
       
         <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
 <h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
+<a id="more"></a>
 <ul>
 <li>不可重复</li>
 <li>唯一确定</li>
@@ -192,7 +193,6 @@
 <li>资源消耗尽可能小</li>
 </ul>
 <p>在这些需求的约束下，我们先来看看常见的通用的序列码生成算法。</p>
-<a id="more"></a>
 <h2 id="通用方案"><a href="#通用方案" class="headerlink" title="通用方案"></a>通用方案</h2><p>通用方案的解决思路可以分为两种：一种是生成一串不重复随机数，然后将其保存到数据库里。使用邀请码时从数据库里查询就可以得到邀请人；另一种是对身份信息作加密，通常是用户id，将加密后的密文作为邀请码，使用时可以不查询数据库，直接解密得到。理论上说，第二种方式稍好一点，可以少进行一次数据库查询。但是考虑到安全性，我们还是会把解密后的id拿到数据库中查询，防止有人输错或者伪造邀请码产生NPE。因此在选择算法的时候，这两种思路我都有考虑到。</p>
 <h3 id="1、UUID"><a href="#1、UUID" class="headerlink" title="1、UUID"></a>1、UUID</h3><p>谈到不重复的随机数，最先想到的自然是UUID。UUID是一种软件构建的标准，也是开放软件基金会组织（OSF）在分布式计算环境领域的一部分。按照OSF制定的标准计算，它用到了以太网卡地址、纳秒级时间、芯片ID码和许多可能的数字，保证对在同一时空中的所有机器都是唯一的。Java的工具类java.util.UUID是Java提供的一整套UUID生成方案，对于开发者来说可以很方便的调用。然而UUID并不适合用在这里，因为UUID的位数是固定的32位，这个对于我们的邀请码来说显然是太长了（想象一下用户面对面分享邀请码的时候居然需要报一串32位的数字+字母）。</p>
 <p>网上也有用UUID的一部分当随机数的，但UUID只能保证完整的32位是不会重复的，不能保证其中的某一段不重复，因此这个方案也行不通。</p>
@@ -323,11 +323,11 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/04/07/Spring使用cors协议解决跨域问题/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/03/30/Centos7下使用systemd管理服务/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          Spring使用cors协议解决跨域问题
+          Centos7下使用systemd管理服务
         
       </div>
     </a>
@@ -492,7 +492,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -504,15 +504,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
