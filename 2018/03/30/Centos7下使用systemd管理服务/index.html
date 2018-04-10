@@ -9,7 +9,7 @@
   <title>Centos7下使用systemd管理服务 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
-<meta name="keywords" content="原创,Linux">
+<meta name="keywords" content="Linux,原创">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Centos7下使用systemd管理服务">
 <meta property="og:url" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/index.html">
@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/一号进程.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/redis.service.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/systemctl_status.png">
-<meta property="og:updated_time" content="2018-04-01T12:52:05.215Z">
+<meta property="og:updated_time" content="2018-04-09T05:15:26.311Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Centos7下使用systemd管理服务">
 <meta name="twitter:description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
@@ -183,7 +183,7 @@
 <p><img src="/2018/03/30/Centos7下使用systemd管理服务/一号进程.png"></p>
 <p>在Centos7中，系统的启动可以汇整成如下几个过程：</p>
 <p>①、打开计算机电源，载入BIOS的硬件信息与进行自我测试，并依据设置取得第一个可开机的设备；<br>②、读取并执行第一个开机设备内MBR的boot loader（亦即是grub2，spfdisk等程序）；<br>③、依据boot loader的设置载入Kernel，Kernel会开始侦测硬件与载入驱动程序；<br>④、在硬件驱动成功后，Kernel会主动调用systemd程序，并以default.target流程开机；<br>　　1) systemd执行sysinit.target初始化系统及basic.target准备操作系统；<br>　　2) systemd启动multi-user.target下的本机与服务器服务；<br>　　3) systemd执行multi-user.target下的/etc/rc.d/rc.local文件；<br>　　4) systemd执行multi-user.target下的getty.target及登录服务；<br>　　5) systemd执行graphical需要的服务（图形化版本特有）</p>
-<p>大概就是上面这样子了。你会发现systemd分量很足，这是因为systemd负责了开机时所有的资源（unit）调度任务，操作系统只需要启动systemd，剩下的systemd都会帮它处理。不仅如此，<strong>事实上，systemd扮演的就是一个资源管理者的角色，它最主要的功能就是准备软件执行的环境，包括系统的主机名称、网络设置、语系处理、文件系统格式及其他服务的启动等</strong>。</p>
+<p>大概就是上面这样子了。你会发现systemd出现的频率很高，这是因为systemd负责了开机时所有的资源（unit）调度任务，操作系统只需要启动systemd，剩下的systemd都会帮它处理。不仅如此，<strong>事实上，systemd扮演的就是一个资源管理者的角色，它最主要的功能就是准备软件执行的环境，包括系统的主机名称、网络设置、语系处理、文件系统格式及其他服务的启动等</strong>。</p>
 <h2 id="Systemd的基本概念和操作"><a href="#Systemd的基本概念和操作" class="headerlink" title="Systemd的基本概念和操作"></a>Systemd的基本概念和操作</h2><h3 id="一、Unit"><a href="#一、Unit" class="headerlink" title="一、Unit"></a>一、Unit</h3><p>Systemd可以管理所有系统资源。不同的资源统称为Unit（单元）。systemd 将资源归纳为以下一些不同的类型。然而，systemd正在快速发展，新功能不断增加。所以资源类型可能在不久的将来继续增加。</p>
 <blockquote>
 <p>Service unit：系统服务（最常见）<br>Target unit：多个 Unit 构成的一个组<br>Device Unit：硬件设备<br>Mount Unit：文件系统的挂载点<br>Automount Unit：自动挂载点<br>Path Unit：文件或路径<br>Scope Unit：不是由 Systemd 启动的外部进程<br>Slice Unit：进程组<br>Snapshot Unit：Systemd 快照，可以切回某个快照<br>Socket Unit：进程间通信的 socket<br>Swap Unit：swap 文件<br>Timer Unit：定时器</p>
@@ -362,11 +362,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -605,7 +605,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -613,7 +613,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -626,6 +626,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>

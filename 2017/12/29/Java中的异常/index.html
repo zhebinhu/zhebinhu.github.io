@@ -9,7 +9,7 @@
   <title>Java中的异常 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
-<meta name="keywords" content="Java,原创">
+<meta name="keywords" content="原创,Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中的异常">
 <meta property="og:url" content="http://yoursite.com/2017/12/29/Java中的异常/index.html">
@@ -17,7 +17,7 @@
 <meta property="og:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2017/12/29/Java中的异常/常见异常继承关系.png">
-<meta property="og:updated_time" content="2018-03-31T07:19:48.249Z">
+<meta property="og:updated_time" content="2018-04-09T07:31:49.289Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的异常">
 <meta name="twitter:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
@@ -209,12 +209,9 @@
 <p>抛出异常的代码可能抛出多种异常，处理异常的catch也可以有多个catch，分别处理不同的异常。在执行时，会依次查找catch语句，直到找到第一个能catch某异常的代码块。</p>
 <h3 id="throw和throws机制"><a href="#throw和throws机制" class="headerlink" title="throw和throws机制"></a>throw和throws机制</h3><p>throws用在方法声明中，表示这个方法将会抛出某一异常。使用该方法的时候必须对该异常进行处理（try…catch或throw）throw用在语句中，表示抛出一个异常。抛出异常后方法会出栈，方法中后面的代码将不会执行。</p>
 <h2 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h2><ul>
-<li><p>throws只是再次抛出了某个异常，并没有真正处理异常。在使用中，需要有代码去真正处理抛出的异常</p>
-</li>
-<li><p>如果子类重写了父类的方法，则子类能够抛出的异常只能是父类的子集（父类所有异常类及它们的子类集合）</p>
-</li>
-<li><p>对于runtimeException异常及其子类，程序可以选择显式处理也可以不处理，交给程序调用者去处理；对于其它exception（编译时异常），程序必须要显式处理（try…catch）或抛出（throws），交给调用者处理</p>
-</li>
+<li>throws只是再次抛出了某个异常，并没有真正处理异常。在使用中，需要有代码去真正处理抛出的异常</li>
+<li>如果子类重写了父类的方法，则子类能够抛出的异常只能是父类的子集（父类所有异常类及它们的子类集合）</li>
+<li>对于runtimeException异常及其子类，程序可以选择显式处理也可以不处理，交给程序调用者去处理；对于其它exception（编译时异常），程序必须要显式处理（try…catch）或抛出（throws），交给调用者处理</li>
 </ul>
 
       
@@ -229,11 +226,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		
 		</ul>
@@ -467,7 +464,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -475,7 +472,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -488,6 +485,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>

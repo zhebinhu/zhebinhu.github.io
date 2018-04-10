@@ -8,17 +8,24 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>简单的密码学生成唯一邀请码 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
+  <meta name="description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
+<meta name="keywords" content="密码学">
 <meta property="og:type" content="article">
 <meta property="og:title" content="简单的密码学生成唯一邀请码">
 <meta property="og:url" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-04-01T12:36:08.175Z">
+<meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_1.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_2.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myResult_1.png">
+<meta property="og:updated_time" content="2018-04-10T03:05:50.415Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简单的密码学生成唯一邀请码">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：  不可重复 唯一确定  这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -172,7 +179,68 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
+<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
+<ul>
+<li>不可重复</li>
+<li>唯一确定</li>
+</ul>
+<p>这两点要求首先就排除了hash code的可能，因为hash code是可以发生碰撞的。然后在强制性要求的基础之上，我们还有一些进一步的需求：</p>
+<ul>
+<li>长度不能太长，6-10位是合适的区间</li>
+<li>不容易被推测出</li>
+<li>资源消耗尽可能小</li>
+</ul>
+<p>在这些需求的约束下，我们先来看看常见的通用的序列码生成算法。</p>
+<a id="more"></a>
+<h2 id="通用方案"><a href="#通用方案" class="headerlink" title="通用方案"></a>通用方案</h2><p>通用方案的解决思路可以分为两种：一种是生成一串不重复随机数，然后将其保存到数据库里。使用邀请码时从数据库里查询就可以得到邀请人；另一种是对身份信息作加密，通常是用户id，将加密后的密文作为邀请码，使用时可以不查询数据库，直接解密得到。理论上说，第二种方式稍好一点，可以少进行一次数据库查询。但是考虑到安全性，我们还是会把解密后的id拿到数据库中查询，防止有人输错或者伪造邀请码产生NPE。因此在选择算法的时候，这两种思路我都有考虑到。</p>
+<h3 id="1、UUID"><a href="#1、UUID" class="headerlink" title="1、UUID"></a>1、UUID</h3><p>谈到不重复的随机数，最先想到的自然是UUID。UUID是一种软件构建的标准，也是开放软件基金会组织（OSF）在分布式计算环境领域的一部分。按照OSF制定的标准计算，它用到了以太网卡地址、纳秒级时间、芯片ID码和许多可能的数字，保证对在同一时空中的所有机器都是唯一的。Java的工具类java.util.UUID是Java提供的一整套UUID生成方案，对于开发者来说可以很方便的调用。然而UUID并不适合用在这里，因为UUID的位数是固定的32位，这个对于我们的邀请码来说显然是太长了（想象一下用户面对面分享邀请码的时候居然需要报一串32位的数字+字母）。</p>
+<p>网上也有用UUID的一部分当随机数的，但UUID只能保证完整的32位是不会重复的，不能保证其中的某一段不重复，因此这个方案也行不通。</p>
+<h3 id="2、系统当前时间"><a href="#2、系统当前时间" class="headerlink" title="2、系统当前时间"></a>2、系统当前时间</h3><p>系统当前时间也是一种常见的随机数生成方案。它的做法是先获取到系统当前时间，再用它和某个时间点对比，将这两段时间的间隔以毫秒或者纳秒为单位存到内存中去。最后我们程序获取到的是一串数字。Java提供了两个系统函数用于实现这个功能：System.currentTimeMillis()和System.nanoTime()。然而这两个系统函数在这个业务里都有各自的问题。</p>
+<p>System.currentTimeMillis()返回的是从1970.1.1 UTC零点开始到现在的时间，精确到毫秒。它的问题在于不能支持高并发的邀请码生成。在这套方案中，只要我们的系统在某1秒内生成的邀请码超过32个，那么出现相同邀请码的概率就超过50%（详见<a href="https://zh.wikipedia.org/wiki/%E7%94%9F%E6%97%A5%E5%95%8F%E9%A1%8C" target="_blank" rel="noopener">生日攻击</a>）。显然，这个规模的并发量是不能接受的。</p>
+<p>System.nanoTime()返回的是从某个固定但随意的时间点开始的时间，精确到纳秒。这个固定但随意的时间，在不同JVM中是不一样的。这也就是说不同计算机计算出来的nanoTime()是有可能重合的。甚至同一台计算机重启JVM后生成的nanoTime()也是可能重合的。这违背了我们的第一个要求。</p>
+<h3 id="3、RC4算法"><a href="#3、RC4算法" class="headerlink" title="3、RC4算法"></a>3、RC4算法</h3><p>RC4对于学过密码的同学来说肯定不会陌生。它是大名鼎鼎的RSA三人组中的头号人物Ronald Rivest在1987年设计的一种轻量级对称加密算法。它的特点是按字节流加密，也就是说明文多长，密文就多长。这一特点很好避免了UUID只能生成32位字符串的尴尬。而且RC4是一个轻量级加密算法，运行速度快，占用资源少，很好地满足了我们的第5点要求。乍一看RC4似乎是种理想的方案，然而实际一跑就出现了问题：</p>
+<p><img src="/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png"></p>
+<p>出现了乱码！这是因为字符的取值在0~255，而我们熟悉的英文和数字只占了其中的62位，其它符号是我们不熟悉的，当然也不能作为邀请码。解决方法也很简单，把字符串转成16进制即可：</p>
+<p><img src="/2018/03/23/简单的密码学生成唯一邀请码/RC4_2.png"></p>
+<p>由于把8位的字符串转成了4位的16进制，字符串的长度增加了一倍，但长度尚在可接受范围之内。不太满意的一点是加密后的密文都是连续性的，高位的数字基本不变。这也意味着如果被邀请的同学输错了后几位数字，后台大概率检测不到他的这次操作失误，因为他输入的错误邀请码能在数据库里被找到。而且连续的密文容易被找出规律，安全性较低。因此这种方式也不建议。</p>
+<h3 id="4、用户身份标志-随机数"><a href="#4、用户身份标志-随机数" class="headerlink" title="4、用户身份标志+随机数"></a>4、用户身份标志+随机数</h3><p>这种方法是我在网上找到的已经被用于实际业务中的方法，它的大致思路是这样：</p>
+<ul>
+<li>获取用户身份的唯一标志，比如用户ID。</li>
+<li>将用户ID补全，补全的位数取决于你希望得到的邀请码长度，如：106可以补全为00106.</li>
+<li>随机生成一串大写字母串，长度和补全后的用户ID相同，如：SZUDF。</li>
+<li>将随机数隔位插入用户ID，得到邀请码：S0Z0U1D0F6。</li>
+</ul>
+<p>这种方式得到的邀请码基本能满足我们的要求：由用户ID的唯一性保证了邀请码的唯一性；随机生成的字母串又能保证不容易被找到规律，同时又提高了用户操作的容错率；长度也在可接受范围内。因此第一版的邀请码生成算法我们采用了这种方式。</p>
+<p><img src="/2018/03/23/简单的密码学生成唯一邀请码/myCode_1.png"></p>
+<p>但是它仍然有改进的空间。①、字母和数字的位置是固定的，有一定的容易被察觉的规律，且对于数字来说，仍然具有连续性；②、用户ID直接暴露在密文中，存在风险；③、没有校验位，邀请码的校验依赖于数据库，无法对恶意伪造大量错误邀请码的攻击进行有效防御。</p>
+<p>因此我在这种算法上作了改进，克服了以上的缺点。</p>
+<h2 id="我的方案"><a href="#我的方案" class="headerlink" title="我的方案"></a>我的方案</h2><p>为了让字母和数字的位置不再固定，我将用户ID作了36进制转换，即把用户ID映射为一串字母+数字的组合，高位用0补全。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span>[] b = <span class="keyword">new</span> <span class="keyword">int</span>[CODE_LENGTH];</span><br><span class="line">b[<span class="number">0</span>] = id;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; ++i) &#123;</span><br><span class="line">    b[i + <span class="number">1</span>] = b[i] / <span class="number">36</span>;</span><br><span class="line">    b[i] = (b[i]) % <span class="number">36</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同时把随机数生成的范围扩大到字母和数字，这样密文中的每一位都可能是数字和字母，规律性就不易察觉得多。</p>
+<p>然后是用户ID暴露在密文中的问题。这个问题的解决办法是我们可以加一点<a href="https://zh.wikipedia.org/wiki/%E7%9B%90_(%E5%AF%86%E7%A0%81%E5%AD%A6" target="_blank" rel="noopener">盐</a>。盐的取值最好不要太小，太小缺乏隐蔽性；也不能太大，太大会占用过多用户ID的取值空间。具体的取值取决于业务需求。</p>
+<p>当然，最后是校验位的问题。这个问题我思考之后决定在随机数上作文章。目前的算法，会生成和补全后用户ID长度相等的随机数。这有两点问题：一是邀请码长度稍显过长，6位用户ID就会产生12位的邀请码；二是随机数没有提供额外的信息，这对密文来说是一种资源浪费。鉴于此，我改变了随机数的生成方式，让它不再随机生成，而是承担起对密文其它部分的校验功能。同时改变了它的长度，把它固定在2位。当然，缩短后的校验码就没有办法隔位插入，我就把它放在了密文尾部。用这一套校验方式，理论上能保证99.9%的误操作可以被后台检测出来而不需要查询数据库。</p>
+<p><img src="/2018/03/23/简单的密码学生成唯一邀请码/myCode_2.png"></p>
+<p>生成的邀请码如上，相比第一版，可以看到一些很明显的改进。而且理论上可以容纳1000万的用户量，比第一版的10万位有了很大提升。</p>
+<p>但是这一版的算法仍有问题，细心的同学会发现6个验证码的2~5位是一样的。这是因为低位的变化不足以影响到高位，导致高位的字符没有发生变化。这样的算法在安全性上是比较薄弱的，攻击人可以利用这一规律大大降低猜测的区间。而且密文和密钥（超参数，本文中就是salt和prime1）之间的关系比较直接，没有进行进一步的处理。现代密码学认为，密码的安全性应该由密钥来保障而不是加密算法，如果密钥和密文之间的联系过于直接，密码的安全性便会削弱。当然，密码学上对这些问题有解决方法，那就是<strong>扩散和混淆</strong>。</p>
+<h3 id="扩散和混淆"><a href="#扩散和混淆" class="headerlink" title="扩散和混淆"></a>扩散和混淆</h3><p>扩散(diffusion)和混淆(confusion)是C.E.Shannon提出的设计密码体制的两种基本方法，其目的是为了抵抗对手对密码体制的统计分析。在分组密码的设计中，充分利用扩散和混淆，可以有效地抵抗对手从密文的统计特性推测明文或密钥。扩散和混淆是现代分组密码的设计基础。</p>
+<p>所谓扩散就是让明文中的每一位影响密文中的许多位，或者说让密文中的每一位受明文中的许多位的影响。这样可以隐蔽明文的统计特性。当然，理想的情况是让明文中的每一位影响密文中的所有位，或者说让密文中的每一位受明文中所有位的影响。</p>
+<p>所谓混淆就是将密文与密钥之间的统计关系变得尽可能复杂，使得对手即使获取了关于密文的一些统计特性，也无法推测密钥。使用复杂的非线性代替变换可以达到比较好的混淆效果，而简单的线性代替变换得到的混淆效果则不理想。可以用”揉面团”来形象地比喻扩散和混淆。当然，这个”揉面团”的过程应该是可逆的。乘积和迭代有助于实现扩散和混淆。选择某些较简单的受密钥控制的密码变换，通过乘积和迭代可以取得比较好的扩散和混淆的效果。</p>
+<h3 id="改进后的算法"><a href="#改进后的算法" class="headerlink" title="改进后的算法"></a>改进后的算法</h3><p>我用扩散和混淆的方式对算法进行了改进。</p>
+<p>扩散的方式很简单，只需要将个位和其它每一位作和后取余，即可把变化传导到每一位。为了隐蔽，我还把变化进行了放大：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id = id * PRIME1;</span><br></pre></td></tr></table></figure></p>
+<p> PRIME1可以为任意随机数，最好和36以及10^n（n为用户id位数）互质。这是因为根据<a href="https://zh.wikipedia.org/wiki/%E5%BE%AA%E7%92%B0%E7%BE%A4" target="_blank" rel="noopener">循环群</a>的性质：若 m 和 p 互质，则( id * m ) % p的结果遍历[0, p)的所有整数。保证了放大后结果的分布和原数据的分布同样均匀。为了使结果看起来更随机，我还给每一位分配了不同系数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">id = id * PRIME1;</span><br><span class="line">id = id + SALT;</span><br><span class="line"><span class="keyword">int</span>[] b = <span class="keyword">new</span> <span class="keyword">int</span>[CODE_LENGTH];</span><br><span class="line">b[<span class="number">0</span>] = id;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; ++i) &#123;</span><br><span class="line">    b[i + <span class="number">1</span>] = b[i] / ARY;</span><br><span class="line">    b[i] = (b[i] + b[<span class="number">0</span>] * i) % ARY;</span><br><span class="line">&#125;</span><br><span class="line">b[<span class="number">5</span>] = (b[<span class="number">0</span>] + b[<span class="number">1</span>] + b[<span class="number">2</span>]) * PRIME1 % ARY;</span><br><span class="line">b[<span class="number">6</span>] = (b[<span class="number">3</span>] + b[<span class="number">4</span>] + b[<span class="number">5</span>]) * PRIME1 % ARY;</span><br></pre></td></tr></table></figure>
+<p>ARY表示进制，这里是36，也可以设置成其它的数，比如62（字母区分大小写）。<br>代码的第7、9、10行中我分别对每一位设置了不同的系数，使得每一次的增量显得更不固定。</p>
+<p>然后是混淆。混淆我用了<a href="https://zh.wikipedia.org/wiki/P%E7%9B%92" target="_blank" rel="noopener">P-box</a>的方式，其实就是将数字洗牌。比如把1234567洗成5237641。这样处理之后可以隐藏密钥和密文之间的关系。洗牌的方式也很简单，选择一个和CODE_LENGTH（本文中为7）互质的数PRIME2，和数组角标相乘取余即可（原理同PRIME1）。最终的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">inviCodeGenerator</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    id = id * PRIME1;</span><br><span class="line">    id = id + SALT;</span><br><span class="line">    <span class="keyword">int</span>[] b = <span class="keyword">new</span> <span class="keyword">int</span>[CODE_LENGTH];</span><br><span class="line">    b[<span class="number">0</span>] = id;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; ++i) &#123;</span><br><span class="line">        b[i + <span class="number">1</span>] = b[i] / ARY;</span><br><span class="line">        b[i] = (b[i] + b[<span class="number">0</span>] * i) % ARY;</span><br><span class="line">    &#125;</span><br><span class="line">    b[<span class="number">5</span>] = (b[<span class="number">0</span>] + b[<span class="number">1</span>] + b[<span class="number">2</span>]) * PRIME1 % ARY;</span><br><span class="line">    b[<span class="number">6</span>] = (b[<span class="number">3</span>] + b[<span class="number">4</span>] + b[<span class="number">5</span>]) * PRIME1 % ARY;</span><br><span class="line">    StringBuilder sb = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CODE_LENGTH; ++i) &#123;</span><br><span class="line">        sb.append(HEX_36_Array.charAt(b[(i * PRIME2) % CODE_LENGTH]));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试结果如下：</p>
+<p><img src="/2018/03/23/简单的密码学生成唯一邀请码/myResult_1.png"></p>
+<p>完美符合我们的需求^_^</p>
+<p>邀请码和用户ID的转换也很简单，因为加密的过程都是可逆的，所以只需将加密过程作逆变换即可。这里要提一点就是我们是设置了校验位的，所以可以在解密的过程中对邀请码进行校验，如果是用户的误输入或者有人企图构造邀请码恶意攻击，我们在业务层就可以检测出来，不需要拿到数据层去做校验。具体的解密代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">inviDecoding</span><span class="params">(String inviCode)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (inviCode.length() != CODE_LENGTH) &#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> a[] = <span class="keyword">new</span> <span class="keyword">int</span>[CODE_LENGTH];</span><br><span class="line">    <span class="keyword">int</span> b[] = <span class="keyword">new</span> <span class="keyword">int</span>[CODE_LENGTH];</span><br><span class="line">    <span class="keyword">char</span>[] c = <span class="keyword">new</span> <span class="keyword">char</span>[CODE_LENGTH];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CODE_LENGTH; ++i) &#123;</span><br><span class="line">        a[(i * PRIME2) % CODE_LENGTH] = i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CODE_LENGTH; ++i) &#123;</span><br><span class="line">        c[i] = inviCode.charAt(a[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; CODE_LENGTH; ++i) &#123;</span><br><span class="line">        a[i] = HEX_36_Array.indexOf(c[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    b[<span class="number">5</span>] = (a[<span class="number">0</span>] + a[<span class="number">1</span>] + a[<span class="number">2</span>]) * PRIME1 % ARY;</span><br><span class="line">    b[<span class="number">6</span>] = (a[<span class="number">3</span>] + a[<span class="number">4</span>] + a[<span class="number">5</span>]) * PRIME1 % ARY;</span><br><span class="line">    <span class="keyword">if</span> (a[<span class="number">5</span>] != b[<span class="number">5</span>] || a[<span class="number">6</span>] != b[<span class="number">6</span>]) &#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">4</span>; i &gt;= <span class="number">0</span>; --i) &#123;</span><br><span class="line">        b[i] = (a[i] - a[<span class="number">0</span>] * i + ARY * i) % ARY;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">4</span>; i &gt; <span class="number">0</span>; --i) &#123;</span><br><span class="line">        res += b[i];</span><br><span class="line">        res *= ARY;</span><br><span class="line">    &#125;</span><br><span class="line">    res = ((res + b[<span class="number">0</span>]) - SALT) / PRIME1;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码18~22行就是在作校验。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>不同的业务有不同的需求，市面上通用的方案可能只能满足大部分共性的需求，但对于某些特定的需求，市面上找不到完善的解决方案，这时候就需要我们独立解决问题的能力。本科的时候觉得密码学没用，没想到在这用上了。越来越觉得世上没有无用的知识，多积累一些总是好的^_^</p>
+
       
 
       
@@ -180,6 +248,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">密码学</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -282,7 +361,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    目录，不存在的…
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求分析"><span class="toc-number">1.</span> <span class="toc-text">需求分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通用方案"><span class="toc-number">2.</span> <span class="toc-text">通用方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、UUID"><span class="toc-number">2.1.</span> <span class="toc-text">1、UUID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、系统当前时间"><span class="toc-number">2.2.</span> <span class="toc-text">2、系统当前时间</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、RC4算法"><span class="toc-number">2.3.</span> <span class="toc-text">3、RC4算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、用户身份标志-随机数"><span class="toc-number">2.4.</span> <span class="toc-text">4、用户身份标志+随机数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我的方案"><span class="toc-number">3.</span> <span class="toc-text">我的方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#扩散和混淆"><span class="toc-number">3.1.</span> <span class="toc-text">扩散和混淆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#改进后的算法"><span class="toc-number">3.2.</span> <span class="toc-text">改进后的算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -413,7 +492,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -421,7 +500,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -434,6 +513,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
