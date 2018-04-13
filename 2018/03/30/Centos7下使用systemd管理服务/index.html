@@ -6,18 +6,24 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2018/4 | huzb的小书斋</title>
+  <title>Centos7下使用systemd管理服务 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/archives/2018/04/index.html">
+  <meta name="description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
+<meta name="keywords" content="Linux,原创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos7下使用systemd管理服务">
+<meta property="og:url" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/一号进程.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/redis.service.png">
+<meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/systemctl_status.png">
+<meta property="og:updated_time" content="2018-04-13T09:08:41.953Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="Centos7下使用systemd管理服务">
+<meta name="twitter:description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
+<meta name="twitter:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/一号进程.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -151,133 +157,365 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Centos7下使用systemd管理服务" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/11/Java9新特性概述/" class="archive-article-date">
-  	<time datetime="2018-04-11T02:51:48.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-11</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/11/Java9新特性概述/">Java9新特性概述</a>
+    <h1 class="article-title" itemprop="name">
+      Centos7下使用systemd管理服务
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2018/03/30/Centos7下使用systemd管理服务/" class="archive-article-date">
+  	<time datetime="2018-03-30T13:09:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可以统一交给Systemd管理，方便许多。</p>
+<h2 id="Systemd概述"><a href="#Systemd概述" class="headerlink" title="Systemd概述"></a>Systemd概述</h2><p>在Linux系统中，我们经常会遇到结尾为’d’的进程，比如initd，mysqld。根据Linux惯例，字母‘d’是守护进程（daemon）的缩写。systemd这个名字的含义，就是它是整个系统的守护进程。在Centos7中，它是系统的第一个进程（PID等于1），创建于系统启动的过程中，其他进程都是它的子进程。</p>
+<a id="more"></a>
+<p><img src="/2018/03/30/Centos7下使用systemd管理服务/一号进程.png"></p>
+<p>在Centos7中，系统的启动可以汇整成如下几个过程：</p>
+<p>①、打开计算机电源，载入BIOS的硬件信息与进行自我测试，并依据设置取得第一个可开机的设备；<br>②、读取并执行第一个开机设备内MBR的boot loader（亦即是grub2，spfdisk等程序）；<br>③、依据boot loader的设置载入Kernel，Kernel会开始侦测硬件与载入驱动程序；<br>④、在硬件驱动成功后，Kernel会主动调用systemd程序，并以default.target流程开机；<br>　　1) systemd执行sysinit.target初始化系统及basic.target准备操作系统；<br>　　2) systemd启动multi-user.target下的本机与服务器服务；<br>　　3) systemd执行multi-user.target下的/etc/rc.d/rc.local文件；<br>　　4) systemd执行multi-user.target下的getty.target及登录服务；<br>　　5) systemd执行graphical需要的服务（图形化版本特有）</p>
+<p>大概就是上面这样子了。你会发现systemd出现的频率很高，这是因为systemd负责了开机时所有的资源（unit）调度任务，操作系统只需要启动systemd，剩下的systemd都会帮它处理。不仅如此，<strong>事实上，systemd扮演的就是一个资源管理者的角色，它最主要的功能就是准备软件执行的环境，包括系统的主机名称、网络设置、语系处理、文件系统格式及其他服务的启动等</strong>。</p>
+<h2 id="Systemd的基本概念和操作"><a href="#Systemd的基本概念和操作" class="headerlink" title="Systemd的基本概念和操作"></a>Systemd的基本概念和操作</h2><h3 id="一、Unit"><a href="#一、Unit" class="headerlink" title="一、Unit"></a>一、Unit</h3><p>Systemd可以管理所有系统资源。不同的资源统称为Unit（单元）。systemd 将资源归纳为以下一些不同的类型。然而，systemd正在快速发展，新功能不断增加。所以资源类型可能在不久的将来继续增加。</p>
+<blockquote>
+<p>Service unit：系统服务（最常见）<br>Target unit：多个 Unit 构成的一个组<br>Device Unit：硬件设备<br>Mount Unit：文件系统的挂载点<br>Automount Unit：自动挂载点<br>Path Unit：文件或路径<br>Scope Unit：不是由 Systemd 启动的外部进程<br>Slice Unit：进程组<br>Snapshot Unit：Systemd 快照，可以切回某个快照<br>Socket Unit：进程间通信的 socket<br>Swap Unit：swap 文件<br>Timer Unit：定时器</p>
+</blockquote>
+<h4 id="Unit配置文件"><a href="#Unit配置文件" class="headerlink" title="Unit配置文件"></a>Unit配置文件</h4><p>每一个unit都有一个配置文件，配置文件一般存放在目录/usr/lib/systemd/system/，它会告诉systemd怎么启动这个unit。配置文件的后缀名，就是该unit的种类，比如sshd.socket。如果省略，systemd默认后缀名为.service，所以sshd会被理解成sshd.service。</p>
+<p><img src="/2018/03/30/Centos7下使用systemd管理服务/redis.service.png"></p>
+<p>上图为我系统中redis.service配置文件的内容。它大致包含了这些信息：1）对这个资源的描述；2）所需的前置资源；3）实际执行此service的指令或脚本程序；4）实际停止此service的指令或脚本程序；5）该资源所在的组（target）。</p>
+<p>unit配置文件中常用的字段整理如下：</p>
+<table>
+<thead>
+<tr>
+<th>Unit字段</th>
+<th>参数意义说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Description</td>
+<td>就是当我们使用<code>systemctl list-units</code>时，会输出给管理员看的简易说明。使用<code>systemctl status</code>输出的此服务的说明，也是这个字段。</td>
+</tr>
+<tr>
+<td>After</td>
+<td>说明此unit是在哪个daemon启动之后才启动的意思。基本上仅是说明服务启动的顺序而已，并没有强制要求里头的服务一定要启动后此unit才能启动。</td>
+</tr>
+<tr>
+<td>Before</td>
+<td>与After的意义相反，是在什么服务启动前最好启动这个服务的意思。不过这仅是规范服务启动的顺序，并非强制要求的意思。</td>
+</tr>
+<tr>
+<td>Requires</td>
+<td>明确地定义此unit需要在哪个daemon启动后才能够启动。如果在此项设置的前导服务没有启动，那么此unit就不会被启动。</td>
+</tr>
+<tr>
+<td>Wants　　　　　　　　</td>
+<td>表示这个unit之后最好还要启动什么服务比较好的意思，不过并没有明确的规范。主要的目的是希望创建让使用者比较好操作的环境。因此，这个Wants后面接的服务如果没有启动，其实不会影响到这个unit本身。</td>
+</tr>
+<tr>
+<td>Conflicts</td>
+<td>代表冲突的服务。表示这个项目后面接的服务如果有启动，那么我们这个unit本身就不能启动！我们unit有启动，则此项目后的服务就不能启动！是一种冲突性的检查。</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Service字段（service特有）</th>
+<th>参数意义说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type</td>
+<td>Type字段定义启动类型。它可以设置的值如下：<code>simple（默认值）</code>：ExecStart字段启动的进程为主进程。<code>forking</code>：ExecStart字段将以fork()方式启动，此时父进程将会退出，子进程将成为主进程。<code>oneshot</code>：类似于simple，但只执行一次，systemd会等它执行完，才启动其他服务。<code>dbus</code>：类似于simple，但会等待D-Bus信号后启动。<code>notify</code>：类似于simple，启动结束后会发出通知信号，然后 systemd再启动其他服务。<code>idle</code>：类似于simple，但是要等到其他任务都执行完，才会启动该服务。一种使用场合是为让该服务的输出，不与其他服务的输出相混合。</td>
+</tr>
+<tr>
+<td>EnvironmentFile　　　</td>
+<td>可以指定启动脚本的环境配置文件！例如sshd.service的配置文件写入到 /etc/sysconfig/sshd 当中！你也可以使用Environment=后面接多个不同的Shell变量来给予设置！</td>
+</tr>
+<tr>
+<td>ExecStart</td>
+<td>就是实际执行此daemon的指令或脚本程序。你也可以使用ExecStartPre（之前）以及ExecStartPost（之后）两个设置项目来在实际启动服务前，进行额外的指令行为。但是你得要特别注意的是，指令串仅接受“指令 参数 参数…”的格式，不能接受&lt;,&gt;,&gt;&gt;,&amp;等特殊字符，很多的bash语法也不支持喔！所以，要使用这些特殊的字符时，最好直接写入到指令脚本里面去！不过，上述的语法也不是完全不能用，亦即，若要支持比较完整的bash语法，那你得要使用Type=oneshot才行喔！其他的Type才不能支持这些字符。</td>
+</tr>
+<tr>
+<td>ExecStop</td>
+<td>与<code>systemctl stop</code>的执行有关，关闭此服务时所进行的指令。</td>
+</tr>
+<tr>
+<td>ExecReload</td>
+<td>与<code>systemctl reload</code>有关的指令行为。</td>
+</tr>
+<tr>
+<td>Restart</td>
+<td>当设置Restart=1时，则当此daemon服务终止后，会再次的启动此服务。</td>
+</tr>
+<tr>
+<td>RemainAfterExit</td>
+<td>当设置为RemainAfterExit=1时，则当这个daemon所属的所有程序都终止之后，此服务会再尝试启动。这对于 Type=oneshot 的服务很有帮助！</td>
+</tr>
+<tr>
+<td>TimeoutSec</td>
+<td>若这个服务在启动或者是关闭时，因为某些缘故导致无法顺利“正常启动或正常结束”的情况下，则我们要等多久才进入“强制结束”的状态！</td>
+</tr>
+<tr>
+<td>KillMode</td>
+<td>可以是<code>process</code>,<code>control-group</code>,<code>none</code>的其中一种，如果是<code>process</code>则daemon终止时，只会终止主要的程序（ExecStart 接的后面那串指令），如果是<code>control-group</code>时，则由此daemon所产生的其他control-group的程序，也都会被关闭。如果是<code>none</code>的话，则没有程序会被关闭。</td>
+</tr>
+<tr>
+<td>RestartSec</td>
+<td>与Restart有点相关性，如果这个服务被关闭，然后需要重新启动时，大概要sleep多少时间再重新启动的意思。默认是100ms（毫秒）。</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Install字段</th>
+<th>参数意义说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WantedBy　　　　　　</td>
+<td>这个设置后面接的大部分是*.target unit！意思是，这个unit本身是附挂在哪一个target unit下面的！一般来说，大多的服务性质的unit都是附挂在multi-user.target下面！</td>
+</tr>
+<tr>
+<td>Also</td>
+<td>当目前这个unit本身被enable时，Also后面接的unit也请enable的意思！也就是具有相依性的服务可以写在这里呢！</td>
+</tr>
+<tr>
+<td>Alias</td>
+<td>进行一个链接的别名的意思！当systemctl enable相关的服务时，则此服务会进行链接文件的创建/usr/lib/systemd/system/multi-user.target。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="配置unit开机启动"><a href="#配置unit开机启动" class="headerlink" title="配置unit开机启动"></a>配置unit开机启动</h4><p>开机时，systemd默认从目录/etc/systemd/system/读取配置文件。但是，里面存放的大部分文件都是符号链接，指向目录/usr/lib/systemd/system/，真正的配置文件存放在那个目录。<code>systemctl enable</code>命令用于在上面两个目录之间，建立符号链接关系，相当于激活开机启动。与之对应的，<code>systemctl disable</code>命令用于在两个目录之间，撤销符号链接关系，相当于撤销开机启动。</p>
+<h4 id="启动和停止unit"><a href="#启动和停止unit" class="headerlink" title="启动和停止unit"></a>启动和停止unit</h4><p>执行<code>systemctl start</code>命令启动软件，执行<code>systemctl status</code>命令查看该服务的状态</p>
+<p><img src="/2018/03/30/Centos7下使用systemd管理服务/systemctl_status.png"></p>
+<p>上面的输出结果含义如下：</p>
+<blockquote>
+<p>Loaded行：配置文件的位置，是否设为开机启动<br>Drop-In行：符号链接地址<br>Active行：表示正在运行<br>Main PID行：主进程ID<br>CGroup块：应用的所有子进程</p>
+</blockquote>
+<p>当不需要服务继续运行时，可以执行<code>systemctl stop</code>命令终止正在运行的服务。有时候，该命令可能没有响应，服务停不下来，这时候可以执行<code>systemctl kill</code>命令强制终止。另外，需要重启服务时可以执行<code>systemctl restart</code>命令。</p>
+<h3 id="二、Target"><a href="#二、Target" class="headerlink" title="二、Target"></a>二、Target</h3><p>启动计算机的时候，需要启动大量的unit。如果每一次启动，都要一一写明本次启动需要哪些unit，显然非常不方便。Systemd的解决方案就是target。</p>
+<p>简单说，target 就是一个unit组，包含许多相关的unit 。启动某个target的时候，systemd就会启动里面所有的unit。从这个意义上说，target这个概念类似于”状态点”，启动某个target就好比启动到某种状态。</p>
+<p>传统的init启动模式里面，有runlevel的概念，跟target的作用很类似。不同的是，runlevel是互斥的，不可能多个runlevel同时启动，但是多个target可以同时启动。</p>
+<h4 id="查看target"><a href="#查看target" class="headerlink" title="查看target"></a>查看target</h4><p>我们可以执行指令<code>systemctl list-unit-files --type=target</code>查看当前系统的所有target。也可以执行指令<code>systemctl list-dependencies multi-user.target</code>查看一个target包含的所有unit。</p>
+<p>系统启动时systemctl会根据/etc/systemd/system/default.target规划的策略进行启动，我们可以通过执行指令<code>systemctl get-default</code>查看启动时默认的target（一般是multi-user.target）。指令<code>systemctl set-default</code>可以设置启动时的默认target。切换target时，默认不关闭前一个target启动的进程，我们可以通过<code>systemctl isolate</code>关闭前一个target里面所有不属于后一个target的进程。</p>
+<h3 id="三、日志管理"><a href="#三、日志管理" class="headerlink" title="三、日志管理"></a>三、日志管理</h3><p>Systemd 统一管理所有unit的启动日志。带来的好处就是，可以只用<code>journalctl</code>一个命令，查看所有日志（内核日志和应用日志）。日志的配置文件是/etc/systemd/journald.conf。</p>
+<h4 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h4><p>我们可以通过指令<code>journalctl</code>查看所有日志（默认情况下 ，只保存本次启动的日志）。<code>journalctl -k</code>可以查看内核日志，<code>journalctl -b</code>和<code>journalctl -b -0</code>可以查看系统本次启动的日志，<code>journalctl -b -1</code>可以查看上一次启动的日志，<code>journalctl _PID=X</code>查看指定进程的日志，<code>journalctl /usr/bin/bash</code>查看某个路径的脚本的日志，<code>journalctl -u redis.service</code>和<code>journalctl -u redis.service --since today</code>查看某个unit的日志。</p>
+<h2 id="Systemd的特性（对比SysVInit）"><a href="#Systemd的特性（对比SysVInit）" class="headerlink" title="Systemd的特性（对比SysVInit）"></a>Systemd的特性（对比SysVInit）</h2><p>为了保证运行在先前Linux版本上的应用程序运行稳定，systemd兼容了原先的SysVInit以及LSB initscripts，但也引入了新的特性。这使得系统中已经存在的服务和进程无需修改，降低了系统向systemd迁移的成本。但我们也应该了解systemd所做的改变，以更好的适应当前的版本。大体而言，systemd相比SysVInit更改了以下几个方面：</p>
+<h3 id="一、支持并行启动"><a href="#一、支持并行启动" class="headerlink" title="一、支持并行启动"></a>一、支持并行启动</h3><p>系统启动时，需要启动很多启动项目，在SysVInit中，每一个启动项目都由一个独立的脚本负责，它们由 SysVinit顺序地，串行地调用。因此总的启动时间是各脚本运行时间之和。而systemd通过socket/D-Bus activation等技术，能够将启动项目同时并行启动，大大提高了系统的启动速度。</p>
+<h3 id="二、提供按需启动能力"><a href="#二、提供按需启动能力" class="headerlink" title="二、提供按需启动能力"></a>二、提供按需启动能力</h3><p>当 sysvinit 系统初始化的时候，它会将所有可能用到的后台服务进程全部启动运行。并且系统必须等待所有的服务都启动就绪之后，才允许用户登录。这种做法有两个缺点：首先是启动时间过长；其次是系统资源浪费。</p>
+<p>某些服务很可能在很长一段时间内，甚至整个服务器运行期间都没有被使用过。比如 CUPS，打印服务在多数服务器上很少被真正使用到。您可能没有想到，在很多服务器上 SSHD 也是很少被真正访问到的。花费在启动这些服务上的时间是不必要的；同样，花费在这些服务上的系统资源也是一种浪费。</p>
+<p>Systemd 可以提供按需启动的能力，只有在某个服务被真正请求的时候才启动它。当该服务结束，systemd 可以关闭它，等待下次需要时再次启动它。</p>
+<h3 id="三、采用Linux的Cgroup特性跟踪和管理进程的生命周期"><a href="#三、采用Linux的Cgroup特性跟踪和管理进程的生命周期" class="headerlink" title="三、采用Linux的Cgroup特性跟踪和管理进程的生命周期"></a>三、采用Linux的Cgroup特性跟踪和管理进程的生命周期</h3><p>Init系统的一个重要职责就是负责跟踪和管理服务进程的生命周期。它不仅可以启动一个服务，也必须也能够停止服务。这看上去没有什么特别的，然而在真正用代码实现的时候，我们会发现有时候停止服务比一开始想的要困难。</p>
+<p>服务进程一般都会作为守护进程（daemon）在后台运行，为此服务程序有时候会派生(fork)两次。在SysVInit中，需要在配置文件中正确地配置expect小节。这样SysVInit通过对fork系统调用进行计数，从而获知真正的守护进程的PID号。</p>
+<p>还有更加特殊的情况。比如，一个CGI程序会派生两次，从而脱离了和Apache的父子关系。当Apache进程被停止后，该CGI程序还在继续运行。而我们希望服务停止后，所有由它所启动的相关进程也被停止。</p>
+<p>为了处理这类问题，SysVInit通过strace来跟踪 fork、exit 等系统调用，但是这种方法很笨拙，且缺乏可扩展性。Systemd则利用了Linux内核的特性即CGroup来完成跟踪的任务。当停止服务时，通过查询CGroup，Systemd可以确保找到所有的相关进程，从而干净地停止服务。</p>
+<p>CGroup已经出现了很久，它主要用来实现系统资源配额管理。CGroup提供了类似文件系统的接口，使用方便。当进程创建子进程时，子进程会继承父进程的 CGroup。因此无论服务如何启动新的子进程，所有的这些相关进程都会属于同一个 CGroup，systemd只需要简单地遍历指定的CGroup即可正确地找到所有的相关进程，将它们一一停止即可。</p>
+<h3 id="四、启动挂载点和自动挂载的管理"><a href="#四、启动挂载点和自动挂载的管理" class="headerlink" title="四、启动挂载点和自动挂载的管理"></a>四、启动挂载点和自动挂载的管理</h3><p>传统的Linux系统中，用户可以用/etc/fstab文件来维护固定的文件系统挂载点。这些挂载点在系统启动过程中被自动挂载，一旦启动过程结束，这些挂载点就会确保存在。这些挂载点都是对系统运行至关重要的文件系统，比如HOME目录。和SysVInit 一样，Systemd会管理这些挂载点，以便能够在系统启动时自动挂载它们。Systemd兼容了/etc/fstab文件，我们可以继续使用该文件管理挂载点。</p>
+<p>有时候用户还需要动态挂载点，比如打算访问DVD内容时，才临时执行挂载以便访问其中的内容，而不访问光盘时该挂载点被取消(umount)，以便节约资源。传统地，人们依赖autofs服务来实现这种功能。</p>
+<p>Systemd内建了自动挂载服务，无需另外安装autofs服务，可以直接使用systemd提供的自动挂载管理能力来实现autofs的功能。</p>
+<h3 id="五、实现事务性依赖关系管理"><a href="#五、实现事务性依赖关系管理" class="headerlink" title="五、实现事务性依赖关系管理"></a>五、实现事务性依赖关系管理</h3><p>系统启动过程是由很多的独立工作共同组成的，这些工作之间可能存在依赖关系，比如挂载一个NFS文件系统必须依赖网络能够正常工作。Systemd 虽然能够最大限度地并发执行很多有依赖关系的工作，但是类似”挂载 NFS”和”启动网络”这样的工作还是存在天生的先后依赖关系，无法并发执行。对于这些任务，systemd 维护一个”事务一致性”的概念，保证所有相关的服务都可以正常启动而不会出现互相依赖，以至于死锁的情况。</p>
+<h3 id="六、能够对系统进行快照和恢复"><a href="#六、能够对系统进行快照和恢复" class="headerlink" title="六、能够对系统进行快照和恢复"></a>六、能够对系统进行快照和恢复</h3><p>Systemd支持按需启动，因此系统的运行状态是动态变化的，人们无法准确地知道系统当前运行了哪些服务。Systemd快照提供了一种将当前系统运行状态保存并恢复的能力。</p>
+<p>比如系统当前正运行服务A和B，可以用systemd命令行对当前系统运行状况创建快照。然后将进程A停止，或者做其他的任意的对系统的改变，比如启动新的进程C。在这些改变之后，运行systemd的快照恢复命令，就可立即将系统恢复到快照时刻的状态，即只有服务A，B在运行。一个可能的应用场景是调试：比如服务器出现一些异常，为了调试用户将当前状态保存为快照，然后可以进行任意的操作，比如停止服务等等。等调试结束，恢复快照即可。</p>
+<p>这个快照功能目前在systemd中并不完善，似乎开发人员也没有特别关注它，因此有报告指出它还存在一些使用上的问题，使用时尚需慎重。</p>
+<h3 id="七、日志服务"><a href="#七、日志服务" class="headerlink" title="七、日志服务"></a>七、日志服务</h3><p>systemd自带日志服务journald，该日志服务的设计初衷是克服现有的syslog服务的缺点。比如：</p>
+<ul>
+<li>syslog不安全，消息的内容无法验证。每一个本地进程都可以声称自己是Apache PID 4711，而syslog也就相信并保存到磁盘上。</li>
+<li>数据没有严格的格式，非常随意。自动化的日志分析器需要分析人类语言字符串来识别消息。一方面此类分析困难低效；此外日志格式的变化会导致分析代码需要更新甚至重写。</li>
+</ul>
+<p>Systemd Journal用二进制格式保存所有日志信息，用户使用journalctl命令来查看日志信息。无需自己编写复杂脆弱的字符串分析处理程序。</p>
+<p>Systemd Journal的优点如下：</p>
+<ul>
+<li>简单性：代码少，依赖少，抽象开销最小。</li>
+<li>零维护：日志是除错和监控系统的核心功能，因此它自己不能再产生问题。举例说，自动管理磁盘空间，避免由于日志的不断产生而将磁盘空间耗尽。</li>
+<li>移植性：日志文件应该在所有类型的Linux系统上可用，无论它使用的何种CPU或者字节序。</li>
+<li>性能：添加和浏览日志非常快。</li>
+<li>最小资源占用：日志数据文件需要较小。</li>
+<li>统一化：各种不同的日志存储技术应该统一起来，将所有的可记录事件保存在同一个数据存储中。所以日志内容的全局上下文都会被保存并且可供日后查询。例如一条固件记录后通常会跟随一条内核记录，最终还会有一条用户态记录。重要的是当保存到硬盘上时这三者之间的关系不会丢失。Syslog将不同的信息保存到不同的文件中，分析的时候很难确定哪些条目是相关的。</li>
+<li>扩展性：日志的适用范围很广，从嵌入式设备到超级计算机集群都可以满足需求。</li>
+<li>安全性：日志文件是可以验证的，让无法检测的修改不再可能。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Systemd作为Centos7最新采用的系统管理进程，相比前任有相当多的改变。它的优点是功能强大，使用方便，缺点是过于复杂，与操作系统的其他部分强耦合，可能在某种程度上违背了Linux原本”keep simple, keep stupid”设计哲学。但从一个系统使用者的角度，它的确在很多方面做得都要比它的前任更好。作为一个后端，我们需要对这些改变有所了解，才能将这个系统用得更好。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://wizardforcel.gitbooks.io/vbird-linux-basic-4e/content/165.html" target="_blank" rel="noopener">鸟哥的Linux私房菜：基础学习篇 第四版 第十九章</a><br>2、<a href="http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html" target="_blank" rel="noopener">Systemd 入门教程 - 阮一峰的网络日志</a><br>3、<a href="https://www.thegeekdiary.com/rhel-centos-7-how-to-set-default-target-replaced-runlevel/" target="_blank" rel="noopener">CentOS / RHEL 7 : How to set default target (default runlevel)</a><br>4、<a href="https://www.ibm.com/developerworks/cn/linux/1407_liuming_init3/index.html" target="_blank" rel="noopener">IBM developerWorks Systemed</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">收藏</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/07/常用git指令汇总/" class="archive-article-date">
-  	<time datetime="2018-04-07T13:09:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-07</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/2018/04/07/Spring使用cors协议解决跨域问题/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Spring使用cors协议解决跨域问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/23/简单的密码学生成唯一邀请码/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">简单的密码学生成唯一邀请码</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/07/常用git指令汇总/">常用git指令汇总</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Systemd概述"><span class="toc-number">1.</span> <span class="toc-text">Systemd概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Systemd的基本概念和操作"><span class="toc-number">2.</span> <span class="toc-text">Systemd的基本概念和操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、Unit"><span class="toc-number">2.1.</span> <span class="toc-text">一、Unit</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Unit配置文件"><span class="toc-number">2.1.1.</span> <span class="toc-text">Unit配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#配置unit开机启动"><span class="toc-number">2.1.2.</span> <span class="toc-text">配置unit开机启动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#启动和停止unit"><span class="toc-number">2.1.3.</span> <span class="toc-text">启动和停止unit</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、Target"><span class="toc-number">2.2.</span> <span class="toc-text">二、Target</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查看target"><span class="toc-number">2.2.1.</span> <span class="toc-text">查看target</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、日志管理"><span class="toc-number">2.3.</span> <span class="toc-text">三、日志管理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#查看日志"><span class="toc-number">2.3.1.</span> <span class="toc-text">查看日志</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Systemd的特性（对比SysVInit）"><span class="toc-number">3.</span> <span class="toc-text">Systemd的特性（对比SysVInit）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一、支持并行启动"><span class="toc-number">3.1.</span> <span class="toc-text">一、支持并行启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#二、提供按需启动能力"><span class="toc-number">3.2.</span> <span class="toc-text">二、提供按需启动能力</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三、采用Linux的Cgroup特性跟踪和管理进程的生命周期"><span class="toc-number">3.3.</span> <span class="toc-text">三、采用Linux的Cgroup特性跟踪和管理进程的生命周期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四、启动挂载点和自动挂载的管理"><span class="toc-number">3.4.</span> <span class="toc-text">四、启动挂载点和自动挂载的管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#五、实现事务性依赖关系管理"><span class="toc-number">3.5.</span> <span class="toc-text">五、实现事务性依赖关系管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#六、能够对系统进行快照和恢复"><span class="toc-number">3.6.</span> <span class="toc-text">六、能够对系统进行快照和恢复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#七、日志服务"><span class="toc-number">3.7.</span> <span class="toc-text">七、日志服务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/04/07/Spring使用cors协议解决跨域问题/" class="archive-article-date">
-  	<time datetime="2018-04-07T13:07:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-04-07</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/04/07/Spring使用cors协议解决跨域问题/">Spring使用cors协议解决跨域问题</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
+  
 
 
           </div>
@@ -301,8 +539,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
