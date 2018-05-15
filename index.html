@@ -175,38 +175,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发的角度，或许我们更关心的是主流的工具在履行这两者上有什么区别？因此我整理了一些常见平台下GET与POST的区别，希望能有帮助。</p>
-<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>GET传递的参数只能带URL后面，文本格式QueryString，长度受限于浏览器发送长度和服务器接收长度。各家标准不一，作为开发人员宜选取其中最短一个（2083字节）作为开发标准，以避免不必要的兼容问题。</p>
-<ul>
-<li>IE(Browser)　2,083 Bytes</li>
-<li>Firefox(Browser)　65,536 Bytes</li>
-<li>Safari(Browser)　80,000 Bytes</li>
-<li>Opera(Browser)　190,000 Bytes</li>
-<li>Google (chrome)　8,182 Bytes</li>
-<li>Apache (Server)　8,182 Bytes</li>
-<li>Microsoft Internet Information Server(IIS)　16,384 Bytes</li>
-</ul>
-<p>POST的参数就比较灵活，可以传递application/x-www-form-urlencoded的类似QueryString、multipart/form-data的二进制报文格式（支持文件信息嵌入报文传输）、纯文本或二进制的body参数。很多时候我们把参数写在body里，这时参数没有长度上的限制。</p>
-<h2 id="幂等"><a href="#幂等" class="headerlink" title="幂等"></a>幂等</h2><p>幂等是一个计算机术语，表示重复执行某一操作得到的结果总是相同的。在HTTP中，如果我们说一个HTTP方法是幂等的，指的是同样的请求被执行一次与连续执行多次的效果是一样的，服务器的状态也是一样的。</p>
-<p>GET是幂等的，我们使用GET获取服务器上同一份数据，拿到的数据应该都是相同的。每次请求后服务器的状态应该也是相同的（统计数据除外）。</p>
-<p>POST不是幂等的，多次POST返回的结果不一定相同，每次请求后服务器的状态也是不一样的。</p>
-<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><p>GET时默认可以复用前面的请求数据作为缓存结果返回，此时以完整的URL作为缓存数据的KEY。所以有时候为了强制每次请求都是新数据，我们可以在URL后面加上一个随机参数或时间戳或版本号来避免从缓存中读取，也可以直接设置Cache-Control禁用缓存。</p>
-<p>POST则一般不会被这些缓存因素影响。</p>
-<h2 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h2><p>服务器的日志比如像nginx的access log会自动记录GET和POST的URL，包括其中带的参数，但不会记录请求的报文。对于一些敏感数据，POST更安全一些。</p>
-<h2 id="自动化性能测试"><a href="#自动化性能测试" class="headerlink" title="自动化性能测试"></a>自动化性能测试</h2><p>基于上面提到的nginx日志，可以使用grep GET+日期，awk格式化，然后sort -u去重，从而提取到某天的所有GET请求URL，使用程序模拟登陆，然后请求所有URL即可获取简单的性能测试数据，每个请求是否正确，响应时间多少等等。</p>
-<p>但是对于POST请求，因为不知道报文，无法这样简单处理。可以通过nginx-lua获取报文输出到log，这样格式化会麻烦很多，但不失为一个办法。</p>
-<h2 id="TCP包的数量"><a href="#TCP包的数量" class="headerlink" title="TCP包的数量"></a>TCP包的数量</h2><p>GET请求稳定只发送一个包，而POST请求在某些浏览器里会发送两个，具体的原因还在探究。</p>
-<ul>
-<li>IE 6 – 2 packets</li>
-<li>IE 7 – 2 packets</li>
-<li>IE 8 – 2 packets</li>
-<li>Firefox 3.0.13 – 1 packet</li>
-<li>Firefox 3.5.2 – 1 packet</li>
-<li>Opera 9.27 – 2 packets</li>
-<li>Safari 4.0.3 – 2 packets</li>
-<li>Chrome 2.0.172.43 – 2 packets</li>
-</ul>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>1、<a href="https://www.cnblogs.com/henryhappier/archive/2010/10/09/1846554.html" target="_blank" rel="noopener">URL最大长度问题</a><br>2、<a href="https://blog.josephscott.org/2009/08/27/xmlhttprequest-xhr-uses-multiple-packets-for-http-post/" target="_blank" rel="noopener">xmlhttprequest-xhr-uses-multiple-packets-for-http-post</a><br>3、<a href="http://kimmking.github.io/2017/12/01/comparing-get-and-post/" target="_blank" rel="noopener">comparing-get-and-post</a></p>
-
+        
       
 
       
@@ -452,11 +421,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		
 		</ul>
@@ -860,11 +829,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -5302,7 +5271,7 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5310,15 +5279,15 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
