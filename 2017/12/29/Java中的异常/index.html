@@ -18,7 +18,7 @@
 <meta property="og:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2017/12/29/Java中的异常/常见异常继承关系.png">
-<meta property="og:updated_time" content="2018-06-06T13:59:05.691Z">
+<meta property="og:updated_time" content="2018-06-06T14:01:47.860Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的异常">
 <meta name="twitter:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
@@ -219,12 +219,8 @@
 <p>2.【强制】异常不要用来做流程控制，条件控制，因为异常的处理效率比条件分支低。</p>
 <p>3.【强制】对大段代码进行try-catch，这是不负责任的表现。catch时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。对于非稳定代码的catch尽可能进行区分异常类型，再做对应的异常处理。</p>
 <p>4.【强制】捕获异常是为了处理它，不要捕获了却什么都不处理而抛弃之，如果不想处理它，请将该异常抛给它的调用者。最外层的业务使用者，必须处理异常，将其转化为用户可以理解的内容。</p>
-<ol>
-<li><p>【强制】有 try块放到了事务代码中，catch异常后，如果需要回滚事务，一定要注意手动回滚事务。</p>
-</li>
-<li><p>【强制】finally块必须对资源对象、流对象进行关闭，有异常也要做try-catch。<br>说明：如果JDK7，可以使用try-with-resources方式。</p>
-</li>
-</ol>
+<p>5.【强制】有try块放到了事务代码中，catch异常后，如果需要回滚事务，一定要注意手动回滚事务。</p>
+<p>6.【强制】finally块必须对资源对象、流对象进行关闭，有异常也要做try-catch。<br>说明：如果JDK7，可以使用try-with-resources方式。</p>
 <p>7.【强制】不能在finally块中使用return，finally块中的return返回后方法结束执行，不会再执行try块中的return语句。</p>
 <p>8.【强制】捕获异常与抛异常，必须是完全匹配，或者捕获异常是抛异常的父类。<br>说明：如果预期对方抛的是绣球，实际接到的是铅球，就会产生意外情况。</p>
 <p>9.【推荐】方法的返回值可以为null，不强制返回空集合，或者空对象等，必须添加注释充分说明什么情况下会返回null值。调用方需要进行null判断防止NPE问题。<br>说明：本规约明确防止NPE是调用者的责任。即使被调用方法返回空集合或者空对象，对调用者来说，也并非高枕无忧，必须考虑到远程调用失败，运行时异常等场景返回null的情况。</p>
@@ -4819,11 +4815,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
