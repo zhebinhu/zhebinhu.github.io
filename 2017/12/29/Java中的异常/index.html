@@ -18,7 +18,7 @@
 <meta property="og:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2017/12/29/Java中的异常/常见异常继承关系.png">
-<meta property="og:updated_time" content="2018-06-06T13:42:28.756Z">
+<meta property="og:updated_time" content="2018-06-06T13:51:08.810Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的异常">
 <meta name="twitter:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
@@ -218,20 +218,20 @@
 <ol>
 <li>【强制】不要捕获 Java 类库中定义的继承自 RuntimeException 的运行时异常类，如：IndexOutOfBoundsException / NullPointerException，这类异常由程序员预检查来规避，保证程序健壮性。<br>正例：if(obj != null) {…}<br>反例：try { obj.method() } catch(NullPointerException e){…}</li>
 <li>【强制】异常不要用来做流程控制，条件控制，因为异常的处理效率比条件分支低。</li>
-<li>【强制】对大段代码进行 try-catch，这是不负责任的表现。catch时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。对于非稳定代码的 catch尽可能进行区分异常类型，再做对应的异常处理。</li>
+<li>【强制】对大段代码进行try-catch，这是不负责任的表现。catch时请分清稳定代码和非稳定代码，稳定代码指的是无论如何不会出错的代码。对于非稳定代码的 catch尽可能进行区分异常类型，再做对应的异常处理。</li>
 <li>【强制】捕获异常是为了处理它，不要捕获了却什么都不处理而抛弃之，如果不想处理它，请将该异常抛给它的调用者。最外层的业务使用者，必须处理异常，将其转化为用户可以理解的内容。</li>
 <li>【强制】有 try块放到了事务代码中，catch异常后，如果需要回滚事务，一定要注意手动回滚事务。</li>
-<li>【强制】finally块必须对资源对象、流对象进行关闭，有异常也要做 try-catch。<blockquote>
-<p>说明：如果 JDK7，可以使用 try-with-resources方式。</p>
+<li>【强制】finally块必须对资源对象、流对象进行关闭，有异常也要做try-catch。<blockquote>
+<p>说明：如果JDK7，可以使用try-with-resources方式。</p>
 </blockquote>
 </li>
-<li>【强制】不能在 finally块中使用 return，finally块中的 return返回后方法结束执行，不会再执行 try块中的 return语句。</li>
+<li>【强制】不能在finally块中使用return，finally块中的return返回后方法结束执行，不会再执行try块中的return语句。</li>
 <li>【强制】捕获异常与抛异常，必须是完全匹配，或者捕获异常是抛异常的父类。<br>说明：如果预期对方抛的是绣球，实际接到的是铅球，就会产生意外情况。</li>
-<li>【推荐】方法的返回值可以为 null，不强制返回空集合，或者空对象等，必须添加注释充分说明什么情况下会返回 null值。调用方需要进行 null判断防止 NPE问题。<br>说明：本规约明确防止 NPE是调用者的责任。即使被调用方法返回空集合或者空对象，对调用者来说，也并非高枕无忧，必须考虑到远程调用失败，运行时异常等场景返回 null的情况。</li>
-<li>【推荐】防止 NPE，是程序员的基本修养，注意 NPE产生的场景：<br>1） 返回类型为包装数据类型，有可能是 null，返回 int值时注意判空。<br>反例：public int f(){ return Integer对象}; 如果为 null，自动解箱抛 NPE。<br>2） 数据库的查询结果可能为 null。<br>3） 集合里的元素即使 isNotEmpty，取出的数据元素也可能为 null。<br>4） 远程调用返回对象，一律要求进行 NPE判断。<br>5） 对于 Session中获取的数据，建议 NPE检查，避免空指针。<br>6） 级联调用 obj.getA().getB().getC()；一连串调用，易产生 NPE。</li>
-<li>【推荐】在代码中使用“抛异常”还是“返回错误码”，对于公司外的 http/api开放接口必须使用“错误码”；而应用内部推荐异常抛出；跨应用间 RPC调用优先考虑使用 Result方式，封装 isSuccess、“错误码”、“错误简短信息”。<br>说明：关于 RPC方法返回方式使用 Result方式的理由：<br>1）使用抛异常返回方式，调用方如果没有捕获到就会产生运行时错误。<br>2）如果不加栈信息，只是 new自定义异常，加入自己的理解的 error message，对于调用端解决问题的帮助不会太多。如果加了栈信息，在频繁调用出错的情况下，数据序列化和传输的性能损耗也是问题。</li>
-<li>【推荐】定义时区分 unchecked / checked 异常，避免直接使用 RuntimeException抛出，更不允许抛出 Exception或者 Throwable，应使用有业务含义的自定义异常。推荐业界已定义过的自定义异常，如：DAOException / ServiceException等。</li>
-<li>【参考】避免出现重复的代码（Don’t Repeat Yourself），即 DRY原则。<br>说明：随意复制和粘贴代码，必然会导致代码的重复，在以后需要修改时，需要修改所有的副本，容易遗漏。必要时抽取共性方法，或者抽象公共类，甚至是共用模块。<br>正例：一个类中有多个 public方法，都需要进行数行相同的参数校验操作，这个时候请抽取：<br>private boolean checkParam(DTO dto){…}</li>
+<li>【推荐】方法的返回值可以为null，不强制返回空集合，或者空对象等，必须添加注释充分说明什么情况下会返回null值。调用方需要进行null判断防止NPE问题。<br>说明：本规约明确防止NPE是调用者的责任。即使被调用方法返回空集合或者空对象，对调用者来说，也并非高枕无忧，必须考虑到远程调用失败，运行时异常等场景返回null的情况。</li>
+<li>【推荐】防止NPE，是程序员的基本修养，注意NPE产生的场景：<br>1） 返回类型为包装数据类型，有可能是null，返回int值时注意判空。<br>反例：public int f(){ return Integer对象}; 如果为null，自动解箱抛NPE。<br>2） 数据库的查询结果可能为 null。<br>3） 集合里的元素即使isNotEmpty，取出的数据元素也可能为null。<br>4） 远程调用返回对象，一律要求进行NPE判断。<br>5） 对于Session中获取的数据，建议NPE检查，避免空指针。<br>6） 级联调用 obj.getA().getB().getC()；一连串调用，易产生 NPE。</li>
+<li>【推荐】在代码中使用“抛异常”还是“返回错误码”，对于公司外的 http/api开放接口必须使用“错误码”；而应用内部推荐异常抛出；跨应用间RPC调用优先考虑使用Result方式，封装isSuccess、“错误码”、“错误简短信息”。<br>说明：关于 RPC方法返回方式使用 Result方式的理由：<br>1）使用抛异常返回方式，调用方如果没有捕获到就会产生运行时错误。<br>2）如果不加栈信息，只是new自定义异常，加入自己的理解的error message，对于调用端解决问题的帮助不会太多。如果加了栈信息，在频繁调用出错的情况下，数据序列化和传输的性能损耗也是问题。</li>
+<li>【推荐】定义时区分 unchecked / checked 异常，避免直接使用RuntimeException抛出，更不允许抛出 Exception或者Throwable，应使用有业务含义的自定义异常。推荐业界已定义过的自定义异常，如：DAOException / ServiceException等。</li>
+<li>【参考】避免出现重复的代码（Don’t Repeat Yourself），即DRY原则。<br>说明：随意复制和粘贴代码，必然会导致代码的重复，在以后需要修改时，需要修改所有的副本，容易遗漏。必要时抽取共性方法，或者抽象公共类，甚至是共用模块。<br>正例：一个类中有多个public方法，都需要进行数行相同的参数校验操作，这个时候请抽取：<br>private boolean checkParam(DTO dto){…}</li>
 </ol>
 
       
@@ -4804,11 +4804,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4816,7 +4812,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
