@@ -7,18 +7,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: Linux | huzb的小书斋</title>
+  <title>《高性能MySQL》读书笔记——Schema与数据类型优化 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/tags/Linux/index.html">
+  <meta name="description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《高性能MySQL》读书笔记——Schema与数据类型优化">
+<meta property="og:url" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg">
+<meta property="og:updated_time" content="2018-08-19T06:38:53.846Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="《高性能MySQL》读书笔记——Schema与数据类型优化">
+<meta name="twitter:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -152,64 +156,508 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-《高性能MySQL》读书笔记——Schema与数据类型优化" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/30/Centos7下使用systemd管理服务/" class="archive-article-date">
-  	<time datetime="2018-03-30T13:09:37.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-30</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/30/Centos7下使用systemd管理服务/">Centos7下使用systemd管理服务</a>
+    <h1 class="article-title" itemprop="name">
+      《高性能MySQL》读书笔记——Schema与数据类型优化
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/" class="archive-article-date">
+  	<time datetime="2018-08-18T10:08:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。</p>
+<h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库引擎对于各种数据类型的存储方式不一样，本文主要以innodb中的实现为主。另外增加了数据库三范式的介绍。</p>
+<a id="more"></a>
+<h2 id="2、MySQL常用数据类型"><a href="#2、MySQL常用数据类型" class="headerlink" title="2、MySQL常用数据类型"></a>2、MySQL常用数据类型</h2><p>MySQL常用数据类型分为：整数、实数、字符串、日期和时间、位数据几种。</p>
+<h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><p>整数类型可以分为：TINYINT，SMALLINT，MEDIUMINT，INT，BIGINT，分别使用：8，16，24，32，64位的存储空间。</p>
+<p>整数类型有可选的UNSIGNED属性，表示不允许负值，可以把正数的上限提高一倍。</p>
+<p>整数可以指定宽度，比如INT(11)，这表示在一些交互工具中INT会显示11个数字，对于存储和计算来说没有意义，INT(1)和INT(20)都是32位。</p>
+<h3 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h3><p>实数类型可以是带有小数部分的数字，也可以不是。比如可以使用DECIMAL存储比BIGINT还大的整数。</p>
+<p>实数类型分为：FLOAT，DOUBLE和DECIMAL，其中FLOAT和DOUBLE用于存储不精确的小数类型，分别使用32和64位的存储空间；DECIMAL用于存储精确的小数类型，存储空间的大小根据小数的长度决定。5.0版本以后DECIMAL最多允许65个数字。</p>
+<p>尽量使用FLOAT和DOUBLE存储小数类型。只有需要精确计算的场合才使用DECIMAL，但在数据量比较大的时候，可以考虑使用BIGINT代替DECIMAL，将需要存储的数字乘以相应的倍数即可。</p>
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><p>MySQL中的字符串类型有CHAR，VARCHAR，TEXT和BLOB四种，其中TEXT和BLOB两种类型比较特别，MySQL把每个BLOB和TEXT值当作一个独立的对象处理，存储引擎在处理时也通常会做相应的处理。比如当TEXT或BLOB的值较大时，innodb会使用专门的“外部”存储区域来进行存储，此时每个值在行内需要1~4个字节存储一个指针。</p>
+<p>TEXT和BLOB之间仅有的不同是BLOB类型存储的是二进制数据，没有排序规则或字符集，而TEXT类型有字符集和排序规则。</p>
+<p>MySQL对BLOB和TEXT列进行排序与其他类型是不同的：它只对每个列的最前max_sort_length字节而不是整个字符串做排序。</p>
+<p>VARCHAR是变长字符串，而CHAR是定长字符串。VARCHAR比CHAR更省空间，因为它仅使用必要的空间。VARCHAR需要使用1或2个额外字节记录字符串的长度：如果列的最大长度小于或等于255字节，则只使用1个字节表示，否则使用2个。</p>
+<p>VARCHAR节省了存储空间，但由于行是变长的，在UPDATE时可能使行变得比原来更长，这就导致需要做额外的工作。如果一个行占用空间增长，超出页的大小，innodb会使用裂页来使行可以放进页内。对于过长的VARCHAR，innodb会将其存储为BLOB。</p>
+<p>CHAR值在存储时，MySQL会删除所有的末尾空格。</p>
+<h4 id="使用枚举（ENUM）代替字符串类型"><a href="#使用枚举（ENUM）代替字符串类型" class="headerlink" title="使用枚举（ENUM）代替字符串类型"></a>使用枚举（ENUM）代替字符串类型</h4><p>如果预计字符串可取的值范围确定且数量不大，可以使用枚举的方式替代字符串。比如存储水果，预计种类只有苹果、香蕉、梨。可以把水果种类定义为ENUM(“apple”,”banana”,”pear”)，实际存储时MySQL只会在列表中保存数字，并在.frm文件中保存一个“数字-字符串”的映射关系，可以大大减少存储的空间。</p>
+<h3 id="日期和时间类型"><a href="#日期和时间类型" class="headerlink" title="日期和时间类型"></a>日期和时间类型</h3><p>MySQL能存储的最小时间粒度为秒，但也可以通过使用BIGINT类型存储微秒级别的时间戳等方式绕开这一限制。MySQL中存储时间的数据类型有两种：DATETIME和TIMESTAMP。两种类型的区别如下：</p>
+<h4 id="DATETIME"><a href="#DATETIME" class="headerlink" title="DATETIME"></a>DATETIME</h4><ol>
+<li>占用8个字节</li>
+<li>允许为空值，可以自定义值，系统不会自动修改其值。</li>
+<li>实际格式储存，格式为YYYYMMDDHHMMSS的整数</li>
+<li>与时区无关</li>
+<li>不可以设定默认值，所以在不允许为空值的情况下，必须手动指定datetime字段的值才可以成功插入数据。</li>
+<li>可以在指定datetime字段的值的时候使用now()变量来自动插入系统的当前时间。</li>
+</ol>
+<p>结论：datetime类型适合用来记录数据的原始的创建时间，因为无论你怎么更改记录中其他字段的值，datetime字段的值都不会改变，除非你手动更改它。</p>
+<h4 id="TIMESTAMP"><a href="#TIMESTAMP" class="headerlink" title="TIMESTAMP"></a>TIMESTAMP</h4><ol>
+<li>占用4个字节，默认为NOT NULL</li>
+<li>TIMESTAMP值不能早于1970或晚于2037。这说明一个日期，例如’1968-01-01’，虽然对于DATETIME或DATE值是有效的，但对于TIMESTAMP值却无效，如果分配给这样一个对象将被转换为0。</li>
+<li>值以UTC格式保存，为从1970年1月1日（格林尼治时间）午夜以来的秒数。</li>
+<li>时区转化 ，存储时对当前的时区进行转换，检索时再转换回当前的时区。</li>
+<li>默认情况下，如果插入或更新时没有指定第一个TIMESTAMP的值，MySQL会设置这个列的值为当前时间。</li>
+</ol>
+<p>结论：timestamp类型适合用来记录数据的最后修改时间，因为只要你更改了记录中其他字段的值，timestamp字段的值都会被自动更新。</p>
+<h3 id="位数据类型"><a href="#位数据类型" class="headerlink" title="位数据类型"></a>位数据类型</h3><p>BIT和SET是MySQL中典型的位数据类型，位数据的本质是一个二进制字符串，使用位数据类型可以在一列中存储多个”true/false”值。</p>
+<h2 id="范式和反范式"><a href="#范式和反范式" class="headerlink" title="范式和反范式"></a>范式和反范式</h2><h3 id="数据库中的范式"><a href="#数据库中的范式" class="headerlink" title="数据库中的范式"></a>数据库中的范式</h3><p>满足最低要求的范式是第一范式（1NF）。在第一范式的基础上进一步满足更多规范要求的称为第二范式（2NF），其余范式以次类推。一般说来，数据库只需满足第三范式 (3NF）就行了。 </p>
+<p>范式的包含关系。一个数据库设计如果符合第二范式，一定也符合第一范式。如果符合第三范式，一定也符合第二范式。</p>
+<ul>
+<li>1NF：属性不可分 </li>
+<li>2NF：属性完全依赖于主键 [消除部分子函数依赖] </li>
+<li>3NF：属性不依赖于其它非主属性 [消除传递依赖] </li>
+</ul>
+<h4 id="第一范式-1NF"><a href="#第一范式-1NF" class="headerlink" title="第一范式 (1NF)"></a>第一范式 (1NF)</h4><p>符合1NF的关系中的每个属性都不可再分。<br>反例：<br><img src="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg"></p>
+<h4 id="第二范式-2NF"><a href="#第二范式-2NF" class="headerlink" title="第二范式 (2NF)"></a>第二范式 (2NF)</h4><p>2NF在1NF的基础之上，消除了非主属性对于码（主键）的部分函数依赖</p>
+<p>可以通过分解来满足。</p>
+<p><strong>分解前</strong> </p>
+<table>
+<thead>
+<tr>
+<th>学号</th>
+<th>姓名</th>
+<th>系名</th>
+<th>系主任</th>
+<th>课名</th>
+<th>分数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1022211101</td>
+<td>李小明</td>
+<td>经济系</td>
+<td>王强</td>
+<td>高等数学</td>
+<td>95</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>李小明</td>
+<td>经济系</td>
+<td>王强</td>
+<td>大学英语</td>
+<td>87</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>李小明</td>
+<td>经济系</td>
+<td>王强</td>
+<td>普通化学</td>
+<td>76</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>张莉莉</td>
+<td>经济系</td>
+<td>王强</td>
+<td>高等数学</td>
+<td>72</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>张莉莉</td>
+<td>经济系</td>
+<td>王强</td>
+<td>大学英语</td>
+<td>98</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>张莉莉</td>
+<td>经济系</td>
+<td>王强</td>
+<td>计算机基础</td>
+<td>88</td>
+</tr>
+<tr>
+<td>1022511101</td>
+<td>高芳芳</td>
+<td>法律系</td>
+<td>刘玲</td>
+<td>高等数学</td>
+<td>82</td>
+</tr>
+<tr>
+<td>1022511101</td>
+<td>高芳芳</td>
+<td>法律系</td>
+<td>刘玲</td>
+<td>法律基础</td>
+<td>82</td>
+</tr>
+</tbody>
+</table>
+<p>以上学生课程关系中，{学号, 课名} 为键码（主键），有如下函数依赖：</p>
+<ul>
+<li>（学号，课名） -&gt; 分数</li>
+<li>学号 -&gt; 姓名</li>
+<li>学号 -&gt; 系名 -&gt;系主任</li>
+</ul>
+<p>分数完全函数依赖于键码，它没有任何冗余数据，每个学生的每门课都有特定的成绩。</p>
+<p>姓名、系名和系主任都部分依赖于键码，我们需要把部分依赖变成完全依赖。</p>
+<p><strong>分解后</strong> </p>
+<p>关系-1</p>
+<table>
+<thead>
+<tr>
+<th>学号</th>
+<th>姓名</th>
+<th>系名</th>
+<th>系主任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1022211101</td>
+<td>李小明</td>
+<td>经济系</td>
+<td>王强</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>张莉莉</td>
+<td>经济系</td>
+<td>王强</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>高芳芳</td>
+<td>法律系</td>
+<td>刘玲</td>
+</tr>
+</tbody>
+</table>
+<p>有以下函数依赖：</p>
+<ul>
+<li>Sno -&gt; Sname, Sdept</li>
+<li>Sdept -&gt; Mname</li>
+</ul>
+<p>关系-2</p>
+<table>
+<thead>
+<tr>
+<th>学号</th>
+<th>课名</th>
+<th>分数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1022211101</td>
+<td>高等数学</td>
+<td>95</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>大学英语</td>
+<td>87</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>普通化学</td>
+<td>76</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>高等数学</td>
+<td>72</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>大学英语</td>
+<td>98</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>计算机基础</td>
+<td>88</td>
+</tr>
+<tr>
+<td>1022511101</td>
+<td>高等数学</td>
+<td>82</td>
+</tr>
+<tr>
+<td>1022511101</td>
+<td>法学基础</td>
+<td>82</td>
+</tr>
+</tbody>
+</table>
+<p>有以下函数依赖：</p>
+<ul>
+<li>Sno, Cname -&gt; Grade</li>
+</ul>
+<h4 id="第三范式-3NF"><a href="#第三范式-3NF" class="headerlink" title="第三范式 (3NF)"></a>第三范式 (3NF)</h4><p>3NF在2NF的基础之上，消除了非主属性对于码（主键）的传递函数依赖</p>
+<p>上面的 关系-1 中存在以下传递函数依赖：</p>
+<ul>
+<li>Sno -&gt; Sdept -&gt; Mname</li>
+</ul>
+<p>可以进行以下分解：</p>
+<p>关系-11</p>
+<table>
+<thead>
+<tr>
+<th>学号</th>
+<th>姓名</th>
+<th>系名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1022211101</td>
+<td>李小明</td>
+<td>经济系</td>
+</tr>
+<tr>
+<td>1022211102</td>
+<td>张莉莉</td>
+<td>经济系</td>
+</tr>
+<tr>
+<td>1022211101</td>
+<td>高芳芳</td>
+<td>法律系</td>
+</tr>
+</tbody>
+</table>
+<p>关系-12</p>
+<table>
+<thead>
+<tr>
+<th>系名</th>
+<th>系主任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>经济系</td>
+<td>王强</td>
+</tr>
+<tr>
+<td>法律系</td>
+<td>刘玲</td>
+</tr>
+</tbody>
+</table>
+<h3 id="范式的优缺点"><a href="#范式的优缺点" class="headerlink" title="范式的优缺点"></a>范式的优缺点</h3><p>优点：</p>
+<ul>
+<li>当数据较好地范式化时，就只有很少或者没有重复数据，所以更新时只需要修改更少的数据。</li>
+<li>范式化的表通常更小，可以更好地放在内存里，所以执行操作很更快。</li>
+<li>很少有多余的数据意味着检索列表数据时更少需要DISTINCT或者GROUP BY语句。比如前面的例子：在非范式化的结构中必须使用DISTINCT或者GROUP BY才能获得唯一的一张系名列表，但如果使用范式，只需要单独查询系名-系主任表就可以了。</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>范式化的设计通常需要关联。稍微复杂一点的查询语句在符合范式的schema上都有可能需要至少一次关联，这不但代价昂贵，也可能使一些索引无效。例如，范式化可能将列存放在不同的表中，而这些列如果在一个表中本可以属于同一个索引。</li>
+</ul>
+<h3 id="常见反范式化设计"><a href="#常见反范式化设计" class="headerlink" title="常见反范式化设计"></a>常见反范式化设计</h3><p>范式化不一定适合所有场合，很多时候，一些冗余数据有助于我们提升性能。下面列举几个常见的反范式化操作。</p>
+<h4 id="缓存表"><a href="#缓存表" class="headerlink" title="缓存表"></a>缓存表</h4><p>缓存表可以存储那些可以从其他表获取但每次获取的速度比较慢的数据。比如有时可能会需要很多不同的索引组合来加速各种类型的查询。这些矛盾的需求有时需要创建一张只包含主表中部分列的缓存表。有时候我们可能需要不同存储引擎提供的不同特性。例如，如果主表使用innodb，用MyISAM作为缓存表的引擎将会得到更小的索引空间，并且可以做全文索引。</p>
+<h4 id="汇总表"><a href="#汇总表" class="headerlink" title="汇总表"></a>汇总表</h4><p>汇总表保存的是GROUP BY语句聚合数据的表。相比缓存表，汇总表的数据不是逻辑上冗余的，但可以通过其它表计算得到。例如，计算某网站之前24小时内发送的消息数。我们可以通过COUNT()得到，但这样需要检索全表。作为替代方案，可以每小时生成一张汇总表。这样也许一条简单的查询就可以做到，并且比实时维护计数器要高效得多。缺点是计数并不是100% 精确。</p>
+<p>某网站之前24小时内发送的消息数的汇总表：</p>
+<blockquote>
+<p>CREATE TABLE msg_per_hr (<br>hr DATETIME NOT NULL,<br>cnt INT UNSIGNED NOT NULL,<br>PRIMARY KEY(hr)<br>);</p>
+</blockquote>
+<h4 id="计数器表"><a href="#计数器表" class="headerlink" title="计数器表"></a>计数器表</h4><p>计数器在应用中很常见。比如网站的点击数，文件下载次数等。 如果其它数据保存在一起，很可能碰到并发问题。创建一张独立的表是个比较好的办法，这样可使计数器表小且快。而且使用独立的表可以帮助避免查询缓存失效。</p>
+<p>下面是一张简单的计数器表，只有一行数据，记录网站的点击次数：</p>
+<blockquote>
+<p>mysql&gt; CREATE TABLE hit_counter(<br>    -&gt;    cnt int unsigned not null<br>    -&gt; ) ENGINE=InnoDB;</p>
+</blockquote>
+<p>网站的每次点击都会导致对计数器进行更新：</p>
+<blockquote>
+<p>mysql&gt; UPDATE hit_counter SET cnt = cnt + 1;</p>
+</blockquote>
+<p>问题在于，对于任何想要更新这一行的事务来说，这条记录上都有一个全局的互斥锁。这会使得这些事务只能串行进行。要获得更高的并发性，可以将计数器保存在多个行中，每次随机选择一行更新：</p>
+<blockquote>
+<p>mysql&gt; CREATE TABLE hit_counter(<br>    -&gt;    slot tinyint unsigned not null primary key,<br>    -&gt;    cnt int unsigned not null<br>    -&gt; ) ENGINE=InnoDB;</p>
+</blockquote>
+<p>然后预先在这张表增加100行数据。现在选择一个随机的槽进行更新：</p>
+<blockquote>
+<p>mysql&gt; UPDATE hit_counter SET cnt = cnt + 1 WHERE slot = RAND() * 100;</p>
+</blockquote>
+<p>要获得统计结果，需要使用下面这样的聚合查询：</p>
+<blockquote>
+<p>mysql&gt; CREATE TABLE daily_hit_counter(<br>    -&gt;    day date not null,<br>    -&gt;    slot tinyint unsigned not null,<br>    -&gt;    cnt int unsigned not null,<br>    -&gt;    primary key(day, slot)<br>    -&gt;    ) ENGINE=InnoDB;</p>
+</blockquote>
+<p>一个常见的需求是每隔一段时间开始一个新的计算器（例如，每天一个）。再作进一步修改：</p>
+<blockquote>
+<p>mysql&gt; CREATE TABLE daily_hit_counter(<br>    -&gt;    day date not null,<br>    -&gt;    slot tinyint unsigned not null,<br>    -&gt;    cnt int unsigned not null,<br>    -&gt;    primary key(day, slot)<br>    -&gt;    ) ENGINE=InnoDB;</p>
+</blockquote>
+<p>在这个场景中可以不用预告生成行 ，而用ON DUPLICATE KEY UPDATE（对唯一索引或主键字段的值会检查是否已存在，存在则更新，不存在则插入）代替：</p>
+<blockquote>
+<p>mysql&gt; INSERT INTO daily_hit_counter(day, slot, cnt)<br>    -&gt;    VALUES(CURRENT_DATE, RAND()*100, 1)<br>    -&gt;    ON DUPLICATE KEY UPDATE cnt = cnt + 1;</p>
+</blockquote>
+<p>如果希望减少表的行数，可以写一个周期执行的任务，合并所有结果到0号槽，并且删除所有其他的槽：</p>
+<blockquote>
+<p>UPDATE daily_hit_counter as c<br>    -&gt;    INNER JOIN (<br>    -&gt;       SELECT day, SUM(cnt) AS cnt, MIN(slot) AS mslot<br>    -&gt;       FROM daily_hit_counter<br>    -&gt;       GROUP BY day<br>    -&gt;    ) AS X USING(day)<br>    -&gt; SET c.cnt  = IF(c.slot = x.mslot, x.cnt, 0),<br>    -&gt;     c.slot = IF(c.slot = x.mslot, 0, c.slot);<br>mysql&gt; DELETE FROM daily_hit_counter WHERE slot &lt;&gt; 0 AND cnt = 0;</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2018/05/15/GET与POST的区别/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">GET与POST的区别</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、概述"><span class="toc-number">1.</span> <span class="toc-text">1、概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、MySQL常用数据类型"><span class="toc-number">2.</span> <span class="toc-text">2、MySQL常用数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#整数类型"><span class="toc-number">2.1.</span> <span class="toc-text">整数类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实数类型"><span class="toc-number">2.2.</span> <span class="toc-text">实数类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字符串类型"><span class="toc-number">2.3.</span> <span class="toc-text">字符串类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#使用枚举（ENUM）代替字符串类型"><span class="toc-number">2.3.1.</span> <span class="toc-text">使用枚举（ENUM）代替字符串类型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日期和时间类型"><span class="toc-number">2.4.</span> <span class="toc-text">日期和时间类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DATETIME"><span class="toc-number">2.4.1.</span> <span class="toc-text">DATETIME</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TIMESTAMP"><span class="toc-number">2.4.2.</span> <span class="toc-text">TIMESTAMP</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#位数据类型"><span class="toc-number">2.5.</span> <span class="toc-text">位数据类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#范式和反范式"><span class="toc-number">3.</span> <span class="toc-text">范式和反范式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库中的范式"><span class="toc-number">3.1.</span> <span class="toc-text">数据库中的范式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一范式-1NF"><span class="toc-number">3.1.1.</span> <span class="toc-text">第一范式 (1NF)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二范式-2NF"><span class="toc-number">3.1.2.</span> <span class="toc-text">第二范式 (2NF)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三范式-3NF"><span class="toc-number">3.1.3.</span> <span class="toc-text">第三范式 (3NF)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#范式的优缺点"><span class="toc-number">3.2.</span> <span class="toc-text">范式的优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常见反范式化设计"><span class="toc-number">3.3.</span> <span class="toc-text">常见反范式化设计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#缓存表"><span class="toc-number">3.3.1.</span> <span class="toc-text">缓存表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#汇总表"><span class="toc-number">3.3.2.</span> <span class="toc-text">汇总表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#计数器表"><span class="toc-number">3.3.3.</span> <span class="toc-text">计数器表</span></a></li></ol></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
+  
 
 
           </div>
@@ -233,9 +681,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
