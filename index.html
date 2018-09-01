@@ -248,7 +248,11 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。</p>
+<h2 id="一、索引类型"><a href="#一、索引类型" class="headerlink" title="一、索引类型"></a>一、索引类型</h2><p>先看看MySQL支持的索引类型，及他们的优缺点。</p>
+<h3 id="1、B-Tree索引"><a href="#1、B-Tree索引" class="headerlink" title="1、B-Tree索引"></a>1、B-Tree索引</h3><p>B-Tree和其变体B+Tree是绝大部分数据库引擎默认使用的数据结构，我们在谈到索引时若无特殊指代一般是指B+Tree（B-Tree和B+Tree的区别及选择这种数据结构的原因可以看<a href="http://huzb.me/2018/03/13/MySQL%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86/" target="_blank" rel="noopener">这里</a>）</p>
+<h2 id="二、前缀索引和索引选择性"><a href="#二、前缀索引和索引选择性" class="headerlink" title="二、前缀索引和索引选择性"></a>二、前缀索引和索引选择性</h2><p>在对一个比较长的字符串建立索引的时候，把字符串所有字符放入索引是比较低效的做法。对字符串做哈希</p>
+
       
 
       
@@ -410,11 +414,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
         		</li>
       		
 		</ul>
@@ -643,11 +647,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -5325,7 +5329,7 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5333,7 +5337,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
