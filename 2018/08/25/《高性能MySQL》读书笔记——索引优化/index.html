@@ -9,18 +9,20 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>《高性能MySQL》读书笔记——索引优化 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。 一、索引类型先看看MySQL支持的索引类型，及他们的优缺点。 1、B-Tree索引B-Tree和其变体B+Tree是绝大部分数据库引擎默认使用的">
+  <meta name="description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
 <meta name="keywords" content="标签">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《高性能MySQL》读书笔记——索引优化">
 <meta property="og:url" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。 一、索引类型先看看MySQL支持的索引类型，及他们的优缺点。 1、B-Tree索引B-Tree和其变体B+Tree是绝大部分数据库引擎默认使用的">
+<meta property="og:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-01T15:24:32.893Z">
+<meta property="og:image" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png">
+<meta property="og:updated_time" content="2018-09-01T16:28:38.623Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《高性能MySQL》读书笔记——索引优化">
-<meta name="twitter:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。 一、索引类型先看看MySQL支持的索引类型，及他们的优缺点。 1、B-Tree索引B-Tree和其变体B+Tree是绝大部分数据库引擎默认使用的">
+<meta name="twitter:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -174,9 +176,52 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。</p>
+        <p>索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。<br><a id="more"></a></p>
 <h2 id="一、索引类型"><a href="#一、索引类型" class="headerlink" title="一、索引类型"></a>一、索引类型</h2><p>先看看MySQL支持的索引类型，及他们的优缺点。</p>
 <h3 id="1、B-Tree索引"><a href="#1、B-Tree索引" class="headerlink" title="1、B-Tree索引"></a>1、B-Tree索引</h3><p>B-Tree和其变体B+Tree是绝大部分数据库引擎默认使用的数据结构，我们在谈到索引时若无特殊指代一般是指B+Tree（B-Tree和B+Tree的区别及选择这种数据结构的原因可以看<a href="http://huzb.me/2018/03/13/MySQL%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86/" target="_blank" rel="noopener">这里</a>）</p>
+<h4 id="B-Tree索引的优点"><a href="#B-Tree索引的优点" class="headerlink" title="B-Tree索引的优点"></a>B-Tree索引的优点</h4><p>B-Tree索引适用于全键值、键值范围或键前缀查找。其中键前缀查找只适用于根据最左前缀的查找。以下表为例</p>
+<table>
+<thead>
+<tr>
+<th>姓氏</th>
+<th>名字</th>
+<th>出生年月</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>张</td>
+<td>三</td>
+<td>1960-1-1</td>
+</tr>
+<tr>
+<td>李</td>
+<td>四</td>
+<td>1962-3-2</td>
+</tr>
+<tr>
+<td>王</td>
+<td>五</td>
+<td>1966-4-5</td>
+</tr>
+</tbody>
+</table>
+<p>在姓氏、名字和出生年月上建立B-Tree索引（暂不考虑主键的影响），则上述的索引对如下的索引有效：</p>
+<ul>
+<li>全值匹配：全值匹配指的是和索引中的所有列进行匹配，如查找姓张名三出生于1960-1-1的人。</li>
+<li>匹配最左前缀：查找所有姓张的人。</li>
+<li>匹配列前缀：查找所有姓张名三且在196X年出生的人。列前缀的语法有很多，比如 <em>where 出生年月(3) = 196</em> 或者 <em>where 出生年月 like “196%”</em> 都是合法的匹配列前缀的语法，但<em>like “%96%”</em>不是合法的列前缀匹配，不会使用索引查找。</li>
+<li>匹配范围值：查找所有姓张名三且在1960-1-1~1969-12-31出生的人。</li>
+<li>只访问索引的查询：若查询的内容在索引中便可全部找到，则无需回表查询，可以节省大量磁盘IO，这种索引有个专有名词叫“覆盖索引”。</li>
+</ul>
+<h4 id="B-Tree索引的局限"><a href="#B-Tree索引的局限" class="headerlink" title="B-Tree索引的局限"></a>B-Tree索引的局限</h4><p>B-Tree索引的功能强大，但也有局限，仍以上述的索引为例：</p>
+<ul>
+<li>如果不是按照索引的最左列开始查找，则无法使用索引。例如我们无法用索引查找名四的人。</li>
+<li>不能跳过索引中的列。例如我们无法用索引查找姓张且在1960-1-1出生的人。</li>
+<li>查询中可以使用范围查询，但只能使用一次，且它右边所有的列都无法使用索引优化查找。如查找姓张名三到五之间（字典序）出生年月1960-1-1的人，只会用到姓和名两个索引列，无法使用第三个索引列。（这个涉及到联合索引底层的数据结构，如下图）</li>
+</ul>
+<p><img src="/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png"></p>
+<p>B-Tree在建立联合索引的时候只会对第一个字段建立B-Tree索引，其它字段会在对应的叶子节点的data域上按给定字段的顺序作为优先级排序后储存。如上图，对id、姓、名三个列建立索引。则底层存储时会先按id构造B-Tree，再在B-Tree的叶子节点上按姓、名的优先级排序后存储对应的地址。对于叶子节点上数据的查找，会采用二分查找的方式。而一旦确定了前一个字段使用范围查找后，得到的一组数据对于后一个字段而言是无序的，无法继续使用二分查找，只能遍历，此时索引失效。除了范围查询，整个B-Tree的最左匹配原则的原因也是和这个数据存储的方式息息相关的，理解了这个数据结构也就理解了B-Tree的最左匹配原则。</p>
 <h2 id="二、前缀索引和索引选择性"><a href="#二、前缀索引和索引选择性" class="headerlink" title="二、前缀索引和索引选择性"></a>二、前缀索引和索引选择性</h2><p>在对一个比较长的字符串建立索引的时候，把字符串所有字符放入索引是比较低效的做法。对字符串做哈希</p>
 
       
@@ -299,7 +344,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、索引类型"><span class="toc-number">1.</span> <span class="toc-text">一、索引类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、B-Tree索引"><span class="toc-number">1.1.</span> <span class="toc-text">1、B-Tree索引</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、前缀索引和索引选择性"><span class="toc-number">2.</span> <span class="toc-text">二、前缀索引和索引选择性</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、索引类型"><span class="toc-number">1.</span> <span class="toc-text">一、索引类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、B-Tree索引"><span class="toc-number">1.1.</span> <span class="toc-text">1、B-Tree索引</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的优点"><span class="toc-number">1.1.1.</span> <span class="toc-text">B-Tree索引的优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的局限"><span class="toc-number">1.1.2.</span> <span class="toc-text">B-Tree索引的局限</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、前缀索引和索引选择性"><span class="toc-number">2.</span> <span class="toc-text">二、前缀索引和索引选择性</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4746,6 +4791,14 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4758,23 +4811,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">标签</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>
