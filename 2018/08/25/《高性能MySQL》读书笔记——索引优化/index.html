@@ -10,7 +10,7 @@
   <title>《高性能MySQL》读书笔记——索引优化 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
-<meta name="keywords" content="标签">
+<meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="《高性能MySQL》读书笔记——索引优化">
 <meta property="og:url" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/index.html">
@@ -18,7 +18,7 @@
 <meta property="og:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png">
-<meta property="og:updated_time" content="2018-09-01T16:28:38.623Z">
+<meta property="og:updated_time" content="2018-09-02T06:59:20.125Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《高性能MySQL》读书笔记——索引优化">
 <meta name="twitter:description" content="索引是数据库得以高效的关键，以最常见的B+Tree索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机I/O变为顺序I/O。因此，如何使用索引也成了高效MySQL重要的一部分。">
@@ -222,7 +222,41 @@
 </ul>
 <p><img src="/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png"></p>
 <p>B-Tree在建立联合索引的时候只会对第一个字段建立B-Tree索引，其它字段会在对应的叶子节点的data域上按给定字段的顺序作为优先级排序后储存。如上图，对id、姓、名三个列建立索引。则底层存储时会先按id构造B-Tree，再在B-Tree的叶子节点上按姓、名的优先级排序后存储对应的地址。对于叶子节点上数据的查找，会采用二分查找的方式。而一旦确定了前一个字段使用范围查找后，得到的一组数据对于后一个字段而言是无序的，无法继续使用二分查找，只能遍历，此时索引失效。除了范围查询，整个B-Tree的最左匹配原则的原因也是和这个数据存储的方式息息相关的，理解了这个数据结构也就理解了B-Tree的最左匹配原则。</p>
-<h2 id="二、前缀索引和索引选择性"><a href="#二、前缀索引和索引选择性" class="headerlink" title="二、前缀索引和索引选择性"></a>二、前缀索引和索引选择性</h2><p>在对一个比较长的字符串建立索引的时候，把字符串所有字符放入索引是比较低效的做法。对字符串做哈希</p>
+<h3 id="2、哈希索引"><a href="#2、哈希索引" class="headerlink" title="2、哈希索引"></a>2、哈希索引</h3><p>哈希索引基于哈希表实现，使用链表法解决哈希冲突，只有精确匹配索引所有列的查询才有效。对于每一行数据，存储引擎都会对所有的索引列计算一个哈希码，哈希码是一个较小的值，并且不同键值的行计算出来的哈希码也不一样。哈希索引将所有的哈希码存储在索引中，同时在哈希表中保存指向每个数据行的指针。</p>
+<p>在MySQL中，只有Memory引擎显式支持哈希索引，这也是Memory引擎表的默认索引类型。</p>
+<p>哈希索引的优点</p>
+<ul>
+<li>索引的结构十分紧凑，查找的速度非常快。</li>
+</ul>
+<p>哈希索引的缺点</p>
+<ul>
+<li>哈希索引只包含哈希值和指针，而不存储字段值，所以不能使用覆盖查询。</li>
+<li>哈希索引数据并不是按照索引值顺序存储的，所以也就无法用于排序。</li>
+<li>哈希索引也不支持部分索引列匹配查找，因为哈希值的计算是使用索引列的全部内容计算的。</li>
+<li>哈希索引只支持等值比较，不支持任何范围查询</li>
+</ul>
+<p>哈希索引的缺点也决定了哈希索引只适用于某些特定的场合，但一旦适合哈希索引，则它带来的性能提升将非常显著。</p>
+<h3 id="innodb的自适应哈希索引"><a href="#innodb的自适应哈希索引" class="headerlink" title="innodb的自适应哈希索引"></a>innodb的自适应哈希索引</h3><p>当innodb注意到某些索引值被使用得非常频繁时，它会在内存中基于B-Tree索引之上再创建一个哈希索引。这样就让B-Tree索引页具有哈希索引的一些优点，比如快速的哈希查找。</p>
+<h3 id="自定义哈希索引"><a href="#自定义哈希索引" class="headerlink" title="自定义哈希索引"></a>自定义哈希索引</h3><p>哈希索引的另一个优点是可以把较长的索引列转换成较短的列。<br>如 <em>SELECT id FROM url WHERE url = “<a href="http://www.mysql.com" target="_blank" rel="noopener">http://www.mysql.com</a>“;</em><br>若删除原来URL列上的索引，而新增一个被索引的url_crc列，使用CRC32做哈希，就可以使用下面的方式查询：<br><em>SELECT id FROM url WHERE url=”<a href="http://www.mysql.com" target="_blank" rel="noopener">http://www.mysql.com</a>“ AND url_crc=CRC32(“<a href="http://www.mysql.com" target="_blank" rel="noopener">http://www.mysql.com</a>“);</em><br>这样做的性能会非常高，因为MySQL优化器会使用这个选择性很高而体积很小的基于url_crc列的索引来完成查找。即使有多个记录有相同的索引值，查找仍然很快，只需要根据哈希值做快速的整数比较就能找到索引条目，然后一一比较返回对应的行。</p>
+<h3 id="3、全文索引"><a href="#3、全文索引" class="headerlink" title="3、全文索引"></a>3、全文索引</h3><p>在标准的MySQL中只有MyISAM引擎支持全文索引，同时innodb也开始实验性质地支持全文索引。</p>
+<p>MyISAM的全文索引作用对象是一个“全文集合”，这可能是某个数据表的一列，也可能使多个列。具体的，对数据表的某一条记录，MySQL会将需要索引的列全部拼接成一个字符串，然后进行索引。</p>
+<p>MyISAM的全文索引是一类特殊的B-Tree索引，共有两层。第一层是所有关键字，然后对于每一个关键字的第二层，包含的是一组相关的“文档指针”。</p>
+<h2 id="二、使用前缀索引"><a href="#二、使用前缀索引" class="headerlink" title="二、使用前缀索引"></a>二、使用前缀索引</h2><p>在对一个比较长的字符串建立索引的时候，把字符串所有字符放入索引是比较低效的做法。前文对字符串做哈希是一种方式。也可以使用字符串的前缀做索引。比如CREATE INDEX index_name ON table_name (column_name(10))，表示将列的前10个字符做索引，这样做的好处是减少</p>
+<h2 id="三、使用覆盖索引"><a href="#三、使用覆盖索引" class="headerlink" title="三、使用覆盖索引"></a>三、使用覆盖索引</h2><p>覆盖索引是一种索引包含了查询所需所有数据的情况，在这种情况下，MySQL可以使用索引来直接获取列的数据，这样就不需要再读取数据行。覆盖索引是非常有用的工具，能够极大地提升性能：</p>
+<ul>
+<li>索引条目远小于数据行大小，所以如果只需要读取索引，MySQL就会极大地减少数据访问量。这对缓存的负载非常重要，因为这种情况下响应时间大部分花费在数据拷贝上。</li>
+<li>因为索引是按值顺序存储的（至少在单个页内如此），对于I/O密集型的范围查询会比随机从磁盘读取每一行数据的I/O要少得多。</li>
+<li>对于innodb的聚簇索引，覆盖索引特别有用。innodb的二级索引在叶子节点中保存了行的主键值，所以如果二级主键能够覆盖索引，则可以避免对主键索引的二次查询。</li>
+</ul>
+<h3 id="延迟关联"><a href="#延迟关联" class="headerlink" title="延迟关联"></a>延迟关联</h3><p>覆盖索引可以极大地提升查找的效率，但很多时候我们会遇到 select * 这样的需求，这时使用覆盖索引就不可能了。不过我们可以使用延迟关联的方式利用覆盖索引。</p>
+<p>比如对于语句：<em>select </em> from t_portal_user where create_time &gt; ‘2012-10:10’ and create_time&lt;’2017:10:10’ LIMIT 5000,10;<em><br>可以改写成：</em>SELECT <em> from t_portal_user INNER JOIN<br>(select id from t_portal_user where create_time &gt; ‘2012-10:10’ and create_time&lt;’2017:10:10’ LIMIT 5000,10) as a USING(id)</em></p>
+<p>对于子查询<em>select id from t_portal_user where create_time &gt; ‘2012-10:10’ and create_time&lt;’2017:10:10’ LIMIT 5000,10</em>，如果在create_time上做了索引（innodb中主键会被默认添加进索引中），则可以利用覆盖索引找到符合条件的id，再根据id做普通查询。</p>
+<h2 id="四、利用索引来做排序"><a href="#四、利用索引来做排序" class="headerlink" title="四、利用索引来做排序"></a>四、利用索引来做排序</h2><p>MySQL支持二种方式的排序，文件排序和索引，后者效率高，它指MySQL扫描索引本身完成排序。文件排序方式效率较低。ORDER BY满足以下情况，会使用Index方式排序:</p>
+<ul>
+<li>使用覆盖索引，即通过扫描索引本身就可完成排序</li>
+<li>ORDER BY 语句 或者 WHERE , JOIN 子句和ORDER BY 语句组成的条件组合满足最左前缀（一个例外是IN，IN在没有排序的最左匹配中被视为等值查询，对排序来说是一种范围查询）</li>
+<li>ORDER BY语句中条件的排序顺序是一样（都为正序或者都为倒序）</li>
+</ul>
 
       
 
@@ -236,7 +270,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">标签</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
         		</li>
       		
 		</ul>
@@ -344,7 +378,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、索引类型"><span class="toc-number">1.</span> <span class="toc-text">一、索引类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、B-Tree索引"><span class="toc-number">1.1.</span> <span class="toc-text">1、B-Tree索引</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的优点"><span class="toc-number">1.1.1.</span> <span class="toc-text">B-Tree索引的优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的局限"><span class="toc-number">1.1.2.</span> <span class="toc-text">B-Tree索引的局限</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、前缀索引和索引选择性"><span class="toc-number">2.</span> <span class="toc-text">二、前缀索引和索引选择性</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、索引类型"><span class="toc-number">1.</span> <span class="toc-text">一、索引类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、B-Tree索引"><span class="toc-number">1.1.</span> <span class="toc-text">1、B-Tree索引</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的优点"><span class="toc-number">1.1.1.</span> <span class="toc-text">B-Tree索引的优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree索引的局限"><span class="toc-number">1.1.2.</span> <span class="toc-text">B-Tree索引的局限</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、哈希索引"><span class="toc-number">1.2.</span> <span class="toc-text">2、哈希索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb的自适应哈希索引"><span class="toc-number">1.3.</span> <span class="toc-text">innodb的自适应哈希索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义哈希索引"><span class="toc-number">1.4.</span> <span class="toc-text">自定义哈希索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、全文索引"><span class="toc-number">1.5.</span> <span class="toc-text">3、全文索引</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、使用前缀索引"><span class="toc-number">2.</span> <span class="toc-text">二、使用前缀索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、使用覆盖索引"><span class="toc-number">3.</span> <span class="toc-text">三、使用覆盖索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#延迟关联"><span class="toc-number">3.1.</span> <span class="toc-text">延迟关联</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、利用索引来做排序"><span class="toc-number">4.</span> <span class="toc-text">四、利用索引来做排序</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4783,23 +4817,11 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">原创</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4811,15 +4833,23 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">标签</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
