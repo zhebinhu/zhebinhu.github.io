@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-03T12:50:56.172Z">
+<meta property="og:updated_time" content="2018-09-03T12:51:44.109Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS原理和缺陷">
 <meta name="twitter:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
@@ -176,6 +176,7 @@
       
         <p>JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。</p>
 <p>CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供<strong>原子性</strong>操作。其实现方式是基于硬件平台的汇编指令，就是说CAS是靠硬件实现的，JVM只是封装了汇编调用。比较是否和给定的数值一致，如果一致则修改，不一致则不修改。</p>
+<a id="more"></a>
 <h2 id="CAS案例分析"><a href="#CAS案例分析" class="headerlink" title="CAS案例分析"></a>CAS案例分析</h2><p>AtomicInteger的原子特性就是CAS机制的典型使用场景。 其相关的源码片段如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> value;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">incrementAndGet</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;  </span><br><span class="line">        <span class="keyword">int</span> current = get();  </span><br><span class="line">        <span class="keyword">int</span> next = current + <span class="number">1</span>;  </span><br><span class="line">        <span class="keyword">if</span> (compareAndSet(current, next))  </span><br><span class="line">            <span class="keyword">return</span> next;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">compareAndSet</span><span class="params">(<span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span> </span>&#123;     </span><br><span class="line">    <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="keyword">this</span>, valueOffset, expect, update);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p> AtomicInteger在没有锁的机制下借助volatile原语，保证了线程间的数据是可见的（共享的）。其get()方法可以获取最新的内存中的值。</p>
 <p>在incrementAndGet()的操作中，使用了CAS操作，每次从内存中读取最新的数据然后将此数据+1，最终写入内存时，先比较内存中最新的值，同累加之前读出来的值是否一致，不一致则写失败，循环重试直到成功为止。</p>
@@ -4770,11 +4771,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
