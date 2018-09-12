@@ -7,19 +7,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>阻塞队列和线程池 | huzb的小书斋</title>
+  <title>阻塞队列和线程池源码详解 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="阻塞队列和线程池">
-<meta property="og:url" content="http://yoursite.com/2018/08/28/阻塞队列和线程池/index.html">
+<meta property="og:title" content="阻塞队列和线程池源码详解">
+<meta property="og:url" content="http://yoursite.com/2018/08/28/阻塞队列和线程池源码详解/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-08-30T13:31:15.469Z">
+<meta property="og:updated_time" content="2018-09-12T14:52:01.673Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="阻塞队列和线程池">
+<meta name="twitter:title" content="阻塞队列和线程池源码详解">
 <meta name="twitter:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
@@ -154,19 +154,19 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-阻塞队列和线程池" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-阻塞队列和线程池源码详解" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      阻塞队列和线程池
+      阻塞队列和线程池源码详解
     </h1>
   
 
         
-        <a href="/2018/08/28/阻塞队列和线程池/" class="archive-article-date">
+        <a href="/2018/08/28/阻塞队列和线程池源码详解/" class="archive-article-date">
   	<time datetime="2018-08-28T13:58:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-28</time>
 </a>
         
@@ -213,6 +213,12 @@
 </ul>
 <p>JVM中park在不同的操作系统使用不同的方式实现，在linux下是使用的是系统方法pthread_cond_wait实现。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> os::PlatformEvent::park() &#123;</span><br><span class="line">             <span class="keyword">int</span> v ;</span><br><span class="line">         <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        v = _Event ;</span><br><span class="line">         <span class="keyword">if</span> (Atomic::cmpxchg (v<span class="number">-1</span>, &amp;_Event, v) == v) <span class="keyword">break</span> ;</span><br><span class="line">         &#125;</span><br><span class="line">         guarantee (v &gt;= <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         <span class="keyword">if</span> (v == <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="comment">// Do this the hard way by blocking ...</span></span><br><span class="line">         <span class="keyword">int</span> status = pthread_mutex_lock(_mutex);</span><br><span class="line">         assert_status(status == <span class="number">0</span>, status, <span class="string">"mutex_lock"</span>);</span><br><span class="line">         guarantee (_nParked == <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         ++ _nParked ;</span><br><span class="line">         <span class="keyword">while</span> (_Event &lt; <span class="number">0</span>) &#123;</span><br><span class="line">         status = pthread_cond_wait(_cond, _mutex); <span class="comment">// 核心部分</span></span><br><span class="line">         <span class="comment">// for some reason, under 2.7 lwp_cond_wait() may return ETIME ...</span></span><br><span class="line">         <span class="comment">// Treat this the same as if the wait was interrupted</span></span><br><span class="line">         <span class="keyword">if</span> (status == ETIME) &#123; status = EINTR; &#125;</span><br><span class="line">         assert_status(status == <span class="number">0</span> || status == EINTR, status, <span class="string">"cond_wait"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">         -- _nParked ;</span><br><span class="line"> </span><br><span class="line">         <span class="comment">// In theory we could move the ST of 0 into _Event past the unlock(),</span></span><br><span class="line">         <span class="comment">// but then we'd need a MEMBAR after the ST.</span></span><br><span class="line">         _Event = <span class="number">0</span> ;</span><br><span class="line">         status = pthread_mutex_unlock(_mutex);</span><br><span class="line">         assert_status(status == <span class="number">0</span>, status, <span class="string">"mutex_unlock"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">         guarantee (_Event &gt;= <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure></p>
 <p>pthread_cond_wait是一个多线程的条件变量函数，cond是condition的缩写，字面意思可以理解为线程在等待一个条件发生，这个条件是一个全局变量。这个方法接收两个参数，一个共享变量_cond，一个互斥量_mutex。而unpark方法在linux下是使用pthread_cond_signal实现的。</p>
+<h2 id="三、Java中的线程池"><a href="#三、Java中的线程池" class="headerlink" title="三、Java中的线程池"></a>三、Java中的线程池</h2><p>阻塞队列在Java中有许多的应用，其中之一的就是线程池了。Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。</p>
+<ul>
+<li><strong>降低资源消耗</strong>。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。</li>
+<li><strong>提高响应速度</strong>。当任务到达时，任务可以不需要等到线程创建就能立即执行。</li>
+<li><strong>提高线程的可管理性</strong>。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一分配、调优和监控。</li>
+</ul>
 
       
 
@@ -282,7 +288,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/08/28/阻塞队列和线程池/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/08/28/阻塞队列和线程池源码详解/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -334,7 +340,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Java中的阻塞队列"><span class="toc-number">1.</span> <span class="toc-text">一、Java中的阻塞队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-number">1.1.</span> <span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-number">1.2.</span> <span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-number">1.3.</span> <span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DelayQueue"><span class="toc-number">1.4.</span> <span class="toc-text">DelayQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#compareTo-接口实现示例"><span class="toc-number">1.4.1.</span> <span class="toc-text">compareTo()接口实现示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getDelay-接口实现示例"><span class="toc-number">1.4.2.</span> <span class="toc-text">getDelay()接口实现示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SynchronousQueue"><span class="toc-number">1.5.</span> <span class="toc-text">SynchronousQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedTransferQueue"><span class="toc-number">1.6.</span> <span class="toc-text">LinkedTransferQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingDeque"><span class="toc-number">1.7.</span> <span class="toc-text">LinkedBlockingDeque</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、阻塞队列的实现原理"><span class="toc-number">2.</span> <span class="toc-text">二、阻塞队列的实现原理</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Java中的阻塞队列"><span class="toc-number">1.</span> <span class="toc-text">一、Java中的阻塞队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-number">1.1.</span> <span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-number">1.2.</span> <span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-number">1.3.</span> <span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DelayQueue"><span class="toc-number">1.4.</span> <span class="toc-text">DelayQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#compareTo-接口实现示例"><span class="toc-number">1.4.1.</span> <span class="toc-text">compareTo()接口实现示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getDelay-接口实现示例"><span class="toc-number">1.4.2.</span> <span class="toc-text">getDelay()接口实现示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SynchronousQueue"><span class="toc-number">1.5.</span> <span class="toc-text">SynchronousQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedTransferQueue"><span class="toc-number">1.6.</span> <span class="toc-text">LinkedTransferQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingDeque"><span class="toc-number">1.7.</span> <span class="toc-text">LinkedBlockingDeque</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、阻塞队列的实现原理"><span class="toc-number">2.</span> <span class="toc-text">二、阻塞队列的实现原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Java中的线程池"><span class="toc-number">3.</span> <span class="toc-text">三、Java中的线程池</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4773,10 +4779,6 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -4785,11 +4787,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
