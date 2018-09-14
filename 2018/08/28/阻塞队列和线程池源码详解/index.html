@@ -17,10 +17,12 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-12T16:40:57.023Z">
+<meta property="og:image" content="http://yoursite.com/2018/08/28/阻塞队列和线程池源码详解/线程池继承关系.png">
+<meta property="og:updated_time" content="2018-09-14T17:47:45.057Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="阻塞队列和线程池源码详解">
 <meta name="twitter:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/28/阻塞队列和线程池源码详解/线程池继承关系.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -187,9 +189,9 @@
 </ul>
 <h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><p>ArrayBlockingQueue是一个用数组实现的有界阻塞队列。此队列按照先进先出（FIFO）的原则对元素进行排序。默认情况下不保证访问者公平的访问队列，所谓公平访问队列是指阻塞的所有生产者线程或消费者线程，当队列可用时，可以按照阻塞的先后顺序访问队列，即先阻塞的生产者线程，可以先往队列里插入元素，先阻塞的消费者线程，可以先从队列里获取元素。通常情况下为了保证公平性会降低吞吐量。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayBlockingQueue</span><span class="params">(<span class="keyword">int</span> capacity, <span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (capacity &lt;= <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">        <span class="keyword">this</span>.items = <span class="keyword">new</span> Object[capacity];</span><br><span class="line">        lock = <span class="keyword">new</span> ReentrantLock(fair);</span><br><span class="line">        notEmpty = lock.newCondition();</span><br><span class="line">        notFull =  lock.newCondition();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>LinkedBlockingQueue是一个用链表实现的有界阻塞队列。此队列的默认和最大长度为Integer.MAX_VALUE。此队列按照先进先出的原则对元素进行排序。</p>
-<h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue是一个支持优先级的无界队列。默认情况下元素采取自然顺序排列，也可以通过比较器comparator来指定元素的排序规则。元素按照升序排列。</p>
-<h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue是一个支持延时获取元素的无界阻塞队列。队列使用PriorityQueue（注意不是前面的PriorityBlockingQueue，PriorityQueue是一个小顶堆，每次取出权值最小的）来实现。队列中的元素必须实现Delayed接口（该接口有两个方法<em>getDelay()</em>和<em>compareTo()</em>），在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将DelayQueue运用在以下应用场景：</p>
+<h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>LinkedBlockingQueue是一个用链表实现的有界阻塞队列。此队列的默认最大长度为Integer.MAX_VALUE。此队列按照先进先出的原则对元素进行排序。</p>
+<h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue是一个支持优先级的无界队列，底层由数组实现，数组最大长度为Integer.MAX_VALUE - 8（所以并不是真的无界），默认数组大小为11，如果元素超过数组大小，数组会进行扩容，具体扩容的大小，在数组长度小于64时+2，大于64时变为150%，当数组扩容后大小超过Integer.MAX_VALUE - 8时，不会再用150%扩容，而是使用+1的方式扩容。最后若+1的方式扩容的数组大小也超过了Integer.MAX_VALUE - 8，则报OutOfMemoryError()。默认情况下元素采取自然顺序，排列采用二叉树最小堆实现（所以有序不是数据存储的有序，而是取出数据的有序），也可以通过比较器comparator来指定元素的排序规则。元素按照升序排列。</p>
+<h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue是一个支持延时获取元素的无界阻塞队列。队列使用PriorityQueue，PriorityQueue和PriorityBlockingQueue一样都是使用小顶堆实现的，唯一的区别在于PriorityQueue是非线程安全的，而PriorityBlockingQueue是线程安全的。队列中的元素必须实现Delayed接口（该接口有两个方法<em>getDelay()</em>和<em>compareTo()</em>），在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将DelayQueue运用在以下应用场景：</p>
 <ul>
 <li>缓存系统的设计：可以用DelayQueue保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从DelayQueue中获取元素时，表示缓存有效期到了。</li>
 <li>定时任务调度。使用DelayQueue保存当天将会执行的任务和执行时间，一旦从DelayQueue中获取到任务就开始执行，从比如TimerQueue就是使用DelayQueue实现的。</li>
@@ -219,8 +221,38 @@
 <li><strong>提高响应速度</strong>。当任务到达时，任务可以不需要等到线程创建就能立即执行。</li>
 <li><strong>提高线程的可管理性</strong>。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一分配、调优和监控。</li>
 </ul>
-<h3 id="线程池的使用"><a href="#线程池的使用" class="headerlink" title="线程池的使用"></a>线程池的使用</h3><h4 id="线程池的创建"><a href="#线程池的创建" class="headerlink" title="线程池的创建"></a>线程池的创建</h4><p>我们可以通过ThreadPoolExecutor来创建一个线程池。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> ThreadPoolExecutor(corePoolSize,maximumPoolSize,keepAliveTime,TimeUnit,BlockingQueue&lt;Runnable&gt;,ThreadFactory,RejectedExecutionHandler)</span><br></pre></td></tr></table></figure></p>
-<p>创建一个线程池时需要输入几个参数，如下：<br>1）corePoolSize（线程池的核心线程数）<br>2）</p>
+<p>线程池的继承关系如下图：<br><img src="/2018/08/28/阻塞队列和线程池源码详解/线程池继承关系.png"><br>线程池最顶层是<em>Executor</em>，这是只有一个execute方法的接口，也是整个Executor框架的顶层接口，所有Executor框架的组件都要实现这个接口。</p>
+<p><em>ExecutorService</em>继承了Executor，在此基础上增加了submit(Runnable)和submit(Callable<t>)，表示任务的提交，Runnable和Callable<t>的区别在于Callable的call()方法有返回值，而Runnable的run没有。</t></t></p>
+<p><em>ThreadPoolExecutor</em>是线程池的核心实现类，大部分线程池的功能都在这个类中被定义，它有多个参数和构造函数，根据不同的构造参数可以实现不同功能的线程池。线程池的参数会在下文详细介绍。</p>
+<p><em>Executors</em>是ThreadPoolExecutor的工厂类，封装了一些常用的线程池，具体类型也会在下文详细介绍。</p>
+<h3 id="线程池的参数"><a href="#线程池的参数" class="headerlink" title="线程池的参数"></a>线程池的参数</h3><p>我们可以通过ThreadPoolExecutor来创建一个线程池。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> ThreadPoolExecutor(corePoolSize,maximumPoolSize,keepAliveTime,unit,workQueue,ThreadFactory,RejectedExecutionHandler)</span><br></pre></td></tr></table></figure></p>
+<p>线程池的构造函数中需要接收7个参数，它们分别是：</p>
+<ul>
+<li>corePoolSize 核心线程数，指保留的线程池大小（不超过maximumPoolSize值时，线程池中最多有corePoolSize个线程工作） </li>
+<li>maximumPoolSize 指的是线程池的最大大小（线程池中最大有maximumPoolSize个线程可运行）</li>
+<li>keepAliveTime 指的是空闲线程结束的超时时间（当一个线程不工作时，过keepAliveTime长时间将停止该线程）</li>
+<li>unit 是一个枚举，表示 keepAliveTime 的单位（有NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS，7个可选值）。 </li>
+<li>workQueue 表示存放任务的队列（存放需要被线程池执行的线程队列）。它的类型是BlockingQueue<runnable>就是上文讲到的阻塞队列。</runnable></li>
+<li>threadFactory 是一个线程工厂，控制线程的创建和销毁，一般会使用默认的Executors.defaultThreadFactory()。</li>
+<li>handler 拒绝策略（添加任务失败后如何处理该任务）</li>
+</ul>
+<h3 id="线程池的运行策略"><a href="#线程池的运行策略" class="headerlink" title="线程池的运行策略"></a>线程池的运行策略</h3><p>线程池刚创建时，里面没有一个线程。任务队列是作为参数传进来的。不过，就算队列里面有任务，线程池也不会马上执行它们。</p>
+<p>当调用 execute() 方法添加一个任务时，线程池会做如下判断：</p>
+<ul>
+<li>如果正在运行的线程数量小于 corePoolSize，那么马上创建线程运行这个任务；</li>
+<li>如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列；</li>
+<li>如果这时候队列满了，而且正在运行的线程数量小于 maximumPoolSize，那么还是要创建线程运行这个任务；</li>
+<li>如果队列满了，而且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会调用reject()，这个方法会调用handler.rejectedExecution()方法，根据不同的handler策略会有不同的处理方式。</li>
+</ul>
+<p>当一个线程完成任务时，它会从队列中取下一个任务来执行。</p>
+<p>当一个线程无事可做，超过一定的时间（keepAliveTime）时，线程池会判断，如果当前运行的线程数大于 corePoolSize，那么这个线程就被停掉。所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。</p>
+<h3 id="线程池拒绝策略"><a href="#线程池拒绝策略" class="headerlink" title="线程池拒绝策略"></a>线程池拒绝策略</h3><ul>
+<li>AbortPolicy：为java线程池默认的阻塞策略，不执行此任务，而且直接抛出一个运行时异常，切记ThreadPoolExecutor.execute需要try catch，否则程序会直接退出。</li>
+<li>DiscardPolicy：直接抛弃，任务不执行，空方法。</li>
+<li>DiscardOldestPolicy：从队列里面抛弃head的一个任务，并再次execute 此task。</li>
+<li>CallerRunsPolicy：还给原线程自己执行，会阻塞入口。</li>
+<li>用户自定义拒绝策略：实现RejectedExecutionHandler，并自己定义策略模式。</li>
+</ul>
 
       
 
@@ -342,7 +374,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Java中的阻塞队列"><span class="toc-number">1.</span> <span class="toc-text">一、Java中的阻塞队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-number">1.1.</span> <span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-number">1.2.</span> <span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-number">1.3.</span> <span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DelayQueue"><span class="toc-number">1.4.</span> <span class="toc-text">DelayQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#compareTo-接口实现示例"><span class="toc-number">1.4.1.</span> <span class="toc-text">compareTo()接口实现示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getDelay-接口实现示例"><span class="toc-number">1.4.2.</span> <span class="toc-text">getDelay()接口实现示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SynchronousQueue"><span class="toc-number">1.5.</span> <span class="toc-text">SynchronousQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedTransferQueue"><span class="toc-number">1.6.</span> <span class="toc-text">LinkedTransferQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingDeque"><span class="toc-number">1.7.</span> <span class="toc-text">LinkedBlockingDeque</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、阻塞队列的实现原理"><span class="toc-number">2.</span> <span class="toc-text">二、阻塞队列的实现原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Java中的线程池"><span class="toc-number">3.</span> <span class="toc-text">三、Java中的线程池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线程池的使用"><span class="toc-number">3.1.</span> <span class="toc-text">线程池的使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#线程池的创建"><span class="toc-number">3.1.1.</span> <span class="toc-text">线程池的创建</span></a></li></ol></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Java中的阻塞队列"><span class="toc-number">1.</span> <span class="toc-text">一、Java中的阻塞队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-number">1.1.</span> <span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-number">1.2.</span> <span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-number">1.3.</span> <span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DelayQueue"><span class="toc-number">1.4.</span> <span class="toc-text">DelayQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#compareTo-接口实现示例"><span class="toc-number">1.4.1.</span> <span class="toc-text">compareTo()接口实现示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getDelay-接口实现示例"><span class="toc-number">1.4.2.</span> <span class="toc-text">getDelay()接口实现示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SynchronousQueue"><span class="toc-number">1.5.</span> <span class="toc-text">SynchronousQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedTransferQueue"><span class="toc-number">1.6.</span> <span class="toc-text">LinkedTransferQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingDeque"><span class="toc-number">1.7.</span> <span class="toc-text">LinkedBlockingDeque</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、阻塞队列的实现原理"><span class="toc-number">2.</span> <span class="toc-text">二、阻塞队列的实现原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Java中的线程池"><span class="toc-number">3.</span> <span class="toc-text">三、Java中的线程池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线程池的参数"><span class="toc-number">3.1.</span> <span class="toc-text">线程池的参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#线程池的运行策略"><span class="toc-number">3.2.</span> <span class="toc-text">线程池的运行策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#线程池拒绝策略"><span class="toc-number">3.3.</span> <span class="toc-text">线程池拒绝策略</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -4809,11 +4841,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
