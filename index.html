@@ -253,8 +253,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>JDK1.6 以后 JVM 对 synchronize 锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了 CAS 操作，其实 Java 中 java.util.concurrent 包的实现也是差不多建立在 CAS 之上，可见 CAS 在 Java 同步领域的重要性。</p>
-<p>CAS 是 Compare and Swap 的简写形式，可翻译为：比较并交换。用于在硬件层面上提供<strong>原子性</strong>操作。其实现方式是基于硬件平台的汇编指令，就是说 CAS 是靠硬件实现的，JVM 只是封装了汇编调用。比较是否和给定的数值一致，如果一致则修改，不一致则不修改。</p>
+        <p>JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。</p>
+<p>CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供<strong>原子性</strong>操作。其实现方式是基于硬件平台的汇编指令，就是说CAS是靠硬件实现的，JVM只是封装了汇编调用。比较是否和给定的数值一致，如果一致则修改，不一致则不修改。</p>
         
       
 
