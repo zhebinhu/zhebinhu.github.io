@@ -18,7 +18,7 @@
 <meta property="og:description" content="Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。  降低资源消耗。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。 提高线程的可管理性。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/09/15/线程池源码阅读/线程池继承关系.png">
-<meta property="og:updated_time" content="2018-09-16T14:32:26.914Z">
+<meta property="og:updated_time" content="2018-09-16T14:36:34.519Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线程池源码阅读">
 <meta name="twitter:description" content="Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。  降低资源消耗。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。 提高线程的可管理性。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以">
@@ -197,7 +197,7 @@
 <li>maximumPoolSize 指的是线程池的最大大小（线程池中最大有maximumPoolSize个线程可运行）</li>
 <li>keepAliveTime 指的是空闲线程结束的超时时间（当一个线程不工作时，过keepAliveTime长时间将停止该线程）</li>
 <li>unit 是一个枚举，表示keepAliveTime的单位（有NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS，7个可选值）</li>
-<li>workQueue 表示存放任务的队列（存放需要被线程池执行的线程队列）。它的类型是BlockingQueue<runnable>就是阻塞队列，有关阻塞队列的内容可以参考这篇<a href="www.huzb.me">《阻塞队列源码详解》</a></runnable></li>
+<li>workQueue 表示存放任务的队列（存放需要被线程池执行的线程队列）。它的类型是BlockingQueue<runnable>就是阻塞队列，有关阻塞队列的内容可以参考这篇<a href="www.huzb.me">《阻塞队列源码阅读》</a></runnable></li>
 <li>threadFactory 是一个线程工厂，负责线程的创建，一般会使用默认的Executors.defaultThreadFactory()。</li>
 <li>handler 拒绝策略（添加任务失败后如何处理该任务）</li>
 </ul>
@@ -4825,7 +4825,11 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4837,11 +4841,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
