@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-09-25T14:16:11.128Z">
+<meta property="og:updated_time" content="2018-09-25T16:57:48.230Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS原理和缺陷">
 <meta name="twitter:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
@@ -191,6 +191,10 @@
 <p><strong>关于总线锁定和缓存锁定</strong></p>
 <blockquote>
 <p>1、早期的处理器只支持通过总线锁保证原子性。所谓总线锁就是使用处理器提供的一个LOCK＃信号，当一个处理器在总线上输出此信号时，其他处理器的请求将被阻塞住,那么该处理器可以独占使用共享内存。很显然，这会带来昂贵的开销。<br>2、缓存锁定是改进后的方案。在同一时刻我们只需保证对某个内存地址的操作是原子性即可，但总线锁定把CPU和内存之间通信锁住了，这使得锁定期间，其他处理器不能操作其他内存地址的数据，所以总线锁定的开销比较大，最近的处理器在某些场合下使用缓存锁定代替总线锁定来进行优化。缓存锁定是指当两个CPU的缓存行同时指向一片内存区域时，如果A CPU希望对该内存区域进行修改并使用了缓存锁定，那么B CPU将无法访问自己缓存中相应的缓存行，自然也没法访问对应的内存区域，这样就A CPU就实现了独享内存。<br>　<br>但是有两种情况下处理器不会使用缓存锁定。第一种情况是：当操作的数据不能被缓存在处理器内部，或操作的数据跨多个缓存行（cache line），则处理器会调用总线锁定。第二种情况是：有些处理器不支持缓存锁定。对于Inter486和奔腾处理器，就算锁定的内存区域在处理器的缓存行中也会调用总线锁定。</p>
+</blockquote>
+<p><strong>关于同样使用Lock前缀的volatile却无法保证原子性</strong></p>
+<blockquote>
+<p>volatile和cas都是基于lock前缀实现，但volatile却无法保证原子性这是因为：Lock前缀只能保证缓存一致性，但不能保证寄存器中数据的一致性，如果指令在lock的缓存刷新生效之前把数据写入了寄存器，那么寄存器中的数据不会因此失效而是继续被使用，就好像数据库中的事务执行失败却没有回滚，原子性就被破坏了。以被volatile修饰的i作i++为例，实际上分为4个步骤：<br>mov　　　　 0xc(%r10),%r8d ; 把i的值赋给寄存器<br>inc　　　　　%r8d　　　　　 ; 寄存器的值+1<br>mov　　　　 %r8d,0xc(%r10) ; 把寄存器的值写回<br>lock addl　　$0x0,(%rsp)　　; 内存屏障，禁止指令重排序，并同步所有缓存<br>　<br>如果两个线程AB同时把i读进自己的寄存器，此时B线程等待，A线程继续工作，把i++后放回内存。按照原子性的性质，此时B应该回滚，重新从内存中读取i，但因为此时i已经拷贝到寄存器中，所以B线程会继续运行，原子性被破坏。<br>　<br>而cas没有这个问题，因为cas操作对应指令只有一个：<br>lock cmpxchg dword ptr [edx], ecx ;<br>　<br>该指令确保了直接从内存拿数据（ptr [edx]），然后放回内存这一系列操作都在lock状态下，所以是原子性的。<br>　<br>总结：volatile之所以不是原子性的原因是jvm对volatile语义的实现只是在volatile写后面加一个内存屏障，而内存屏障前的操作不在lock状态下，这些操作可能会把数据放入寄存器从而导致无法有效同步；cas能保证原子性是因为cas指令只有一个，这个指令从头到尾都是在lock状态下而且从内存到内存，所以它是原子性的。</p>
 </blockquote>
 <h2 id="CAS缺陷"><a href="#CAS缺陷" class="headerlink" title="CAS缺陷"></a>CAS缺陷</h2><p>1、<strong>ABA问题</strong>。因为CAS需要在操作值的时候检查下值有没有发生变化，如果没有发生变化则更新，但是如果一个值原来是A，变成了B，又变成了A，那么使用CAS进行检查时会发现它的值没有发生变化，但是实际上却变化了。ABA问题的解决思路就是使用版本号。在变量前面追加上版本号，每次变量更新的时候把版本号加一，那么 A－B－A 就会变成 1A - 2B－3A。</p>
 <p>从Java1.5开始JDK的atomic包里提供了一个类AtomicStampedReference来解决ABA问题。这个类的compareAndSet方法作用是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。</p>
@@ -4769,7 +4773,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4777,7 +4781,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4793,11 +4797,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>
