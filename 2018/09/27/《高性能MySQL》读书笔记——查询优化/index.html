@@ -7,18 +7,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | huzb的小书斋</title>
+  <title>《高性能MySQL》读书笔记——查询优化 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/archives/page/2/index.html">
+  <meta name="description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《高性能MySQL》读书笔记——查询优化">
+<meta property="og:url" content="http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/查询执行基础.png">
+<meta property="og:updated_time" content="2018-09-27T15:45:31.970Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="《高性能MySQL》读书笔记——查询优化">
+<meta name="twitter:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/查询执行基础.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -152,128 +156,64 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-《高性能MySQL》读书笔记——查询优化" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      《高性能MySQL》读书笔记——查询优化
+    </h1>
+  
+
+        
+        <a href="/2018/09/27/《高性能MySQL》读书笔记——查询优化/" class="archive-article-date">
+  	<time datetime="2018-09-27T10:34:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-27</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。</p>
+<h2 id="一、查询执行的基础"><a href="#一、查询执行的基础" class="headerlink" title="一、查询执行的基础"></a>一、查询执行的基础</h2><p>当MySQL执行一个查询语句时，会经历以下几个步骤：<br><a id="more"></a><br><img src="/2018/09/27/《高性能MySQL》读书笔记——查询优化/查询执行基础.png"></p>
+<ul>
+<li>1.客户端发送一条查询给服务器。</li>
+<li>2.服务器先检查查询缓存，如果命中了缓存，则立刻返回存储在缓存中的结果。否则进入下一阶段。</li>
+<li>3.服务器端进行SQL解析、预处理，再由优化器生成对应的执行计划。</li>
+<li>4.MySQL根据优化器生成的执行计划，调用存储引擎的API来执行查询。</li>
+<li>5.将结果返回给客户端。</li>
+</ul>
+<h2 id="二、MySQL查询优化器"><a href="#二、MySQL查询优化器" class="headerlink" title="二、MySQL查询优化器"></a>二、MySQL查询优化器</h2><p>MySQL查询优化器会做大量的工作，这些工作包括但不限于：</p>
+<h3 id="1-重新定义关联表的顺序"><a href="#1-重新定义关联表的顺序" class="headerlink" title="1.重新定义关联表的顺序"></a>1.重新定义关联表的顺序</h3><p>MySQL使用一种叫“嵌套循环关联”的方式来执行关联查询。顾名思义，这是一种嵌套式的查询。在正常情况下，最左边的表会嵌套在最外层，然后根据表中的每一行数据去遍历内层表，找到所有符合条件的行。如果外层表行数为m，内层表行数为n，则总共要遍历m*n行数据。</p>
+<p>但如果内层表使用了索引，而关联字段恰好就被索引覆盖的话，就只需要几次查询就可以定位内层表的数据行。总行数从m*n变为m*i(i一般小于3)。这无疑大大加快了关联查询的速度。MySQL查询优化器会调整关联表查询的顺序来尽可能使用多的索引查询。</p>
+<h3 id="2-将外连接转化成内连接"><a href="#2-将外连接转化成内连接" class="headerlink" title="2.将外连接转化成内连接"></a>2.将外连接转化成内连接</h3><p>并不是所有的OUTER JOIN语句都必须以外连接的方式执行。诸多原因，例如WHERE条件、库表结构都可能让一个外连接等价于一个内连接。MySQL能够识别这点并重写查询，让其可以调整关联顺序（外连接分左右，所以无法调整顺序）。</p>
+<h3 id="3-使用等价变换规则"><a href="#3-使用等价变换规则" class="headerlink" title="3.使用等价变换规则"></a>3.使用等价变换规则</h3><p>MySQL可以合并和减少一些比较，例如（5=5 AND a&gt;5）将被改写成（a&gt;5）。</p>
+<h3 id="4-优化COUNT-、MIN-和MAX"><a href="#4-优化COUNT-、MIN-和MAX" class="headerlink" title="4.优化COUNT()、MIN()和MAX()"></a>4.优化COUNT()、MIN()和MAX()</h3><p>索引和是否可为空可以帮助MySQL优化这类表达式。例如要找某一列的最小值，只需查询对应B-tree索引最左端的记录，而最大值只需查询对应B-tree索引最右端。另外，没有任何WHERE条件的COUNT(*)查询在MyISAM中也是O(1)，因为MyISAM维护了一个变量来存放数据表的行数（不过innodb没有，innodb中执行COUNT(*)会做全表查询）。</p>
+<h3 id="5-预估并转化为常数表达式"><a href="#5-预估并转化为常数表达式" class="headerlink" title="5.预估并转化为常数表达式"></a>5.预估并转化为常数表达式</h3><p>当MySQL检测到一个表达式或者一个子查询可以转化为常数的时候，就会一直把该表达式作为常数进行优化处理。</p>
+<h3 id="6-覆盖索引扫描"><a href="#6-覆盖索引扫描" class="headerlink" title="6.覆盖索引扫描"></a>6.覆盖索引扫描</h3><p>当索引中的列覆盖所有查询中需要使用的列时，MySQL将直接使用索引返回所需数据而不做回表查询。</p>
+<h3 id="7-提前终止查询"><a href="#7-提前终止查询" class="headerlink" title="7.提前终止查询"></a>7.提前终止查询</h3><p>在发现已经满足查询要求的时候，MySQL总是能够立刻终止查询。比如LIMIT。</p>
+<h3 id="8-等值传播"><a href="#8-等值传播" class="headerlink" title="8.等值传播"></a>8.等值传播</h3><p>如果两个列的值通过等式关联，那么MySQL能够把其中一个列的WHERE语句条件传递到另一列上。例如：</p>
+<blockquote>
+<p>SELECT film.film_id FROM film INNER JOIN actor USING(film_id) WHERE film.film_id &gt; 500;</p>
+</blockquote>
+<p>优化器会把它优化为：</p>
+<blockquote>
+<p>SELECT film.film_id FROM film INNER JOIN actor USING(film_id) WHERE film.film_id &gt; 500 AND actor.film_id &gt; 500;</p>
+</blockquote>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/23/简单的密码学生成唯一邀请码/" class="archive-article-date">
-  	<time datetime="2018-03-23T09:10:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/23/简单的密码学生成唯一邀请码/">简单的密码学生成唯一邀请码</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">密码学</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/16/分布式缓存的一致性Hash算法/" class="archive-article-date">
-  	<time datetime="2018-03-16T03:58:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/16/分布式缓存的一致性Hash算法/">分布式缓存的一致性Hash算法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">读书笔记</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/13/MySQL索引原理/" class="archive-article-date">
-  	<time datetime="2018-03-13T02:48:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-13</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/13/MySQL索引原理/">MySQL索引原理</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">收藏</a>
-        		</li>
-      		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
         		</li>
@@ -281,120 +221,140 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/02/03/MySQL作图建库/" class="archive-article-date">
-  	<time datetime="2018-02-03T03:59:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-03</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2018/09/15/线程池源码阅读/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">线程池源码阅读</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/02/03/MySQL作图建库/">MySQL作图建库</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">备忘录</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、查询执行的基础"><span class="toc-number">1.</span> <span class="toc-text">一、查询执行的基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MySQL查询优化器"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL查询优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-重新定义关联表的顺序"><span class="toc-number">2.1.</span> <span class="toc-text">1.重新定义关联表的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-将外连接转化成内连接"><span class="toc-number">2.2.</span> <span class="toc-text">2.将外连接转化成内连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用等价变换规则"><span class="toc-number">2.3.</span> <span class="toc-text">3.使用等价变换规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-优化COUNT-、MIN-和MAX"><span class="toc-number">2.4.</span> <span class="toc-text">4.优化COUNT()、MIN()和MAX()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-预估并转化为常数表达式"><span class="toc-number">2.5.</span> <span class="toc-text">5.预估并转化为常数表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-覆盖索引扫描"><span class="toc-number">2.6.</span> <span class="toc-text">6.覆盖索引扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-提前终止查询"><span class="toc-number">2.7.</span> <span class="toc-text">7.提前终止查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-等值传播"><span class="toc-number">2.8.</span> <span class="toc-text">8.等值传播</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/12/29/Java中的异常/" class="archive-article-date">
-  	<time datetime="2017-12-29T11:43:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-29</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/12/29/Java中的异常/">Java中的异常</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span>
-    </nav>
+  
+
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
   
 
 
@@ -419,8 +379,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

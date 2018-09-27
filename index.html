@@ -154,6 +154,81 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-《高性能MySQL》读书笔记——查询优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/09/27/《高性能MySQL》读书笔记——查询优化/">《高性能MySQL》读书笔记——查询优化</a>
+    </h1>
+  
+
+        
+        <a href="/2018/09/27/《高性能MySQL》读书笔记——查询优化/" class="archive-article-date">
+  	<time datetime="2018-09-27T10:34:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。</p>
+<h2 id="一、查询执行的基础"><a href="#一、查询执行的基础" class="headerlink" title="一、查询执行的基础"></a>一、查询执行的基础</h2><p>当MySQL执行一个查询语句时，会经历以下几个步骤：<br></p>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/27/《高性能MySQL》读书笔记——查询优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-线程池源码阅读" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -456,19 +531,19 @@
 
 
   
-    <article id="post-《高性能MySQL》读书笔记——Schema与数据类型优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-《高性能MySQL》读书笔记——库表结构优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/">《高性能MySQL》读书笔记——Schema与数据类型优化</a>
+      <a class="article-title" href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/">《高性能MySQL》读书笔记——库表结构优化</a>
     </h1>
   
 
         
-        <a href="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/" class="archive-article-date">
+        <a href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/" class="archive-article-date">
   	<time datetime="2018-08-18T10:08:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-18</time>
 </a>
         
@@ -477,7 +552,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。</p>
-<h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库引擎对于各种数据类型的存储方式不一样，本文主要以innodb中的实现为主。另外增加了数据库三范式的介绍。</p>
+<h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>库表结构优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库引擎对于各种数据类型的存储方式不一样，本文主要以innodb中的实现为主。另外增加了数据库三范式的介绍。</p>
         
       
 
@@ -501,7 +576,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/">展开全文 >></a>
+          <a class="article-more-a" href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/">展开全文 >></a>
         </p>
       
 
@@ -813,85 +888,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/03/30/Centos7下使用systemd管理服务/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-简单的密码学生成唯一邀请码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/23/简单的密码学生成唯一邀请码/">简单的密码学生成唯一邀请码</a>
-    </h1>
-  
-
-        
-        <a href="/2018/03/23/简单的密码学生成唯一邀请码/" class="archive-article-date">
-  	<time datetime="2018-03-23T09:10:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-23</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
-<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">密码学</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/03/23/简单的密码学生成唯一邀请码/">展开全文 >></a>
         </p>
       
 
@@ -5335,11 +5331,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5351,11 +5347,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>

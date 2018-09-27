@@ -7,22 +7,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>《高性能MySQL》读书笔记——Schema与数据类型优化 | huzb的小书斋</title>
+  <title>《高性能MySQL》读书笔记——库表结构优化 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
+  <meta name="description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述库表结构优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库">
 <meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="《高性能MySQL》读书笔记——Schema与数据类型优化">
-<meta property="og:url" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/index.html">
+<meta property="og:title" content="《高性能MySQL》读书笔记——库表结构优化">
+<meta property="og:url" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
+<meta property="og:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述库表结构优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg">
-<meta property="og:updated_time" content="2018-08-25T09:36:43.062Z">
+<meta property="og:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/第一范式.jpg">
+<meta property="og:updated_time" content="2018-09-27T14:22:29.952Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="《高性能MySQL》读书笔记——Schema与数据类型优化">
-<meta name="twitter:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点">
-<meta name="twitter:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg">
+<meta name="twitter:title" content="《高性能MySQL》读书笔记——库表结构优化">
+<meta name="twitter:description" content="《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。 1、概述库表结构优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/第一范式.jpg">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -156,19 +156,19 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-《高性能MySQL》读书笔记——Schema与数据类型优化" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-《高性能MySQL》读书笔记——库表结构优化" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      《高性能MySQL》读书笔记——Schema与数据类型优化
+      《高性能MySQL》读书笔记——库表结构优化
     </h1>
   
 
         
-        <a href="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/" class="archive-article-date">
+        <a href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/" class="archive-article-date">
   	<time datetime="2018-08-18T10:08:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-18</time>
 </a>
         
@@ -177,7 +177,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>《高性能MySQL》是MySQL领域的经典之作，全书分为16个章节，内容涵盖从底层实现到上层设计。本系列文章是我在阅读该书时所学所思所得的一个总结，内容不只包括书中的部分，也会有我在网上或者其它书上看到的延伸的部分，希望能通过博客把这些内容记录下来，以便随时复习。</p>
-<h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>schema与数据类型优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库引擎对于各种数据类型的存储方式不一样，本文主要以innodb中的实现为主。另外增加了数据库三范式的介绍。</p>
+<h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>库表结构优化在原书中是单独一个完整的章节，主要从数据库设计和创建的角度来提升数据库的性能。数据类型本章内容的重点，不同的数据库引擎对于各种数据类型的存储方式不一样，本文主要以innodb中的实现为主。另外增加了数据库三范式的介绍。</p>
 <a id="more"></a>
 <h2 id="2、MySQL常用数据类型"><a href="#2、MySQL常用数据类型" class="headerlink" title="2、MySQL常用数据类型"></a>2、MySQL常用数据类型</h2><p>MySQL常用数据类型分为：整数、实数、字符串、日期和时间、位数据几种。</p>
 <h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><p>整数类型可以分为：TINYINT，SMALLINT，MEDIUMINT，INT，BIGINT，分别使用：8，16，24，32，64位的存储空间。</p>
@@ -219,7 +219,7 @@
 <li>2NF：属性完全依赖于主键 [消除部分子函数依赖] </li>
 <li>3NF：属性不依赖于其它非主属性 [消除传递依赖] </li>
 </ul>
-<h4 id="第一范式-1NF"><a href="#第一范式-1NF" class="headerlink" title="第一范式 (1NF)"></a>第一范式 (1NF)</h4><p>符合1NF的关系中的每个属性都不可再分。<br>反例：<br><img src="/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/第一范式.jpg"></p>
+<h4 id="第一范式-1NF"><a href="#第一范式-1NF" class="headerlink" title="第一范式 (1NF)"></a>第一范式 (1NF)</h4><p>符合1NF的关系中的每个属性都不可再分。<br>反例：<br><img src="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/第一范式.jpg"></p>
 <h4 id="第二范式-2NF"><a href="#第二范式-2NF" class="headerlink" title="第二范式 (2NF)"></a>第二范式 (2NF)</h4><p>2NF在1NF的基础之上，消除了非主属性对于码（主键）的部分函数依赖</p>
 <p>可以通过分解来满足。</p>
 <p><strong>分解前</strong> </p>
@@ -573,7 +573,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——Schema与数据类型优化/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -5076,11 +5076,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5092,11 +5092,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
