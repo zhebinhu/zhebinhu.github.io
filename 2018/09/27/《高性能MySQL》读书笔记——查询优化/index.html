@@ -18,7 +18,7 @@
 <meta property="og:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/查询执行基础.png">
-<meta property="og:updated_time" content="2018-09-27T15:45:31.970Z">
+<meta property="og:updated_time" content="2018-09-28T11:47:34.314Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《高性能MySQL》读书笔记——查询优化">
 <meta name="twitter:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
@@ -194,13 +194,70 @@
 <h3 id="5-预估并转化为常数表达式"><a href="#5-预估并转化为常数表达式" class="headerlink" title="5.预估并转化为常数表达式"></a>5.预估并转化为常数表达式</h3><p>当MySQL检测到一个表达式或者一个子查询可以转化为常数的时候，就会一直把该表达式作为常数进行优化处理。</p>
 <h3 id="6-覆盖索引扫描"><a href="#6-覆盖索引扫描" class="headerlink" title="6.覆盖索引扫描"></a>6.覆盖索引扫描</h3><p>当索引中的列覆盖所有查询中需要使用的列时，MySQL将直接使用索引返回所需数据而不做回表查询。</p>
 <h3 id="7-提前终止查询"><a href="#7-提前终止查询" class="headerlink" title="7.提前终止查询"></a>7.提前终止查询</h3><p>在发现已经满足查询要求的时候，MySQL总是能够立刻终止查询。比如LIMIT。</p>
-<h3 id="8-等值传播"><a href="#8-等值传播" class="headerlink" title="8.等值传播"></a>8.等值传播</h3><p>如果两个列的值通过等式关联，那么MySQL能够把其中一个列的WHERE语句条件传递到另一列上。例如：</p>
+<h3 id="8-子查询优化"><a href="#8-子查询优化" class="headerlink" title="8.子查询优化"></a>8.子查询优化</h3><p>MySQL 5.6中处理子查询的思路是，基于查询重写技术的规则，尽可能将子查询转换为连接，并配合基于代价估算的Materialize、exists 等优化策略让子查询执行更优。</p>
+<h3 id="9-等值传播"><a href="#9-等值传播" class="headerlink" title="9.等值传播"></a>9.等值传播</h3><p>如果两个列的值通过等式关联，那么MySQL能够把其中一个列的WHERE语句条件传递到另一列上。例如：</p>
 <blockquote>
-<p>SELECT film.film_id FROM film INNER JOIN actor USING(film_id) WHERE film.film_id &gt; 500;</p>
+<p>SELECT film.film_id FROM film INNER JOIN film_actor USING(film_id) WHERE film.film_id &gt; 500;</p>
 </blockquote>
 <p>优化器会把它优化为：</p>
 <blockquote>
-<p>SELECT film.film_id FROM film INNER JOIN actor USING(film_id) WHERE film.film_id &gt; 500 AND actor.film_id &gt; 500;</p>
+<p>SELECT film.film_id FROM film INNER JOIN film_actor USING(film_id) WHERE film.film_id &gt; 500 AND film_actor.film_id &gt; 500;</p>
+</blockquote>
+<h3 id="10-列表IN-的比较"><a href="#10-列表IN-的比较" class="headerlink" title="10.列表IN()的比较"></a>10.列表IN()的比较</h3><p>MySQL会将IN()列表中的数据先进行排序，然后通过二分查找的形式来确定取出的值是否在列表中。</p>
+<h3 id="11-索引合并"><a href="#11-索引合并" class="headerlink" title="11.索引合并"></a>11.索引合并</h3><p>当WHERE子句中包含多个复杂条件涉及到多个索引时，MySQL会先根据不同索引取出多组数据，再将这些数据合并。</p>
+<h2 id="三、MySQL查询优化器的局限"><a href="#三、MySQL查询优化器的局限" class="headerlink" title="三、MySQL查询优化器的局限"></a>三、MySQL查询优化器的局限</h2><h3 id="1-关联子查询"><a href="#1-关联子查询" class="headerlink" title="1.关联子查询"></a>1.关联子查询</h3><p>上一节有提到MySQL查询优化器会把IN子查询变为EXISTS子查询的形式，大部分情况下这种优化会带来性能提升，但某些情况下，会让查询更慢。比如：</p>
+<blockquote>
+<p>SELECT * FROM film WHERE film_id IN(SELECT film_id FROM film_actor WHERE actor_id = 1);</p>
+</blockquote>
+<p>假设film和film_actor表在film_id上都有索引，那么这条语句会走film_actor和film的索引，速度非常快。但查询优化器会把它“优化”为：</p>
+<blockquote>
+<p>SELECT * FROM film WHERE EXISTS(SELECT 1 FROM film_actor WHERE actor_id = 1 AND film.film_id = actor.film_id);</p>
+</blockquote>
+<p>此时MySQL只会走film_actor的索引而会对film做全表扫描，效率大大下降。</p>
+<p>解决的方法就是使用左外连接改造：</p>
+<blockquote>
+<p>SELECT film.* FROM film LEFT OUTER JOIN film_actor USING(film_id) WHERE film_actor.actor_id = 1;</p>
+</blockquote>
+<p>　<br><strong>PS：5.6及以后版本的MySQL对关联子查询做了大量优化，现在的思路是，基于查询重写技术的规则，尽可能将子查询转换为连接，并配合基于代价估算的Materialize、exists 等优化策略让子查询执行更优。因此5.6以后将不存在这个问题。</strong></p>
+<h3 id="2-UNION的限制"><a href="#2-UNION的限制" class="headerlink" title="2.UNION的限制"></a>2.UNION的限制</h3><p>MySQL无法将限制条件从外层“下推”到内层，其中一个典型就是UNION：</p>
+<blockquote>
+<p>(SELECT first_name FROM actor) UNION ALL (SELECT first_name FROM customer) LIMIT 20;</p>
+</blockquote>
+<p>MySQL会把actor和customer中的所有记录放在同一张临时表中，然后从临时表中取出前20条。可以通过把LIMIT放入内部来解决这个问题：</p>
+<blockquote>
+<p>(SELECT first_name FROM actor LIMIT 20) UNION ALL (SELECT first_name FROM customer LIMIT 20) LIMIT 20;</p>
+</blockquote>
+<p>这样临时表的规模就缩小到40了。</p>
+<h3 id="3-最大值和最小值优化"><a href="#3-最大值和最小值优化" class="headerlink" title="3.最大值和最小值优化"></a>3.最大值和最小值优化</h3><p>MySQL优化器会对不加条件的MAX和MIN做优化，但并没有对加条件的这两个函数做优化。比如：</p>
+<blockquote>
+<p>SELECT MIN(actor_id) FROM actor WHERE first_name = “PENELOPE”;</p>
+</blockquote>
+<p>actor_id是主键，严格按照大小排序，那么其实在找到第一个满足条件的记录就可以返回了。而MySQL会继续遍历整张表。修改的方式是使用LIMIT：</p>
+<blockquote>
+<p>SELECT actor_id FROM actor WHERE first_name = “PENELOPE” LIMIT 1;</p>
+</blockquote>
+<p>此时会触发提前终止机制，返回最小的actor_id。</p>
+<h2 id="三、优化特定类型的查询"><a href="#三、优化特定类型的查询" class="headerlink" title="三、优化特定类型的查询"></a>三、优化特定类型的查询</h2><h3 id="1-优化COUNT-查询"><a href="#1-优化COUNT-查询" class="headerlink" title="1.优化COUNT()查询"></a>1.优化COUNT()查询</h3><p>很多时候一些业务场景并不要求完全精确的COUNT值，可以使用</p>
+<blockquote>
+<p>EXPLAIN SELECT * FROM film;</p>
+</blockquote>
+<p>得到的近似值来代替。</p>
+<p>innodb下，如果表中单行数据量很大，且没有二级索引的话，可以对表上较短的且不为空的字段加索引，再执行count(*），此时优化器会自动选择走二级索引，由于二级索引是短字段，单页存储的数据行数就多，减少了取页的次数，查询时间也就更短了。</p>
+<h3 id="2-优化关联查询"><a href="#2-优化关联查询" class="headerlink" title="2.优化关联查询"></a>2.优化关联查询</h3><p>确保ON或者USING子句中的列上有索引，这样只需要全表扫描第一个表，第二个表可以走索引。</p>
+<p>确保任何的GROUP BY和ORDER BY中的表达式只涉及到一个表中的列，这样MySQL才可能使用索引来优化这个过程。</p>
+<h3 id="3-优化LIMIT分页"><a href="#3-优化LIMIT分页" class="headerlink" title="3.优化LIMIT分页"></a>3.优化LIMIT分页</h3><p>LIMIT分页在系统偏移量非常大的时候效果会很差。比如LIMIT 1000,20这样的查询，这时MySQL需要查询10020条记录然后只返回最后20条。</p>
+<p>优化此类分页查询的一个最简单的办法就是尽可能利用索引覆盖扫描。考虑下面的查询：</p>
+<blockquote>
+<p>SELECT film_id, description FROM film ORDER BY title LIMIT 50,5;</p>
+</blockquote>
+<p>这个语句可以被改写成：</p>
+<blockquote>
+<p>SELECT film.film_id,film,description FROM film INNER JOIN(SELECT film_id FROM film ORDER BY title LIMIT 50,5)AS lim USING(film_id);</p>
+</blockquote>
+<p>这里的“延迟关联”操作将大大提升查询效率，它会利用覆盖索引直接定位到分页所需数据所在的位置，而不需要从头遍历。</p>
+<p>记录上一次取数据的位置也是一个不错的主意。比如在频繁使用“下一页”这个功能的时候，记录下上次取数据最后的位置，然后可以把查询语句写成：</p>
+<blockquote>
+<p>SELECT film_id, description FROM film WHERE film_id&gt;16030 ORDER BY film_id LIMIT 5;</p>
 </blockquote>
 
       
@@ -314,7 +371,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、查询执行的基础"><span class="toc-number">1.</span> <span class="toc-text">一、查询执行的基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MySQL查询优化器"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL查询优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-重新定义关联表的顺序"><span class="toc-number">2.1.</span> <span class="toc-text">1.重新定义关联表的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-将外连接转化成内连接"><span class="toc-number">2.2.</span> <span class="toc-text">2.将外连接转化成内连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用等价变换规则"><span class="toc-number">2.3.</span> <span class="toc-text">3.使用等价变换规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-优化COUNT-、MIN-和MAX"><span class="toc-number">2.4.</span> <span class="toc-text">4.优化COUNT()、MIN()和MAX()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-预估并转化为常数表达式"><span class="toc-number">2.5.</span> <span class="toc-text">5.预估并转化为常数表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-覆盖索引扫描"><span class="toc-number">2.6.</span> <span class="toc-text">6.覆盖索引扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-提前终止查询"><span class="toc-number">2.7.</span> <span class="toc-text">7.提前终止查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-等值传播"><span class="toc-number">2.8.</span> <span class="toc-text">8.等值传播</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、查询执行的基础"><span class="toc-number">1.</span> <span class="toc-text">一、查询执行的基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MySQL查询优化器"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL查询优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-重新定义关联表的顺序"><span class="toc-number">2.1.</span> <span class="toc-text">1.重新定义关联表的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-将外连接转化成内连接"><span class="toc-number">2.2.</span> <span class="toc-text">2.将外连接转化成内连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用等价变换规则"><span class="toc-number">2.3.</span> <span class="toc-text">3.使用等价变换规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-优化COUNT-、MIN-和MAX"><span class="toc-number">2.4.</span> <span class="toc-text">4.优化COUNT()、MIN()和MAX()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-预估并转化为常数表达式"><span class="toc-number">2.5.</span> <span class="toc-text">5.预估并转化为常数表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-覆盖索引扫描"><span class="toc-number">2.6.</span> <span class="toc-text">6.覆盖索引扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-提前终止查询"><span class="toc-number">2.7.</span> <span class="toc-text">7.提前终止查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-子查询优化"><span class="toc-number">2.8.</span> <span class="toc-text">8.子查询优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-等值传播"><span class="toc-number">2.9.</span> <span class="toc-text">9.等值传播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-列表IN-的比较"><span class="toc-number">2.10.</span> <span class="toc-text">10.列表IN()的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-索引合并"><span class="toc-number">2.11.</span> <span class="toc-text">11.索引合并</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、MySQL查询优化器的局限"><span class="toc-number">3.</span> <span class="toc-text">三、MySQL查询优化器的局限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-关联子查询"><span class="toc-number">3.1.</span> <span class="toc-text">1.关联子查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-UNION的限制"><span class="toc-number">3.2.</span> <span class="toc-text">2.UNION的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-最大值和最小值优化"><span class="toc-number">3.3.</span> <span class="toc-text">3.最大值和最小值优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、优化特定类型的查询"><span class="toc-number">4.</span> <span class="toc-text">三、优化特定类型的查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-优化COUNT-查询"><span class="toc-number">4.1.</span> <span class="toc-text">1.优化COUNT()查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-优化关联查询"><span class="toc-number">4.2.</span> <span class="toc-text">2.优化关联查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-优化LIMIT分页"><span class="toc-number">4.3.</span> <span class="toc-text">3.优化LIMIT分页</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -4753,6 +4810,14 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">原创</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
@@ -4761,15 +4826,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">原创</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">收藏</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
