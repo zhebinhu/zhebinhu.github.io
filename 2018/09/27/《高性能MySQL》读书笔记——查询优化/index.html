@@ -18,7 +18,7 @@
 <meta property="og:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/09/27/《高性能MySQL》读书笔记——查询优化/查询执行基础.png">
-<meta property="og:updated_time" content="2018-09-28T11:47:34.314Z">
+<meta property="og:updated_time" content="2018-09-28T11:49:56.876Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《高性能MySQL》读书笔记——查询优化">
 <meta name="twitter:description" content="在设计了最优的库表结构、如何建立最好的索引，这些对于高性能来说必不可少。但这些还不够，还需要合理地设计查询。查询优化是MySQL优化的最后一块拼图，有了这部分知识，可以对大部分场景设计高效的数据库方案了。 一、查询执行的基础当MySQL执行一个查询语句时，会经历以下几个步骤：">
@@ -237,7 +237,7 @@
 <p>SELECT actor_id FROM actor WHERE first_name = “PENELOPE” LIMIT 1;</p>
 </blockquote>
 <p>此时会触发提前终止机制，返回最小的actor_id。</p>
-<h2 id="三、优化特定类型的查询"><a href="#三、优化特定类型的查询" class="headerlink" title="三、优化特定类型的查询"></a>三、优化特定类型的查询</h2><h3 id="1-优化COUNT-查询"><a href="#1-优化COUNT-查询" class="headerlink" title="1.优化COUNT()查询"></a>1.优化COUNT()查询</h3><p>很多时候一些业务场景并不要求完全精确的COUNT值，可以使用</p>
+<h2 id="四、优化特定类型的查询"><a href="#四、优化特定类型的查询" class="headerlink" title="四、优化特定类型的查询"></a>四、优化特定类型的查询</h2><h3 id="1-优化COUNT-查询"><a href="#1-优化COUNT-查询" class="headerlink" title="1.优化COUNT()查询"></a>1.优化COUNT()查询</h3><p>很多时候一些业务场景并不要求完全精确的COUNT值，可以使用</p>
 <blockquote>
 <p>EXPLAIN SELECT * FROM film;</p>
 </blockquote>
@@ -371,7 +371,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、查询执行的基础"><span class="toc-number">1.</span> <span class="toc-text">一、查询执行的基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MySQL查询优化器"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL查询优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-重新定义关联表的顺序"><span class="toc-number">2.1.</span> <span class="toc-text">1.重新定义关联表的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-将外连接转化成内连接"><span class="toc-number">2.2.</span> <span class="toc-text">2.将外连接转化成内连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用等价变换规则"><span class="toc-number">2.3.</span> <span class="toc-text">3.使用等价变换规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-优化COUNT-、MIN-和MAX"><span class="toc-number">2.4.</span> <span class="toc-text">4.优化COUNT()、MIN()和MAX()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-预估并转化为常数表达式"><span class="toc-number">2.5.</span> <span class="toc-text">5.预估并转化为常数表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-覆盖索引扫描"><span class="toc-number">2.6.</span> <span class="toc-text">6.覆盖索引扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-提前终止查询"><span class="toc-number">2.7.</span> <span class="toc-text">7.提前终止查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-子查询优化"><span class="toc-number">2.8.</span> <span class="toc-text">8.子查询优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-等值传播"><span class="toc-number">2.9.</span> <span class="toc-text">9.等值传播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-列表IN-的比较"><span class="toc-number">2.10.</span> <span class="toc-text">10.列表IN()的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-索引合并"><span class="toc-number">2.11.</span> <span class="toc-text">11.索引合并</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、MySQL查询优化器的局限"><span class="toc-number">3.</span> <span class="toc-text">三、MySQL查询优化器的局限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-关联子查询"><span class="toc-number">3.1.</span> <span class="toc-text">1.关联子查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-UNION的限制"><span class="toc-number">3.2.</span> <span class="toc-text">2.UNION的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-最大值和最小值优化"><span class="toc-number">3.3.</span> <span class="toc-text">3.最大值和最小值优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、优化特定类型的查询"><span class="toc-number">4.</span> <span class="toc-text">三、优化特定类型的查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-优化COUNT-查询"><span class="toc-number">4.1.</span> <span class="toc-text">1.优化COUNT()查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-优化关联查询"><span class="toc-number">4.2.</span> <span class="toc-text">2.优化关联查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-优化LIMIT分页"><span class="toc-number">4.3.</span> <span class="toc-text">3.优化LIMIT分页</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、查询执行的基础"><span class="toc-number">1.</span> <span class="toc-text">一、查询执行的基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MySQL查询优化器"><span class="toc-number">2.</span> <span class="toc-text">二、MySQL查询优化器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-重新定义关联表的顺序"><span class="toc-number">2.1.</span> <span class="toc-text">1.重新定义关联表的顺序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-将外连接转化成内连接"><span class="toc-number">2.2.</span> <span class="toc-text">2.将外连接转化成内连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用等价变换规则"><span class="toc-number">2.3.</span> <span class="toc-text">3.使用等价变换规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-优化COUNT-、MIN-和MAX"><span class="toc-number">2.4.</span> <span class="toc-text">4.优化COUNT()、MIN()和MAX()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-预估并转化为常数表达式"><span class="toc-number">2.5.</span> <span class="toc-text">5.预估并转化为常数表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-覆盖索引扫描"><span class="toc-number">2.6.</span> <span class="toc-text">6.覆盖索引扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-提前终止查询"><span class="toc-number">2.7.</span> <span class="toc-text">7.提前终止查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-子查询优化"><span class="toc-number">2.8.</span> <span class="toc-text">8.子查询优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-等值传播"><span class="toc-number">2.9.</span> <span class="toc-text">9.等值传播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-列表IN-的比较"><span class="toc-number">2.10.</span> <span class="toc-text">10.列表IN()的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-索引合并"><span class="toc-number">2.11.</span> <span class="toc-text">11.索引合并</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、MySQL查询优化器的局限"><span class="toc-number">3.</span> <span class="toc-text">三、MySQL查询优化器的局限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-关联子查询"><span class="toc-number">3.1.</span> <span class="toc-text">1.关联子查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-UNION的限制"><span class="toc-number">3.2.</span> <span class="toc-text">2.UNION的限制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-最大值和最小值优化"><span class="toc-number">3.3.</span> <span class="toc-text">3.最大值和最小值优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、优化特定类型的查询"><span class="toc-number">4.</span> <span class="toc-text">四、优化特定类型的查询</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-优化COUNT-查询"><span class="toc-number">4.1.</span> <span class="toc-text">1.优化COUNT()查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-优化关联查询"><span class="toc-number">4.2.</span> <span class="toc-text">2.优化关联查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-优化LIMIT分页"><span class="toc-number">4.3.</span> <span class="toc-text">3.优化LIMIT分页</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -4810,6 +4810,14 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4818,15 +4826,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
