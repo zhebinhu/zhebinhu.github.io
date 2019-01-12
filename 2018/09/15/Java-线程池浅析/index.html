@@ -7,22 +7,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>线程池源码阅读 | huzb的小书斋</title>
+  <title>Java 线程池浅析 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。  降低资源消耗。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。 提高线程的可管理性。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="线程池源码阅读">
-<meta property="og:url" content="http://yoursite.com/2018/09/15/线程池源码阅读/index.html">
+<meta property="og:title" content="Java 线程池浅析">
+<meta property="og:url" content="http://yoursite.com/2018/09/15/Java-线程池浅析/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。  降低资源消耗。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。 提高线程的可管理性。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/09/15/线程池源码阅读/线程池继承关系.png">
-<meta property="og:updated_time" content="2018-09-16T14:36:34.519Z">
+<meta property="og:image" content="http://yoursite.com/2018/09/15/Java-线程池浅析/线程池继承关系.png">
+<meta property="og:updated_time" content="2019-01-12T04:07:18.141Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="线程池源码阅读">
+<meta name="twitter:title" content="Java 线程池浅析">
 <meta name="twitter:description" content="Java中的线程池是运用场景最多的并发框架，几乎所有需要异步或并发执行任务的程序都可以使用线程池。在开发过程中，合理地使用线程池能够带来3个好处。  降低资源消耗。通过重复利用已创建的线程降低线程创建和销毁造成的消耗。 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。 提高线程的可管理性。线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以">
-<meta name="twitter:image" content="http://yoursite.com/2018/09/15/线程池源码阅读/线程池继承关系.png">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/15/Java-线程池浅析/线程池继承关系.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -156,19 +156,19 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-线程池源码阅读" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Java-线程池浅析" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      线程池源码阅读
+      Java 线程池浅析
     </h1>
   
 
         
-        <a href="/2018/09/15/线程池源码阅读/" class="archive-article-date">
+        <a href="/2018/09/15/Java-线程池浅析/" class="archive-article-date">
   	<time datetime="2018-09-15T05:58:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-15</time>
 </a>
         
@@ -184,7 +184,7 @@
 </ul>
 <a id="more"></a>
 <p>线程池的继承关系如下图：</p>
-<p><img src="/2018/09/15/线程池源码阅读/线程池继承关系.png"></p>
+<p><img src="/2018/09/15/Java-线程池浅析/线程池继承关系.png"></p>
 <p>线程池最顶层是<em>Executor</em>，这是只有一个execute方法的接口，也是整个Executor框架的顶层接口，所有Executor框架的组件都要实现这个接口。</p>
 <p><em>ExecutorService</em>继承了Executor，在此基础上增加了submit(Runnable) 和submit(Callable<t>)，表示任务的提交，Runnable和Callable<t>的区别在于Callable的call()方法有返回值，而Runnable的run没有。</t></t></p>
 <p><em>ThreadPoolExecutor</em>是线程池的核心实现类，大部分线程池的功能都在这个类中被定义，它有多个参数和构造函数，根据不同的构造参数可以实现不同功能的线程池。线程池的参数会在下文详细介绍。</p>
@@ -343,7 +343,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/15/线程池源码阅读/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/15/Java-线程池浅析/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -367,8 +367,8 @@
     </a>
   
   
-    <a href="/2018/09/03/阻塞队列源码阅读/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">阻塞队列源码阅读</div>
+    <a href="/2018/09/03/Java-阻塞队列浅析/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Java 阻塞队列浅析</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -4832,7 +4832,7 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4844,7 +4844,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4852,11 +4852,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
