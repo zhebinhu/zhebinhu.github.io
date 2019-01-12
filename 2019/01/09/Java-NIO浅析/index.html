@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/常见IO模型对比.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/NIO1.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/NIO2.jpg">
-<meta property="og:updated_time" content="2019-01-12T13:14:39.798Z">
+<meta property="og:updated_time" content="2019-01-12T14:16:30.904Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java NIO浅析">
 <meta name="twitter:description" content="NIO（Non-blocking I/O），是一种同步非阻塞的I/O模型，也是I/O多路复用的基础，已经被越来越多地应用到大型应用服务器，成为解决高并发与大量连接、I/O处理问题的有效方式。Java中的NIO是jdk 1.4之后新出的一套IO接口，相比传统IO(BIO)，两者有如下区别：  IO是面向流的，NIO是面向缓冲区的 IO流是同步阻塞的，NIO流是同步非阻塞的 NIO有选择器（Selec">
@@ -223,7 +223,7 @@
 <p>Linux中的select,poll,epoll是典型的事件驱动的I/O复用模型：</p>
 <p><img src="/2019/01/09/Java-NIO浅析/NIO2.jpg"></p>
 <p>select()会把所有的I/O请求封装为文件描述符(fd)的形式给操作系统，让操作系统内核去查询这些套接字上是否有事件发生，轮询完后，再将句柄数据复制到用户态，让服务器应用程序轮询处理已发生的网络事件，以此来实现一个线程/进程管理多个I/O的功能。</p>
-<p>poll()在select上支持更多数量的fd。因为select中使用bitmap的形式指示对应的文件描述符，数量有限（一般1024个），poll使用链表的形式，理论上支持的描述符数量没有上限。</p>
+<p>poll()在select上支持更多数量的fd。因为select中使用数组形式存放文件描述符，数量有限（一般1024个），poll使用链表的形式，理论上支持的描述符数量没有上限。</p>
 <p>epoll()在select/poll的基础上有了大幅改进：</p>
 <ul>
 <li>它使用红黑树来存储所有需要查询的事件，事件的添加和删除对应红黑树的插入和删除，复杂度从O(N)降为了O(logN)。</li>
@@ -4801,11 +4801,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">原创</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4817,19 +4821,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
             
             <div class="clearfix"></div>
