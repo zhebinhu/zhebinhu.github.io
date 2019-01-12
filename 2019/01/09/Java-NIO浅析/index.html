@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/常见IO模型对比.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/NIO1.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/09/Java-NIO浅析/NIO2.jpg">
-<meta property="og:updated_time" content="2019-01-12T04:21:37.937Z">
+<meta property="og:updated_time" content="2019-01-12T13:14:39.798Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java NIO浅析">
 <meta name="twitter:description" content="NIO（Non-blocking I/O），是一种同步非阻塞的I/O模型，也是I/O多路复用的基础，已经被越来越多地应用到大型应用服务器，成为解决高并发与大量连接、I/O处理问题的有效方式。Java中的NIO是jdk 1.4之后新出的一套IO接口，相比传统IO(BIO)，两者有如下区别：  IO是面向流的，NIO是面向缓冲区的 IO流是同步阻塞的，NIO流是同步非阻塞的 NIO有选择器（Selec">
@@ -200,8 +200,8 @@
 <p>以socket.read()为例子：传统的BIO里面socket.read()，如果TCP RecvBuffer里没有数据，函数会一直阻塞，直到收到数据，返回读到的数据。对于NIO，如果TCP RecvBuffer有数据，就把数据从网卡读到内存，并且返回给用户；反之则直接返回0，永远不会阻塞。最新的AIO(Async I/O)里面会更进一步：不但等待就绪是非阻塞的，就连数据从网卡到内存的过程也是异步的。换句话说，BIO里用户最关心“我要读”，NIO里用户最关心”我可以读了”，在AIO模型里用户更需要关注的是“读完了”。NIO一个重要的特点是：socket主要的读、写、注册和接收函数，在等待就绪阶段都是非阻塞的，真正的I/O操作是同步阻塞的（消耗CPU但性能非常高）。</p>
 <h3 id="传统BIO模型分析"><a href="#传统BIO模型分析" class="headerlink" title="传统BIO模型分析"></a>传统BIO模型分析</h3><p>了解NIO就要从传统BIO的弊端说起。</p>
 <p><img src="/2019/01/09/Java-NIO浅析/常见IO模型对比.jpg"></p>
-<p>在传统的BIO中，一旦用户线程发起IO请求，则必须要等内核将数据报准备好，才能将数据从内核复制到用户空间。这是一种效率很低的方式。传统的BIO一般要配合线程池来使用，我们的编程范式一般是这样的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService executor = Excutors.newFixedThreadPollExecutor(<span class="number">100</span>); <span class="comment">// 线程池</span></span><br><span class="line">ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket();</span><br><span class="line">serverSocket.bind(<span class="number">8088</span>);</span><br><span class="line"><span class="keyword">while</span>(!Thread.currentThread.isInturrupted())&#123; <span class="comment">// 主线程死循环等待新连接到来</span></span><br><span class="line">	Socket socket = serverSocket.accept();</span><br><span class="line">	executor.submit(<span class="keyword">new</span> ConnectIOnHandler(socket)); <span class="comment">// 为新的连接创建新的线程</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConnectIOnHandler</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Socket socket;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConnectIOnHandler</span><span class="params">(Socket socket)</span></span>&#123;</span><br><span class="line">       <span class="keyword">this</span>.socket = socket;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">      <span class="keyword">while</span>(!Thread.currentThread.isInturrupted()&amp;&amp;!socket.isClosed())&#123; <span class="comment">// 死循环处理读写事件</span></span><br><span class="line">          String someThing = socket.read()....<span class="comment">// 读取数据</span></span><br><span class="line">          <span class="keyword">if</span>(someThing!=<span class="keyword">null</span>)&#123;</span><br><span class="line">             ......<span class="comment">//处理数据</span></span><br><span class="line">             socket.write()....<span class="comment">// 写数据</span></span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在传统的BIO中，一旦用户线程发起IO请求，则必须要等内核将数据报准备好，才能将数据从内核复制到用户空间。这是一种效率很低的方式。传统的BIO一般要配合线程池来使用，我们的编程范式（伪代码）一般是这样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">ExecutorService executor = Excutors.newFixedThreadPollExecutor(<span class="number">100</span>); <span class="comment">// 线程池</span></span><br><span class="line">ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket();</span><br><span class="line">serverSocket.bind(<span class="number">8088</span>);</span><br><span class="line"><span class="keyword">while</span>(!Thread.currentThread.isInturrupted())&#123; <span class="comment">// 主线程死循环等待新连接到来</span></span><br><span class="line">    Socket socket = serverSocket.accept();</span><br><span class="line">    executor.submit(<span class="keyword">new</span> ConnectIOnHandler(socket)); <span class="comment">// 为新的连接创建新的线程</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConnectIOnHandler</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Socket socket;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConnectIOnHandler</span><span class="params">(Socket socket)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.socket = socket;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">while</span>(!Thread.currentThread.isInturrupted()&amp;&amp;!socket.isClosed())&#123; <span class="comment">// 死循环处理读写事件</span></span><br><span class="line">            String someThing = socket.read()....<span class="comment">// 读取数据</span></span><br><span class="line">            <span class="keyword">if</span>(someThing!=<span class="keyword">null</span>)&#123;</span><br><span class="line">         ......<span class="comment">//处理数据</span></span><br><span class="line">                socket.write()....<span class="comment">// 写数据</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这是一个经典的每连接每线程的模型，之所以使用多线程，主要原因在于socket.accept()、socket.read()、socket.write()三个主要函数都是同步阻塞的，当一个连接在处理I/O的时候，系统是阻塞的，如果是单线程的话必然就挂死在那里；但CPU是被释放出来的，开启多线程，就可以让CPU去处理更多的事情。其实这也是所有使用多线程的本质：</p>
 <ul>
 <li>利用多核。</li>
@@ -218,8 +218,36 @@
 <p>所以，当面对十万甚至百万级连接的时候，传统的BIO模型是无能为力的。随着移动端应用的兴起和各种网络游戏的盛行，百万级长连接日趋普遍，此时，必然需要一种更高效的I/O处理模型。</p>
 <h3 id="NIO是如何工作的"><a href="#NIO是如何工作的" class="headerlink" title="NIO是如何工作的"></a>NIO是如何工作的</h3><p><img src="/2019/01/09/Java-NIO浅析/NIO1.jpg"></p>
 <p>这是一个NIO基本的工作方式（但不常用），我们把一个套接口设置为非阻塞，当所请求的I/O操作不能满足要求时候，不把本进程投入睡眠，而是返回一个错误。也就是说当数据没有到达时并不等待，而是以一个错误返回。</p>
-<h3 id="I-O复用模型"><a href="#I-O复用模型" class="headerlink" title="I/O复用模型"></a>I/O复用模型</h3><p>在BIO的场景下，为了避免线程长时间阻塞在等待内核准备上，我们选择了每连接每线程的方式。但在NIO的场景下，如果当前的连接没有准备好，可以选择下一个连接。比如我们的聊天程序，我们可以建立两个连接：一个发送端，一个接收端。程序会不断轮询这两个连接，如果接收端有数据达到，那就把它显示在屏幕上；如果发送端有数据发出，那就把它发出。但如果接收端没有数据，或者发送端的网卡没有准备好，程序也不会停下来，而是继续轮询，直到有一方准备好。<strong>这种一个进程/线程处理多个IO的方式，被称为I/O复用模型。</strong></p>
-<p>Linux中的select,poll,epoll是典型的I/O复用模型：<br><img src="/2019/01/09/Java-NIO浅析/NIO2.jpg"></p>
+<h3 id="事件驱动的I-O复用模型（常用）"><a href="#事件驱动的I-O复用模型（常用）" class="headerlink" title="事件驱动的I/O复用模型（常用）"></a>事件驱动的I/O复用模型（常用）</h3><p>在BIO的场景下，为了避免线程长时间阻塞在等待内核准备上，我们选择了每连接每线程的方式。但在NIO的场景下，如果当前的连接没有准备好，可以选择下一个连接。比如我们的聊天程序，我们可以建立两个连接：一个发送端，一个接收端。程序会不断轮询这两个连接，如果接收端有数据达到，那就把它显示在屏幕上；如果发送端有数据发出，那就把它发出。但如果接收端没有数据，或者发送端的网卡没有准备好，程序也不会停下来，而是继续轮询，直到有一方准备好。<strong>这种一个进程/线程处理多个IO的方式，被称为I/O复用模型。</strong></p>
+<p>而如果我们把发送就绪和接收就绪当成两类事件，只有在这两类事件发生的时候才会触发轮询，其它时候（比如等待请求时），程序不会被唤醒，那么这种方式就被称为<strong>事件驱动。</strong></p>
+<p>Linux中的select,poll,epoll是典型的事件驱动的I/O复用模型：</p>
+<p><img src="/2019/01/09/Java-NIO浅析/NIO2.jpg"></p>
+<p>select()会把所有的I/O请求封装为文件描述符(fd)的形式给操作系统，让操作系统内核去查询这些套接字上是否有事件发生，轮询完后，再将句柄数据复制到用户态，让服务器应用程序轮询处理已发生的网络事件，以此来实现一个线程/进程管理多个I/O的功能。</p>
+<p>poll()在select上支持更多数量的fd。因为select中使用bitmap的形式指示对应的文件描述符，数量有限（一般1024个），poll使用链表的形式，理论上支持的描述符数量没有上限。</p>
+<p>epoll()在select/poll的基础上有了大幅改进：</p>
+<ul>
+<li>它使用红黑树来存储所有需要查询的事件，事件的添加和删除对应红黑树的插入和删除，复杂度从O(N)降为了O(logN)。</li>
+<li>它使用双向链表来保存就绪的事件。所有添加到红黑树上的事件都会与设备(网卡)驱动程序建立回调关系，当相应的事件发生时会调用这个回调方法，回调方法会把事件放入双向链表中。</li>
+<li>返回时返回的是就绪事件（双向链表）而不是所有事件，既减少了内核到用户空间的拷贝数据量，又省了用户程序筛选就绪事件的时间。</li>
+<li>相比select/poll的水平触发模式，epoll也支持边沿触发模式。即用户可以选择到底是接受所有就绪的事件（水平触发），还是只接受上次检查以后新就绪的事件（边沿触发）。</li>
+</ul>
+<h2 id="Java中的NIO模型"><a href="#Java中的NIO模型" class="headerlink" title="Java中的NIO模型"></a>Java中的NIO模型</h2><p>Java中的NIO模型选用了事件驱动的I/O复用模型。事实上，在Linux上Java的NIO就是基于select,poll,epoll来实现的（Linux 2.6之前是select、poll，2.6之后是epoll）。</p>
+<p>在Java的NIO中，有4类事件：读就绪（OP_READ），写就绪（OP_WRITE），收到请求（仅服务端有效，OP_ACCEPT），发出请求（仅客户端有效，OP_CONNECT）。我们需要注册当这几个事件到来的时候所对应的处理器。然后在合适的时机告诉事件选择器：我对这个事件感兴趣。对于写操作，就是写不出去的时候对写事件感兴趣；对于读操作，就是完成连接和系统没有办法承载新读入的数据的时；对于accept，一般是服务器刚启动的时候；而对于connect，一般是connect失败需要重连或者直接异步调用connect的时候。新事件到来的时候，会在selector上注册标记位，标示可读、可写或者有连接到来。编程范式（伪代码）一般如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment">//处理器抽象接口</span></span><br><span class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ChannelHandler</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">channelReadable</span><span class="params">(Channel channel)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">channelWritable</span><span class="params">(Channel channel)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Channel</span></span>&#123;</span><br><span class="line">    Socket socket;</span><br><span class="line">    Event event;<span class="comment">//读，写或者连接</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Map&lt;Channel，ChannelHandler&gt; handlerMap;<span class="comment">//所有channel的对应事件处理器</span></span><br><span class="line"><span class="comment">//IO线程主循环:</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IoThread</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Channel channel;</span><br><span class="line">        <span class="keyword">while</span>(channel=Selector.select())&#123;<span class="comment">//选择就绪的事件和对应的连接</span></span><br><span class="line">            <span class="keyword">if</span>(channel.event==accept)&#123;</span><br><span class="line">                registerNewChannelHandler(channel);<span class="comment">//如果是新连接，则注册一个新的读写处理器</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(channel.event==write)&#123;</span><br><span class="line">                getChannelHandler(channel).channelWritable(channel);<span class="comment">//如果可以写，则执行写事件</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(channel.event==read)&#123;</span><br><span class="line">                getChannelHandler(channel).channelReadable(channel);<span class="comment">//如果可以读，则执行读事件</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Buffer的选择"><a href="#Buffer的选择" class="headerlink" title="Buffer的选择"></a>Buffer的选择</h3><p>Java中的NIO还有一个特点是面向缓冲区的。这一特性其实在传统IO中就有用到，这里不再赘述。但是Buffer的选择也是一个值得注意的地方。</p>
+<p>通常情况下，操作系统的一次写操作分为两步： 1. 将数据从用户空间拷贝到系统空间。 2. 从系统空间往网卡写。同理，读操作也分为两步： ① 将数据从网卡拷贝到系统空间； ② 将数据从系统空间拷贝到用户空间。</p>
+<p>对于NIO来说，缓存的使用可以使用DirectByteBuffer和HeapByteBuffer。如果使用了DirectByteBuffer，一般来说可以减少一次系统空间到用户空间的拷贝。但Buffer创建和销毁的成本更高，更不宜维护，通常会用内存池来提高性能。如果数据量比较小的中小应用情况下，可以考虑使用heapBuffer；反之可以用directBuffer。</p>
+<p>使用NIO != 高性能，当连接数&lt;1000，并发程度不高或者局域网环境下NIO并没有显著的性能优势。</p>
+<p>NIO并没有完全屏蔽平台差异，它仍然是基于各个操作系统的I/O系统实现的，差异仍然存在。使用NIO做网络编程构建事件驱动模型并不容易，陷阱重重。</p>
+<p>推荐大家使用成熟的NIO框架，如Netty，MINA等。解决了很多NIO的陷阱，并屏蔽了操作系统的差异，有较好的性能和编程模型。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>最后总结一下Java中的NIO为我们带来了什么：</p>
+<ul>
+<li>非阻塞I/O，I/O读写不再阻塞，而是返回0</li>
+<li>避免多线程，单个线程可以处理多个任务</li>
+<li>事件驱动模型</li>
+<li>基于block的传输，通常比基于流的传输更高效</li>
+<li>IO多路复用大大提高了Java网络应用的可伸缩性和实用性</li>
+</ul>
 
       
 
@@ -332,7 +360,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IO基本概念"><span class="toc-number">1.</span> <span class="toc-text">IO基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步和异步"><span class="toc-number">1.1.</span> <span class="toc-text">同步和异步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞和非阻塞"><span class="toc-number">1.2.</span> <span class="toc-text">阻塞和非阻塞</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见I-O模型对比"><span class="toc-number">2.</span> <span class="toc-text">常见I/O模型对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#传统BIO模型分析"><span class="toc-number">2.1.</span> <span class="toc-text">传统BIO模型分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO是如何工作的"><span class="toc-number">2.2.</span> <span class="toc-text">NIO是如何工作的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-O复用模型"><span class="toc-number">2.3.</span> <span class="toc-text">I/O复用模型</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IO基本概念"><span class="toc-number">1.</span> <span class="toc-text">IO基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步和异步"><span class="toc-number">1.1.</span> <span class="toc-text">同步和异步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞和非阻塞"><span class="toc-number">1.2.</span> <span class="toc-text">阻塞和非阻塞</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见I-O模型对比"><span class="toc-number">2.</span> <span class="toc-text">常见I/O模型对比</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#传统BIO模型分析"><span class="toc-number">2.1.</span> <span class="toc-text">传统BIO模型分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO是如何工作的"><span class="toc-number">2.2.</span> <span class="toc-text">NIO是如何工作的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件驱动的I-O复用模型（常用）"><span class="toc-number">2.3.</span> <span class="toc-text">事件驱动的I/O复用模型（常用）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java中的NIO模型"><span class="toc-number">3.</span> <span class="toc-text">Java中的NIO模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Buffer的选择"><span class="toc-number">3.1.</span> <span class="toc-text">Buffer的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4769,19 +4797,15 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">原创</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">原创</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4793,15 +4817,19 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>
