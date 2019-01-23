@@ -7,18 +7,24 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 计算机网络 | huzb的小书斋</title>
+  <title>TCP协议回顾 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/tags/计算机网络/index.html">
+  <meta name="description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
+<meta name="keywords" content="计算机网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP协议回顾">
+<meta property="og:url" content="http://yoursite.com/2019/01/23/TCP协议回顾/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP协议头.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/三次握手.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/四次挥手.png">
+<meta property="og:updated_time" content="2019-01-23T15:56:55.437Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="TCP协议回顾">
+<meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP协议头.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -152,36 +158,61 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-TCP协议回顾" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      TCP协议回顾
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/23/TCP协议回顾/" class="archive-article-date">
+
+        
+        <a href="/2019/01/23/TCP协议回顾/" class="archive-article-date">
   	<time datetime="2019-01-23T13:28:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-23</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/23/TCP协议回顾/">TCP协议回顾</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。</p>
+<p>TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：<br><a id="more"></a></p>
+<ul>
+<li>三次握手</li>
+<li>四次挥手</li>
+<li>可靠性传输</li>
+<li>流量控制</li>
+<li>拥塞控制</li>
+</ul>
+<h2 id="TCP协议头"><a href="#TCP协议头" class="headerlink" title="TCP协议头"></a>TCP协议头</h2><p>要想了解TCP协议首先就必须了解TCP的协议头：<br><img src="/2019/01/23/TCP协议回顾/TCP协议头.png"></p>
+<p>首先，源端口号和目标端口号是不可少的，这一点和 UDP 是一样的。如果没有这两个端口号。 数据就不知道应该发给哪个应用。</p>
+<p>接下来是包的序号和确认序号。为了保证消息的顺序性到达，TCP给每个包编了一个序号。初始序号在建立连接时指定，此后每个包的序号为上一个包的序号+上一个包的字节数。服务器会返回一个确认号，表示这个序号之前的包都收到了。</p>
+<p>然后是一些状态位。例如SYN是发起一个连接，ACK是回复，RST是重新连接，FIN是结束连接。TCP是面向连接的，这些带状态位的包可以改变双方的状态。</p>
+<p>窗口大小是跟流量控制有关。TCP是全双工的协议，通信双方都会维护一个缓存空间。这个窗口大小就是告诉对方我还有多少剩余的缓存空间。</p>
+<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><p>TCP是面向连接的协议，所以在建立连接前有一系列的动作，被称为三次握手：<br><img src="/2019/01/23/TCP协议回顾/三次握手.png"></p>
+<p>一开始，客户端和服务端都处于CLOSED状态。先是服务端主动监听某个端口，处于LISTEN状态。然后客户端主动发起连接SYN，之后处于SYN-SENT状态。服务端收到发起的连接，返回SYN，并且ACK客户端的SYN，之后处于SYN-RCVD状态。客户端收到服务端发送的SYN和ACK之后，发送ACK的ACK，之后处于ESTABLISHED状态，因为它一发一收成功了。服务端收到ACK的ACK之后，处于 ESTABLISHED状态，因为它也一发一收了。</p>
+<p>三次握手除了双方建立连接外，还要沟通一件事情，就是TCP包的序号的问题。</p>
+<p>双方在发送SYN包的时候，各自需要指定一个针对这次连接的序号seq。这个seq实质上可以看出一个32位的计时器，每4ms加一。为什么要这么做呢？主要是为了防止在网络中被延迟的分组在以后被重复传输，而导致某个连接的一端对它作错误的判断。如果序号不按这种方式分配，而是从1开始，则会出现这样的情况：AB建立连接之后，A发送了1,2,3三个包，然后掉线了。由于网络的原因三个包没有到达B，在网络中游荡。然后A重连了，序号重新从1开始，他又发送了1,2两个包，但没有发送3号包。此时上一次连接发送的3号包却到达了B，B以为是A这次发送的，就产生了误判。为了避免这种情况的发生，TCP协议规定了这种方式生成初始seq。以这种方式生成的初始seq，需要4个多小时才会重复，此时早已过了3号包的生存时间（TTL）。</p>
+<h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><p>有建立连接，必然也有断开连接。断开连接的动作被称为四次挥手：<br><img src="/2019/01/23/TCP协议回顾/四次挥手.png"></p>
+<p>区别于三次握手，四次挥手的发起方可以是客户端也可以是服务端。因此不区分客户端和服务端而是用AB代替。</p>
+<p>一开始，A和B都处于ESTABLISHED的状态。然后A发送FIN表示请求断开连接，之后B处于FIN-WAIT-1的状态。</p>
+<p>B在接收到FIN请求后，会发送一个ACK包表示收到了FIN请求，之后B处于CLOSED-WAIT状态。需要注意的是此时B发送的是ACK包而不是FIN包，之所以不像三次握手一样直接回应一个FIN包，是因为此时B可能还有些事情没有做完，还可能发送数据，所以称为半关闭状态。</p>
+<p>这个时候A可以选择不再接收数据，也可以选择最后再接收一段数据，等待B也主动关闭。不论如何，A在收到ACK包后都进入了FIN-WAIT2阶段。</p>
+<p>B处理完了所有的事情，终于也准备关闭，此时会发送一个FIN包。之后B进入LAST-ACK状态，等待A的ACK包。</p>
+<p>A在收到服务器的FIN包后会发送一个ACK包表示收到了B的FIN包。按理说此时A就可以关闭了，但由于A最后的ACK存在丢包的可能，B没有收到最后的ACK包的话，就会重发一个FIN包，如果这时候A关闭了，B就再也收不到ACK了。因而TCP协议要求A最后等待一段时间TIME_WAIT，这个时间要足够长，长到B没收到ACK的话，重发的FIN包还能到达A。</p>
+<p>A直接关闭还有一个问题是，A的端口就直接空出来了，但是B不知道，B原来发过的很多包很可能还在路上，如果A的端口被一个新的应用占用了，这个新的应用会收到上个连接中B发过来的包，虽然序列号是重新生成的，但是这里要上一个双保险，防止产生混乱，因而也需要等足够长的时间，等到原来B发送的所有的包都过期了，再空出端口来。</p>
+<p>等待的时间设为2MSL，MSL是Maximum Segment Lifetime（报文最大生存时间），它是任何报文在网络上存在的最长时间，超过这个时间报文将被丢弃。因为TCP报文基于是IP协议的， 而IP头中有一个TTL域，是IP数据报可以经过的最大路由数，每经过一个处理他的路由器此值就减 1，当此值为0则数据报将被丢弃，同时发送ICMP报文通知源主机。协议规定MSL为2分钟，实际应用中常用的是30秒，1分钟和2分钟等。</p>
 
-        <div class="article-info info-on-right">
-          
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -193,71 +224,141 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/01/23/TCP协议回顾/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/01/14/插入缓冲、二次写和自适应哈希索引/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">插入缓冲、二次写和自适应哈希索引</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/05/15/GET与POST的区别/" class="archive-article-date">
-  	<time datetime="2018-05-15T06:55:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
-</a>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP协议头"><span class="toc-number">1.</span> <span class="toc-text">TCP协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-number">2.</span> <span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-number">3.</span> <span class="toc-text">四次挥手</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-    	 
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/15/GET与POST的区别/">GET与POST的区别</a>
-    </h1>
+  
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
+  
 
 
           </div>
@@ -279,9 +380,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
