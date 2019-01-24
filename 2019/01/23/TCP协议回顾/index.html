@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制6.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制7.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png">
-<meta property="og:updated_time" content="2019-01-24T15:39:49.164Z">
+<meta property="og:updated_time" content="2019-01-24T17:00:36.569Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TCP协议回顾">
 <meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
@@ -206,6 +206,14 @@
 <p>一开始，客户端和服务端都处于CLOSED状态。先是服务端主动监听某个端口，处于LISTEN状态。然后客户端主动发起连接SYN，之后处于SYN-SENT状态。服务端收到发起的连接，返回SYN，并且ACK客户端的SYN，之后处于SYN-RCVD状态。客户端收到服务端发送的SYN和ACK之后，发送ACK的ACK，之后处于ESTABLISHED状态，因为它一发一收成功了。服务端收到ACK的ACK之后，处于 ESTABLISHED状态，因为它也一发一收了。</p>
 <p>三次握手除了双方建立连接外，还要沟通一件事情，就是TCP包的序号的问题。</p>
 <p>双方在发送SYN包的时候，各自需要指定一个针对这次连接的序号seq。这个seq实质上可以看出一个32位的计时器，每4ms加一。为什么要这么做呢？主要是为了防止在网络中被延迟的分组在以后被重复传输，而导致某个连接的一端对它作错误的判断。如果序号不按这种方式分配，而是从1开始，则会出现这样的情况：AB建立连接之后，A发送了1,2,3三个包，然后掉线了。由于网络的原因三个包没有到达B，在网络中游荡。然后A重连了，序号重新从1开始，他又发送了1,2两个包，但没有发送3号包。此时上一次连接发送的3号包却到达了B，B以为是A这次发送的，就产生了误判。为了避免这种情况的发生，TCP协议规定了这种方式生成初始seq。以这种方式生成的初始seq，需要4个多小时才会重复，此时早已过了3号包的生存时间（TTL）。</p>
+<p><strong>为什么要三次握手而不是两次？</strong></p>
+<blockquote>
+<p>原因一：服务器会收到客户端很早以前发送的，但因为延迟导致现在才到达的SYN报文。如果不采用三次握手，则服务器会认为新的连接已经建立，会白白浪费缓存等资源。<br>原因二：三次握手需要交流双方的初始序号seq，服务器发送的第二次握手是针对客户端在第一次握手中约定的客户端初始seq的确认，客户端的第三次握手是针对服务器在第二次握手中约定的服务器初始seq的确认。如果没有第三次握手，万一服务器的SYN包丢了，那么客户端无法得知服务器的初始序号，此时客户端就没法接收服务器的包，因为客户端没法辨别这个包是本次连接中发送的，还是上一次连接中发送的。</p>
+</blockquote>
+<p><strong>SYN洪泛攻击</strong></p>
+<blockquote>
+<p>因为服务器在收到一个SYN报文后，会初始化连接变量和缓存，如果攻击方会发送大量SYN报文，而不完成第三次握手，那么就会导致服务器的连接资源被消耗殆尽。<br>针对SYN洪泛攻击有一种有效的防御手段，称为<strong>SYN cookie</strong>：当服务器接收到一个SYN报文时，它不知道这是来自一个合法的请求还是SYN洪泛攻击的一部分。所以它不会为其分配资源，而是将该报文中的源、目的IP地址和端口和服务器自己的秘密数做哈希，将（秒级时间（5位）+最长分段大小（3位）+哈希（24位））作为初始seq返回给客户端。<br>如果是一个合法用户，会返回一个ACK包，服务器可以通过将ACK包中的源、目的IP地址和端口，和ACK-1对比，得知这是否是一个合法的SYN确认包。然后可以通过秒级时间确定这是否是一个新的包。如果是新的包且合法，服务器才会分配资源。这样就有效防止了SYN洪泛攻击的发生。</p>
+</blockquote>
 <h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><p>有建立连接，必然也有断开连接。断开连接的动作被称为四次挥手：<br><img src="/2019/01/23/TCP协议回顾/四次挥手.png"></p>
 <p>区别于三次握手，四次挥手的发起方可以是客户端也可以是服务端。因此不区分客户端和服务端而是用AB代替。</p>
 <p>一开始，A和B都处于ESTABLISHED的状态。然后A发送FIN表示请求断开连接，之后B处于FIN-WAIT-1的状态。</p>
@@ -248,25 +256,26 @@
 <p>超时触发重传存在的问题是，超时周期可能相对较长。那是不是可以有更快的方式呢？</p>
 <p>有一个叫<strong>快速重传</strong>的机制：当接收方收到一个序号大于下一个所期望的报文段时，就检测到了数据流中的一个间格，于是发送三个冗余的ACK，客户端收到后，就在定时器过期之前，重传丢失的报文段。</p>
 <p>例如，接收方发现6、8、9都已经接收了，就是7没来，那肯定是丢了，于是发送三个6的ACK，要求下一个是7。客户端收到3个，就会发现7的确又丢了，不等超时，马上重发。</p>
-<p>还有一种方式称为Selective Acknowledgment （SACK）。这种方式需要在TCP头里加一个SACK 的东西，可以将缓存的地图发送给发送方。例如可以发送ACK6、SACK8、SACK9，有了地图，发送方一下子就能看出来是7丢了。</p>
+<p>还有一种方式称为<strong>Selective Acknowledgment （SACK）</strong>。这种方式需要在TCP头里加一个SACK 的东西，可以将缓存的地图发送给发送方。例如可以发送ACK6、SACK8、SACK9，有了地图，发送方一下子就能看出来是7丢了。</p>
 <h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><p>流量控制是为了平衡发送端与接收端的速度，避免出现包处理不过来的情况。在协议头里面，有一个窗口大小字段，这个就是用来进行流量控制的。</p>
 <p>我们先假设窗口不变的情况，窗口始终为9。4的确认来的时候，会右移一个，这个时候第13个包也可以发送了。<br><img src="/2019/01/23/TCP协议回顾/流量控制1.png"></p>
-<p>这个时候，假设发送端发送过猛，会将第三部分的10、11、12、13全部发送完毕，之后就停止发送了，未发送可发送部分 0。<br><img src="/2019/01/23/TCP协议回顾/流量控制2.png"></p>
+<p>这个时候，假设发送端发送过猛，会将第三部分的10、11、12、13全部发送完毕，之后就停止发送了，未发送可发送部分0。<br><img src="/2019/01/23/TCP协议回顾/流量控制2.png"></p>
 <p>当对于包5的确认到达的时候，在客户端相当于窗口再滑动了一格，这个时候，才可以有更多的包可以发送了，例如第14个包才可以发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制3.png"></p>
-<p>如果接收方实在处理的太慢，导致缓存中没有空间了，可以通过确认信息修改窗口的大小，甚至可以设置为 0，则发送方将暂时停止发送。</p>
+<p>如果接收方实在处理的太慢，导致缓存中没有空间了，可以通过确认信息修改窗口的大小，甚至可以设置为0，则发送方将暂时停止发送。</p>
 <p>我们假设一个极端情况，接收端的应用一直不读取缓存中的数据，当数据包6确认后，窗口大小就不能再是9了，就要缩小一个变为8。<br><img src="/2019/01/23/TCP协议回顾/流量控制4.png"></p>
 <p>这个新的窗口8通过6的确认消息到达发送端的时候，你会发现窗口没有平行右移，而是仅仅左面的边右移了，窗口的大小从9改成了8。<br><img src="/2019/01/23/TCP协议回顾/流量控制5.png"></p>
 <p>如果接收端还是一直不处理数据，则随着确认的包越来越多，窗口越来越小，直到为0。<br><img src="/2019/01/23/TCP协议回顾/流量控制6.png"></p>
 <p>当这个窗口通过包14的确认到达发送端的时候，发送端的窗口也调整为0，停止发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制7.png"></p>
 <p>如果这样的话，发送方会定时发送窗口探测数据包，看是否有机会调整窗口的大小。当接收方比较慢的时候，要防止低能窗口综合征，别空出一个字节来就赶快告诉发送方，然后马上又填满 了，可以当窗口太小的时候，不更新窗口，直到达到一定大小，或者缓冲区一半为空，才更新窗口。</p>
 <h2 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h2><p>拥塞控制是为了避免网络中传输着太多的包导致网络拥挤。这里有一个公式，即：发送但还未确认的包要小于等于滑动窗口（rwnd）和拥塞窗口（cwnd）的最小值。前者在流量控制中已经讲过，剩下的就是后者。</p>
-<p>拥塞控制有三个时期：慢启动、拥塞避免和快速恢复。</p>
+<p>拥塞控制有三个时期：<strong>慢启动、拥塞避免和快速恢复。</strong></p>
 <p>当开始时，cwnd设置为一个报文段，一次只能发送一个；当收到这一个确认的时候，cwnd加一，于是一次能发送两个；当这两个确认到来的时候，每个确认cwnd加一，两个确认 cwnd 加二，于是一次能发送四个。当这四个的确认到来的时候，每个确认cwnd加一，四个确认cwnd加四，于是一次能够发送八个。依次类推，此时，cwnd的增长速度是指数型的增长。</p>
 <p>涨到什么时候是个头呢？有一个值ssthresh初始为65535个字节，当超过这个值的时候，就进入了拥塞避免状态。此时不再是一个确认对应一个cwnd的增长，而是一个确认对应1/cwnd的增长。我们接着上面的过程来，一次发送八个，当八个确认到来的时候，每个确认增加1/8，八个确认一共cwnd增加1，于是一次能够发送九个，变成了线性增长。</p>
-<p>但cwnd不可能无限增长，总有一个时候网络会拥挤，拥挤的表现形式是丢包。发送端有两种方式感知到丢包：超时和收到三个相同ACK。针对这两种情况的丢包，发送端的处理方式也不一样。</p>
+<p>但cwnd不可能无限增长，总有一个时候网络会拥挤，拥挤的表现形式是丢包。发送端有两种方式感知到丢包：超时和收到三个相同ACK（快速重传）。针对这两种情况的丢包，发送端的处理方式也不一样。</p>
 <p>第一种是超时丢包，这种情况下，发送端会认为当前网络非常拥挤，因此会采取激进的限制措施：将sshresh设为cwnd/2，将cwnd设为1，重新开始慢启动。</p>
-<p>第二种是三个相同ACK丢包，这种情况发送端会认为这个丢包是个偶然事件，因此网络并不非常拥挤，采取的措施也会温和一些：sshresh设为cwnd/2，cwnd设为cwnd/2，又因为返回了三个确认包，cwnd再加3。之后进入快速恢复阶段。这个阶段中cwnd也是线性增长。</p>
+<p>第二种是三个相同ACK丢包，发送端会认为这个丢包是个偶然事件，因此网络并不非常拥挤，采取的措施也会温和一些：sshresh设为cwnd/2，cwnd设为cwnd/2，又因为返回了三个确认包，cwnd再加3。之后进入快速恢复阶段，因为当前cwnd仍在比较高的值，这个阶段中cwnd也是线性增长。</p>
 <p>两种方式的比较如下：<br><img src="/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>TCP协议的核心部分在于：三次握手、四次挥手、可靠性传输、流量控制、拥塞控制，掌握好这些知识点对网络编程很有帮助。</p>
 
       
 
@@ -379,7 +388,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP协议头"><span class="toc-number">1.</span> <span class="toc-text">TCP协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-number">2.</span> <span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-number">3.</span> <span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-number">4.</span> <span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-number">4.1.</span> <span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-number">5.</span> <span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-number">6.</span> <span class="toc-text">拥塞控制</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP协议头"><span class="toc-number">1.</span> <span class="toc-text">TCP协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-number">2.</span> <span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-number">3.</span> <span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-number">4.</span> <span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-number">4.1.</span> <span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-number">5.</span> <span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-number">6.</span> <span class="toc-text">拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4832,15 +4841,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
