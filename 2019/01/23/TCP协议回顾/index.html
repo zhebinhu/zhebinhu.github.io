@@ -9,21 +9,31 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>TCP协议回顾 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
+  <meta name="description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
 <meta name="keywords" content="计算机网络">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TCP协议回顾">
 <meta property="og:url" content="http://yoursite.com/2019/01/23/TCP协议回顾/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
+<meta property="og:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP协议头.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/三次握手.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/四次挥手.png">
-<meta property="og:updated_time" content="2019-01-23T15:56:55.437Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/发送端滑动窗口.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/接收端滑动窗口.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制1.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制2.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制3.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制4.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制5.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制6.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制7.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png">
+<meta property="og:updated_time" content="2019-01-24T15:39:49.164Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TCP协议回顾">
-<meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
+<meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：">
 <meta name="twitter:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP协议头.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
@@ -178,7 +188,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，不要再忘了。</p>
+        <p>本科的时候面向考试学习计算机网络，TCP是重点中的重点，可惜当时不知道TCP在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到TCP这章，就像看到了一个老朋友。就想把它记录下来，便于复习。</p>
 <p>TCP协议非常复杂，标准也非常多，但核心内容就以下几个部分：<br><a id="more"></a></p>
 <ul>
 <li>三次握手</li>
@@ -200,11 +210,63 @@
 <p>区别于三次握手，四次挥手的发起方可以是客户端也可以是服务端。因此不区分客户端和服务端而是用AB代替。</p>
 <p>一开始，A和B都处于ESTABLISHED的状态。然后A发送FIN表示请求断开连接，之后B处于FIN-WAIT-1的状态。</p>
 <p>B在接收到FIN请求后，会发送一个ACK包表示收到了FIN请求，之后B处于CLOSED-WAIT状态。需要注意的是此时B发送的是ACK包而不是FIN包，之所以不像三次握手一样直接回应一个FIN包，是因为此时B可能还有些事情没有做完，还可能发送数据，所以称为半关闭状态。</p>
-<p>这个时候A可以选择不再接收数据，也可以选择最后再接收一段数据，等待B也主动关闭。不论如何，A在收到ACK包后都进入了FIN-WAIT2阶段。</p>
+<p>这个时候A可以选择不再接收数据，也可以选择最后再接收一段数据，等待B也主动关闭。不论如何，A在收到ACK包后都进入了FIN-WAIT2阶段。此时如果B下线，A将永远在这个状态。TCP协议里没哟对这个状态的处理，但Linux有，可以调整tcp_fin_timeout这个参数，设置一个超时时间。</p>
 <p>B处理完了所有的事情，终于也准备关闭，此时会发送一个FIN包。之后B进入LAST-ACK状态，等待A的ACK包。</p>
 <p>A在收到服务器的FIN包后会发送一个ACK包表示收到了B的FIN包。按理说此时A就可以关闭了，但由于A最后的ACK存在丢包的可能，B没有收到最后的ACK包的话，就会重发一个FIN包，如果这时候A关闭了，B就再也收不到ACK了。因而TCP协议要求A最后等待一段时间TIME_WAIT，这个时间要足够长，长到B没收到ACK的话，重发的FIN包还能到达A。</p>
 <p>A直接关闭还有一个问题是，A的端口就直接空出来了，但是B不知道，B原来发过的很多包很可能还在路上，如果A的端口被一个新的应用占用了，这个新的应用会收到上个连接中B发过来的包，虽然序列号是重新生成的，但是这里要上一个双保险，防止产生混乱，因而也需要等足够长的时间，等到原来B发送的所有的包都过期了，再空出端口来。</p>
 <p>等待的时间设为2MSL，MSL是Maximum Segment Lifetime（报文最大生存时间），它是任何报文在网络上存在的最长时间，超过这个时间报文将被丢弃。因为TCP报文基于是IP协议的， 而IP头中有一个TTL域，是IP数据报可以经过的最大路由数，每经过一个处理他的路由器此值就减 1，当此值为0则数据报将被丢弃，同时发送ICMP报文通知源主机。协议规定MSL为2分钟，实际应用中常用的是30秒，1分钟和2分钟等。</p>
+<h2 id="可靠性传输"><a href="#可靠性传输" class="headerlink" title="可靠性传输"></a>可靠性传输</h2><p>TCP协议为了保证顺序性，每一个包都有一个ID。在建立连接的时候，会商定起始的ID是什么，然后按照ID一个个发送。为了保证不丢包，对于发送的包都要进行应答，但是这个应答也不是一个一个来的，而是会应答某个之前的ID，表示都收到了，这种模式称为累计确认或者累计应答（cumulative acknowledgment）。</p>
+<p>为了记录所有发送的包和接收的包，TCP也需要发送端和接收端分别都有缓存来保存这些记录。发送端的缓存里是按照包的ID一个个排列，根据处理的情况分成四个部分。</p>
+<ul>
+<li>第一部分：发送了并且已经确认的。</li>
+<li>第二部分：发送了并且尚未确认的。</li>
+<li>第三部分：没有发送，但是已经等待发送的。</li>
+<li>第四部分：没有发送，并且暂时还不会发送的。</li>
+</ul>
+<p>为什么会有三、四部分的区分呢？这是因为接受端有个处理极限，就是剩余缓冲区的大小，如果给接收端发送的包的大小超过了剩余缓冲区的大小，那么有一部分包就会被丢弃，这是不合适的。所以超出剩余缓冲区大小的包，发送端暂时不会发。</p>
+<p>于是，发送端需要保持下面的数据结构：<br><img src="/2019/01/23/TCP协议回顾/发送端滑动窗口.png"></p>
+<p>对于接收端来讲，它的缓存里记录的内容要简单一些：</p>
+<ul>
+<li>第一部分：接收并且确认过的。</li>
+<li>第二部分：还没接收，但尚在接收能力范围之内的。</li>
+<li>第三部分：还没接收，超过能力范围的。</li>
+</ul>
+<p>对应的数据结构像这样：<br><img src="/2019/01/23/TCP协议回顾/接收端滑动窗口.png"></p>
+<h3 id="顺序与丢包问题"><a href="#顺序与丢包问题" class="headerlink" title="顺序与丢包问题"></a>顺序与丢包问题</h3><p>还是刚才的图，在发送端来看，1、2、3已经发送并确认；4、5、6、7、8、9都是发送了还没确认；10、11、12是还没发出的；13、14、15是接收方没有空间，不准备发的。</p>
+<p>在接收端来看，1、2、3、4、5是已经完成ACK，但是没读取的；6、7是等待接收的；8、9是已经接收，但是没有ACK的。</p>
+<p>发送端和接收端当前的状态如下：</p>
+<ul>
+<li>1、2、3没有问题，双方达成了一致。</li>
+<li>4、5接收方说ACK了，但是发送方还没收到，有可能丢了，有可能在路上。</li>
+<li>6、7、8、9肯定都发了，但是8、9已经到了，但是6、7没到，出现了乱序，缓存着但是没办法ACK。</li>
+</ul>
+<p>根据这个例子，我们可以知道，顺序问题和丢包问题都有可能发生，所以我们先来看确认与重发的机制。</p>
+<p>假设4的确认到了，不幸的是，5的ACK丢了，6、7的数据包丢了，这该怎么办呢？</p>
+<p>一种方法就是超时重试，TCP会为当前最小未应答的包绑定一个定时器，当收到ACK时会重启定时器，并绑定到现在最小未应答的包上。若当前无未应答包，则关闭定时器。等下一个包发出去后再启动并绑定到新的包上。</p>
+<p>如何设置往返时间RTT呢？TCP采用了加权的自适应重传算法：EstimatedRTT=0.875<em>EstimatedRTT+0.125</em>SampleRTT 其中EstimatedRTT为平均往返时间，SampleRTT为某次采样的往返时间。</p>
+<p>如果过一段时间，5、6、7都超时了，就会重新发送。接收方发现5原来接收过，于是丢弃5；6收到了，发送ACK，要求下一个是7，7不幸又丢了。当7再次超时的时候，有需要重传的时候，TCP的策略是超时间隔加倍。每当遇到一次超时重传的时候，都会将下一次超时时间间隔设为先前值的两倍。两次超时，就说明网络环境差，不宜频繁反复发送。</p>
+<p>超时触发重传存在的问题是，超时周期可能相对较长。那是不是可以有更快的方式呢？</p>
+<p>有一个叫<strong>快速重传</strong>的机制：当接收方收到一个序号大于下一个所期望的报文段时，就检测到了数据流中的一个间格，于是发送三个冗余的ACK，客户端收到后，就在定时器过期之前，重传丢失的报文段。</p>
+<p>例如，接收方发现6、8、9都已经接收了，就是7没来，那肯定是丢了，于是发送三个6的ACK，要求下一个是7。客户端收到3个，就会发现7的确又丢了，不等超时，马上重发。</p>
+<p>还有一种方式称为Selective Acknowledgment （SACK）。这种方式需要在TCP头里加一个SACK 的东西，可以将缓存的地图发送给发送方。例如可以发送ACK6、SACK8、SACK9，有了地图，发送方一下子就能看出来是7丢了。</p>
+<h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><p>流量控制是为了平衡发送端与接收端的速度，避免出现包处理不过来的情况。在协议头里面，有一个窗口大小字段，这个就是用来进行流量控制的。</p>
+<p>我们先假设窗口不变的情况，窗口始终为9。4的确认来的时候，会右移一个，这个时候第13个包也可以发送了。<br><img src="/2019/01/23/TCP协议回顾/流量控制1.png"></p>
+<p>这个时候，假设发送端发送过猛，会将第三部分的10、11、12、13全部发送完毕，之后就停止发送了，未发送可发送部分 0。<br><img src="/2019/01/23/TCP协议回顾/流量控制2.png"></p>
+<p>当对于包5的确认到达的时候，在客户端相当于窗口再滑动了一格，这个时候，才可以有更多的包可以发送了，例如第14个包才可以发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制3.png"></p>
+<p>如果接收方实在处理的太慢，导致缓存中没有空间了，可以通过确认信息修改窗口的大小，甚至可以设置为 0，则发送方将暂时停止发送。</p>
+<p>我们假设一个极端情况，接收端的应用一直不读取缓存中的数据，当数据包6确认后，窗口大小就不能再是9了，就要缩小一个变为8。<br><img src="/2019/01/23/TCP协议回顾/流量控制4.png"></p>
+<p>这个新的窗口8通过6的确认消息到达发送端的时候，你会发现窗口没有平行右移，而是仅仅左面的边右移了，窗口的大小从9改成了8。<br><img src="/2019/01/23/TCP协议回顾/流量控制5.png"></p>
+<p>如果接收端还是一直不处理数据，则随着确认的包越来越多，窗口越来越小，直到为0。<br><img src="/2019/01/23/TCP协议回顾/流量控制6.png"></p>
+<p>当这个窗口通过包14的确认到达发送端的时候，发送端的窗口也调整为0，停止发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制7.png"></p>
+<p>如果这样的话，发送方会定时发送窗口探测数据包，看是否有机会调整窗口的大小。当接收方比较慢的时候，要防止低能窗口综合征，别空出一个字节来就赶快告诉发送方，然后马上又填满 了，可以当窗口太小的时候，不更新窗口，直到达到一定大小，或者缓冲区一半为空，才更新窗口。</p>
+<h2 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h2><p>拥塞控制是为了避免网络中传输着太多的包导致网络拥挤。这里有一个公式，即：发送但还未确认的包要小于等于滑动窗口（rwnd）和拥塞窗口（cwnd）的最小值。前者在流量控制中已经讲过，剩下的就是后者。</p>
+<p>拥塞控制有三个时期：慢启动、拥塞避免和快速恢复。</p>
+<p>当开始时，cwnd设置为一个报文段，一次只能发送一个；当收到这一个确认的时候，cwnd加一，于是一次能发送两个；当这两个确认到来的时候，每个确认cwnd加一，两个确认 cwnd 加二，于是一次能发送四个。当这四个的确认到来的时候，每个确认cwnd加一，四个确认cwnd加四，于是一次能够发送八个。依次类推，此时，cwnd的增长速度是指数型的增长。</p>
+<p>涨到什么时候是个头呢？有一个值ssthresh初始为65535个字节，当超过这个值的时候，就进入了拥塞避免状态。此时不再是一个确认对应一个cwnd的增长，而是一个确认对应1/cwnd的增长。我们接着上面的过程来，一次发送八个，当八个确认到来的时候，每个确认增加1/8，八个确认一共cwnd增加1，于是一次能够发送九个，变成了线性增长。</p>
+<p>但cwnd不可能无限增长，总有一个时候网络会拥挤，拥挤的表现形式是丢包。发送端有两种方式感知到丢包：超时和收到三个相同ACK。针对这两种情况的丢包，发送端的处理方式也不一样。</p>
+<p>第一种是超时丢包，这种情况下，发送端会认为当前网络非常拥挤，因此会采取激进的限制措施：将sshresh设为cwnd/2，将cwnd设为1，重新开始慢启动。</p>
+<p>第二种是三个相同ACK丢包，这种情况发送端会认为这个丢包是个偶然事件，因此网络并不非常拥挤，采取的措施也会温和一些：sshresh设为cwnd/2，cwnd设为cwnd/2，又因为返回了三个确认包，cwnd再加3。之后进入快速恢复阶段。这个阶段中cwnd也是线性增长。</p>
+<p>两种方式的比较如下：<br><img src="/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png"></p>
 
       
 
@@ -317,7 +379,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP协议头"><span class="toc-number">1.</span> <span class="toc-text">TCP协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-number">2.</span> <span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-number">3.</span> <span class="toc-text">四次挥手</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP协议头"><span class="toc-number">1.</span> <span class="toc-text">TCP协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-number">2.</span> <span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-number">3.</span> <span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-number">4.</span> <span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-number">4.1.</span> <span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-number">5.</span> <span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-number">6.</span> <span class="toc-text">拥塞控制</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4754,15 +4816,15 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">原创</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
