@@ -19,7 +19,8 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/内存池.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/插入缓冲非叶子节点.png">
-<meta property="og:updated_time" content="2019-01-25T17:00:55.797Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/两次写工作流程.png">
+<meta property="og:updated_time" content="2019-01-26T16:42:55.459Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="插入缓冲、两次写和自适应哈希索引">
 <meta name="twitter:description" content="InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。 InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实">
@@ -186,19 +187,44 @@
 <ul>
 <li>新页的第一次插入只会插入到LRU链表尾端3/8（中点）的位置</li>
 <li>页的再次命中（LRU上的页被命中）才会把页插入到链表头部</li>
-<li>可以设置一个innodb_old_blocks_time的参数，表示新页插入后过多久才有资格被插入到链表头部</li>
+<li>可以设置一个InnoDB_old_blocks_time的参数，表示新页插入后过多久才有资格被插入到链表头部</li>
 </ul>
-<p>这样做的好处是避免了一些冷数据对真正热点数据的干扰。比如进行扫描操作时，需要访问表中的许多页，甚至是全部页，而这些页通常来说只在这次查询中需要，并不是活跃的热点数据。如果页被放入LRU链表头部，那么非常可能将所需的真正热点数据刷出。innodb_old_blocks_time也是出于同样的目的。可以避免临近的几次查询把页刷入热数据的情况。</p>
+<p>这样做的好处是避免了一些冷数据对真正热点数据的干扰。比如进行扫描操作时，需要访问表中的许多页，甚至是全部页，而这些页通常来说只在这次查询中需要，并不是活跃的热点数据。如果页被放入LRU链表头部，那么非常可能将所需的真正热点数据刷出。InnoDB_old_blocks_time也是出于同样的目的。可以避免临近的几次查询把页刷入热数据的情况。</p>
 <h2 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h2><p>InnoDB底层使用聚簇索引管理数据。在进行插入操作的时候，数据页的存放是按主键顺序存放的，此时磁盘顺序访问，速度会很快。但对于非聚集索引叶子节点的插入则不再是顺序的了，这时需要离散地访问非聚集索引页，磁盘的随机读取效率很低，导致了插入操作的性能下降。</p>
-<p>innodb存储引擎创造性地设计了Insert Buffer，对于非聚簇索引的插入或更新操作，不是每一次直接插入到索引页中，而是先判断插入的非聚簇索引页是否在缓冲池中，若在，则直接插入；若不在，则先放入到一个Insert Buffer对象中。然后再以一定的频率和情况进行Insert Buffer和辅助索引叶子节点的merge操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚簇索引插入的性能。</p>
+<p>InnoDB存储引擎创造性地设计了Insert Buffer，对于非聚簇索引的插入或更新操作，不是每一次直接插入到索引页中，而是先判断插入的非聚簇索引页是否在缓冲池中，若在，则直接插入；若不在，则先放入到一个Insert Buffer对象中。然后再以一定的频率和情况进行Insert Buffer和辅助索引叶子节点的merge操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚簇索引插入的性能。</p>
 <p>然而Insert Buffer的使用需要同时满足以下两个条件：</p>
 <ul>
 <li>索引是辅助索引。</li>
 <li>索引不是唯一的。（因为在插入缓冲时，数据库并不去查找索引页来判断插入的记录的唯一性。如果去查找肯定又会有离散读取的发生，就背离了Insert Buffer的初衷）</li>
 </ul>
 <p>Insert Buffer的数据结构是一颗B+树，4.1版本之前每张表都有一颗Insert Buffer B+树，4.1版本之后所有表共用一颗B+树。Insert Buffer B+树的非叶子节点存放的是查询的search key，其构造如图：<br><img src="/2019/01/14/插入缓冲、两次写和自适应哈希索引/插入缓冲非叶子节点.png"></p>
-<p>其中space表示待插入记录所在表的表空间id，在innodb存储引擎中，每个表有一个唯一的space id，可以通过space id查询得知是哪张表；maker是用来兼容老版本的Insert Buffer。offerset表示页所在的偏移量。</p>
-<p>当一个辅助索引要插入到页（space,offset）时，如果这个页不在缓冲池中，那么innodb存储引擎首先根据上述规则构造一个search key，接下来查询Insert Buffer这棵B+树，然后再将记录插入到Insert Buffer B+树的叶子节点中。</p>
+<p>其中space表示待插入记录所在表的表空间id，在InnoDB存储引擎中，每个表有一个唯一的space id，可以通过space id查询得知是哪张表；maker是用来兼容老版本的Insert Buffer。offerset表示页所在的偏移量。</p>
+<p>当一个辅助索引要插入到页（space,offset）时，如果这个页不在缓冲池中，那么InnoDB存储引擎首先根据上述规则构造一个search key，接下来查询Insert Buffer这棵B+树，然后再将记录插入到Insert Buffer B+树的叶子节点中。</p>
+<h2 id="两次写"><a href="#两次写" class="headerlink" title="两次写"></a>两次写</h2><p>如果说Insert Buffer带给InnoDB存储引擎的是性能上的提升，那么doublewrite（两次写）带给InnoDB存储引擎的是数据页的可靠性。</p>
+<p>InnoDB中有记录（Row）被更新时，先将其在Buffer Pool中的page更新，并将这次更新记录到Redo Log file中，这时候Buffer Pool中的该page就是被标记为Dirty。在适当的时候（Buffer Pool不够、Redo不够，系统闲置等），这些Dirty Page会被Checkpoint刷新到磁盘进行持久化操作。</p>
+<p>但尴尬的地方在于InnoDB的Page Size是16KB，其数据校验也是针对这16KB来计算的，将数据写入到磁盘是以Page为单位进行操作的，而文件系统是以4k为单位写入，磁盘IO的最小单位是512K，因此并不能保证数据页的写入就是原子性的。</p>
+<p>那么可不可以通过redo log来进行恢复呢？答案是只能恢复校验完整（还没写）的页，不能恢复已损坏的页。比如某次checkpoint要刷入4个数据页，其中第一页写了2KB，后三页还未写。那么根据redo log可以恢复后三页，但已经写了2KB的页没法恢复，因为没法知道在宕机前第一页到底写了多少。</p>
+<p><strong>为什么redo log不需要doublewrite的支持？</strong></p>
+<blockquote>
+<p>因为redolog写入的单位就是512字节，也就是磁盘IO的最小单位，所以无所谓数据损坏。</p>
+</blockquote>
+<p>double write由两部分组成，一部分是内存中的doublewrite buffer，大小为2MB，另一部分是物理磁盘上共享表空间中连续的128个页，即2个区，大小同样为2MB。在对缓冲池的脏页进行刷新时，并不直接写磁盘，而是会通过memcpy函数将脏页先复制到内存中的doublewrite buffer，之后通过doublewrite buffer再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调用fsync函数，同步磁盘。在这个过程中，因为doublewrite页是连续的，因此这个过程是顺序写的，开销不是很大。其工作流程如下图所示：<br><img src="/2019/01/14/插入缓冲、两次写和自适应哈希索引/两次写工作流程.png"></p>
+<p>现在我们来分析一下为什么double write可以生效。当宕机发生时，有那么几种情况：1、磁盘还未写，此时可以通过redo log恢复；2、磁盘正在进行从内存到共享表空间的写，此时数据文件中的页还没开始被写入，因此也同样可以通过redo log恢复；3、磁盘正在写数据文件，此时共享表空间已经写完，可以从共享表空间拷贝页的副本到数据文件实现恢复。</p>
+<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>哈希是一种非常快的查询方法，一般只需要一次查找就能定位数据。InnoDB存储引擎会监控对表上各索引页的查询，如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引。哈希索引是通过缓冲池的B+树页构造而来，因此建立的速度很快，而且不需要对整张表构建哈希索引。</p>
+<p>自适应哈希索引有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a,b）这样的联合索引页，其访问模式可以是以下情况：</p>
+<ul>
+<li>WHERE a=xxx</li>
+<li>WHERE a=xxx and b=xxx</li>
+</ul>
+<p>若交替以上两种查询，那么InnoDB存储引擎不会对该页构造哈希索引（这是因为哈希索引是以索引的哈希值为键值存放的，hash(a)和hash(a,b)是两个完全不同的值）</p>
+<p>在连续的查询模式一样的条件下，如果能满足以下条件，InnoDB存储引擎就会创建相应的哈希索引：</p>
+<ul>
+<li>以该连续模式连续访问了100次</li>
+<li>以该模式连续访问了 页中记录总数/16 次</li>
+</ul>
+<p>哈希索引只能用来搜索等值的查询，如SELECT * FROM table WHERE index_col=’xxx’。对于其它类型的查找，如范围查找，是不能使用哈希索引的。</p>
+<p>InnoDB存储引擎官方文档显示，启用AHI后,读取和写入速度可以提高2倍，辅助索引的连接操作性能可以提高5倍。 </p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>InnoDB存储引擎在MySQL原有的基础上做了很多优化，主要涉及到的就是缓冲池和磁盘的交互。尽可能多地读缓存，尽量少地读磁盘，于是有了自适应哈希索引；尽量多地顺序写，尽量少地离散写，于是有了插入缓冲；由于缓存的易失性，带来的数据恢复问题，又有了两次写。这些设计思想不只可以用于数据库，也可以用于程序设计的方方面面。</p>
 
       
 
@@ -320,7 +346,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#缓冲池"><span class="toc-number">1.</span> <span class="toc-text">缓冲池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#中点插入策略"><span class="toc-number">1.1.</span> <span class="toc-text">中点插入策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#插入缓冲"><span class="toc-number">2.</span> <span class="toc-text">插入缓冲</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#缓冲池"><span class="toc-number">1.</span> <span class="toc-text">缓冲池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#中点插入策略"><span class="toc-number">1.1.</span> <span class="toc-text">中点插入策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#插入缓冲"><span class="toc-number">2.</span> <span class="toc-text">插入缓冲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#两次写"><span class="toc-number">3.</span> <span class="toc-text">两次写</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#自适应哈希索引"><span class="toc-number">4.</span> <span class="toc-text">自适应哈希索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
