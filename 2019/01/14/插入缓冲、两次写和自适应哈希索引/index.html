@@ -7,22 +7,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>插入缓冲、二次写和自适应哈希索引 | huzb的小书斋</title>
+  <title>插入缓冲、两次写和自适应哈希索引 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。 InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实">
 <meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="插入缓冲、二次写和自适应哈希索引">
-<meta property="og:url" content="http://yoursite.com/2019/01/14/插入缓冲、二次写和自适应哈希索引/index.html">
+<meta property="og:title" content="插入缓冲、两次写和自适应哈希索引">
+<meta property="og:url" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。 InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、二次写和自适应哈希索引/内存池.png">
-<meta property="og:updated_time" content="2019-01-22T15:48:04.341Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/内存池.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/插入缓冲非叶子节点.png">
+<meta property="og:updated_time" content="2019-01-25T17:00:55.797Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="插入缓冲、二次写和自适应哈希索引">
+<meta name="twitter:title" content="插入缓冲、两次写和自适应哈希索引">
 <meta name="twitter:description" content="InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。 InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实">
-<meta name="twitter:image" content="http://yoursite.com/2019/01/14/插入缓冲、二次写和自适应哈希索引/内存池.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/内存池.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -156,19 +157,19 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-插入缓冲、二次写和自适应哈希索引" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-插入缓冲、两次写和自适应哈希索引" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      插入缓冲、二次写和自适应哈希索引
+      插入缓冲、两次写和自适应哈希索引
     </h1>
   
 
         
-        <a href="/2019/01/14/插入缓冲、二次写和自适应哈希索引/" class="archive-article-date">
+        <a href="/2019/01/14/插入缓冲、两次写和自适应哈希索引/" class="archive-article-date">
   	<time datetime="2019-01-14T03:56:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-14</time>
 </a>
         
@@ -179,7 +180,7 @@
         <p>InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。</p>
 <p>InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实现了SQL标准的四种隔离级别，默认为REPEATABLE级别。同时，使用一种称为next-key locking的策略来避免幻读。除此之外，InnoDB还提供了<strong>插入缓冲、二次写、自适应哈希索引</strong>等高性能和高可用的功能。</p>
 <a id="more"></a>
-<h2 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h2><p>功能的实现离不开底层的配合。为了协调CPU速度与磁盘速度之间的鸿沟，InnoDB在内存中开辟了一块空间叫内存池，将对数据库的修改首先保存在内存中。比如对于页的操作，首先会在内存中进行，然后后台线程会把脏页（还没有刷入磁盘的页）刷入磁盘。<br><img src="/2019/01/14/插入缓冲、二次写和自适应哈希索引/内存池.png"></p>
+<h2 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h2><p>功能的实现离不开底层的配合。为了协调CPU速度与磁盘速度之间的鸿沟，InnoDB在内存中开辟了一块空间叫内存池，将对数据库的修改首先保存在内存中。比如对于页的操作，首先会在内存中进行，然后后台线程会把脏页（还没有刷入磁盘的页）刷入磁盘。<br><img src="/2019/01/14/插入缓冲、两次写和自适应哈希索引/内存池.png"></p>
 <p>缓冲池中缓存的数据页类型有：索引页、数据页、undo页、插入缓冲、自适应哈希索引、InnoDB存储的锁信息、数据字典信息等。不能简单地认为，缓冲池只是缓存索引页和数据页，它们只是占缓冲池很大的一部分而已。</p>
 <h3 id="中点插入策略"><a href="#中点插入策略" class="headerlink" title="中点插入策略"></a>中点插入策略</h3><p>缓冲池对于数据页的管理，是使用LRU的方式管理的。和传统的LRU稍有不同的是，InnoDB使用一种称为“中点插入策略”的方式插入数据：</p>
 <ul>
@@ -189,6 +190,15 @@
 </ul>
 <p>这样做的好处是避免了一些冷数据对真正热点数据的干扰。比如进行扫描操作时，需要访问表中的许多页，甚至是全部页，而这些页通常来说只在这次查询中需要，并不是活跃的热点数据。如果页被放入LRU链表头部，那么非常可能将所需的真正热点数据刷出。innodb_old_blocks_time也是出于同样的目的。可以避免临近的几次查询把页刷入热数据的情况。</p>
 <h2 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h2><p>InnoDB底层使用聚簇索引管理数据。在进行插入操作的时候，数据页的存放是按主键顺序存放的，此时磁盘顺序访问，速度会很快。但对于非聚集索引叶子节点的插入则不再是顺序的了，这时需要离散地访问非聚集索引页，磁盘的随机读取效率很低，导致了插入操作的性能下降。</p>
+<p>innodb存储引擎创造性地设计了Insert Buffer，对于非聚簇索引的插入或更新操作，不是每一次直接插入到索引页中，而是先判断插入的非聚簇索引页是否在缓冲池中，若在，则直接插入；若不在，则先放入到一个Insert Buffer对象中。然后再以一定的频率和情况进行Insert Buffer和辅助索引叶子节点的merge操作，这时通常能将多个插入合并到一个操作中（因为在一个索引页中），这就大大提高了对于非聚簇索引插入的性能。</p>
+<p>然而Insert Buffer的使用需要同时满足以下两个条件：</p>
+<ul>
+<li>索引是辅助索引。</li>
+<li>索引不是唯一的。（因为在插入缓冲时，数据库并不去查找索引页来判断插入的记录的唯一性。如果去查找肯定又会有离散读取的发生，就背离了Insert Buffer的初衷）</li>
+</ul>
+<p>Insert Buffer的数据结构是一颗B+树，4.1版本之前每张表都有一颗Insert Buffer B+树，4.1版本之后所有表共用一颗B+树。Insert Buffer B+树的非叶子节点存放的是查询的search key，其构造如图：<br><img src="/2019/01/14/插入缓冲、两次写和自适应哈希索引/插入缓冲非叶子节点.png"></p>
+<p>其中space表示待插入记录所在表的表空间id，在innodb存储引擎中，每个表有一个唯一的space id，可以通过space id查询得知是哪张表；maker是用来兼容老版本的Insert Buffer。offerset表示页所在的偏移量。</p>
+<p>当一个辅助索引要插入到页（space,offset）时，如果这个页不在缓冲池中，那么innodb存储引擎首先根据上述规则构造一个search key，接下来查询Insert Buffer这棵B+树，然后再将记录插入到Insert Buffer B+树的叶子节点中。</p>
 
       
 
@@ -258,7 +268,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/01/14/插入缓冲、二次写和自适应哈希索引/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -4763,15 +4773,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
