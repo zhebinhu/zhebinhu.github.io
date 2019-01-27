@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/内存池.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/插入缓冲非叶子节点.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/14/插入缓冲、两次写和自适应哈希索引/两次写工作流程.png">
-<meta property="og:updated_time" content="2019-01-26T16:42:55.459Z">
+<meta property="og:updated_time" content="2019-01-26T17:15:18.355Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="插入缓冲、两次写和自适应哈希索引">
 <meta name="twitter:description" content="InnoDB是MySQL数据库从5.5.8版本开始的默认存储引擎，它将数据放在一个逻辑的表空间中，这个表空间就像黑盒一样由InnoDB存储引擎自身进行管理。从MySQL 4.1开始，它可以将每个InnoDB的表单独存在一个独立的idb文件中。此外，InnoDB支持用裸设备（raw disk，不被操作系统管理的设备）建立其表空间。 InnoDB通过使用多版本并发控制（MVCC）来获得高并发性，并且实">
@@ -210,7 +210,7 @@
 </blockquote>
 <p>double write由两部分组成，一部分是内存中的doublewrite buffer，大小为2MB，另一部分是物理磁盘上共享表空间中连续的128个页，即2个区，大小同样为2MB。在对缓冲池的脏页进行刷新时，并不直接写磁盘，而是会通过memcpy函数将脏页先复制到内存中的doublewrite buffer，之后通过doublewrite buffer再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调用fsync函数，同步磁盘。在这个过程中，因为doublewrite页是连续的，因此这个过程是顺序写的，开销不是很大。其工作流程如下图所示：<br><img src="/2019/01/14/插入缓冲、两次写和自适应哈希索引/两次写工作流程.png"></p>
 <p>现在我们来分析一下为什么double write可以生效。当宕机发生时，有那么几种情况：1、磁盘还未写，此时可以通过redo log恢复；2、磁盘正在进行从内存到共享表空间的写，此时数据文件中的页还没开始被写入，因此也同样可以通过redo log恢复；3、磁盘正在写数据文件，此时共享表空间已经写完，可以从共享表空间拷贝页的副本到数据文件实现恢复。</p>
-<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>哈希是一种非常快的查询方法，一般只需要一次查找就能定位数据。InnoDB存储引擎会监控对表上各索引页的查询，如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引。哈希索引是通过缓冲池的B+树页构造而来，因此建立的速度很快，而且不需要对整张表构建哈希索引。</p>
+<h2 id="自适应哈希索引"><a href="#自适应哈希索引" class="headerlink" title="自适应哈希索引"></a>自适应哈希索引</h2><p>哈希是一种非常快的查询方法，一般只需要一次查找就能定位数据。InnoDB存储引擎会监控对表上各索引页的查询，如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引。</p>
 <p>自适应哈希索引有一个要求，即对这个页的连续访问模式必须是一样的。例如对于（a,b）这样的联合索引页，其访问模式可以是以下情况：</p>
 <ul>
 <li>WHERE a=xxx</li>
@@ -4783,10 +4783,6 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -4795,11 +4791,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4808,6 +4804,10 @@ gitalk.render('gitalk-ctn')
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">

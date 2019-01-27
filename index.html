@@ -154,6 +154,87 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-InnoDB锁事" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/27/InnoDB锁事/">InnoDB锁事</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/27/InnoDB锁事/" class="archive-article-date">
+  	<time datetime="2019-01-27T13:20:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>锁是数据库系统区别于文件系统的一个关键特性。需要加锁的原因是保证数据库在并发条件保证每个用户能以一致的方式读取和修改数据。MySQL提供了表级别的锁，innodb存储引擎提供了行级别的锁，同时又有MVCC和mutex等更轻量级的无锁方式。</p>
+<h2 id="锁的种类"><a href="#锁的种类" class="headerlink" title="锁的种类"></a>锁的种类</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>ＭySQL Server层面提供了表锁。表锁分为读锁和写锁，读锁是共享锁（S Lock），写锁是排他锁（X Lock）。加锁的方式如下：</p>
+<blockquote>
+<p>LOCK TABLES orders READ; //加读锁<br>SELECT SUM(total) FROM orders;<br>UNLOCK TABLES; //解锁</p>
+</blockquote>
+<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>innodb在存储引擎层面提供了行级锁。顾名思义，行级锁锁定的是某一行数据。行级锁同样分为共享锁（S Lock）和排他锁（X Lock）。X和X可以兼容；共享锁和排他锁，排他锁和排他锁不能兼容。</p>
+<h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>行级锁和表锁之间的兼容有点麻烦。如果要对一张表加X表锁，那么首先要判断这张表是否加了X表锁，其次要判断每一行是否加了X行锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此innodb加入了表级的意向锁。</p>
+<p>和行锁一样，意向锁也分为意向共享锁（IS Lock）</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/27/InnoDB锁事/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-TCP协议回顾" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -807,84 +888,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-GET与POST的区别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/05/15/GET与POST的区别/">GET与POST的区别</a>
-    </h1>
-  
-
-        
-        <a href="/2018/05/15/GET与POST的区别/" class="archive-article-date">
-  	<time datetime="2018-05-15T06:55:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发的角度，或许我们更关心的是主流的工具在履行这两者上有什么区别？因此我整理了一些常见平台下GET与POST的区别，希望能有帮助。</p>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/05/15/GET与POST的区别/">展开全文 >></a>
         </p>
       
 
@@ -5314,10 +5317,6 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -5326,11 +5325,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5339,6 +5338,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
