@@ -154,19 +154,19 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-InnoDB锁事" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-InnoDB中的锁和MVCC" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/01/27/InnoDB锁事/">InnoDB锁事</a>
+      <a class="article-title" href="/2019/01/27/InnoDB中的锁和MVCC/">InnoDB中的锁和MVCC</a>
     </h1>
   
 
         
-        <a href="/2019/01/27/InnoDB锁事/" class="archive-article-date">
+        <a href="/2019/01/27/InnoDB中的锁和MVCC/" class="archive-article-date">
   	<time datetime="2019-01-27T13:20:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-27</time>
 </a>
         
@@ -174,15 +174,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>锁是数据库系统区别于文件系统的一个关键特性。需要加锁的原因是保证数据库在并发条件保证每个用户能以一致的方式读取和修改数据。MySQL提供了表级别的锁，innodb存储引擎提供了行级别的锁，同时又有MVCC和mutex等更轻量级的无锁方式。</p>
-<h2 id="锁的种类"><a href="#锁的种类" class="headerlink" title="锁的种类"></a>锁的种类</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>ＭySQL Server层面提供了表锁。表锁分为读锁和写锁，读锁是共享锁（S Lock），写锁是排他锁（X Lock）。加锁的方式如下：</p>
-<blockquote>
-<p>LOCK TABLES orders READ; //加读锁<br>SELECT SUM(total) FROM orders;<br>UNLOCK TABLES; //解锁</p>
-</blockquote>
-<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>innodb在存储引擎层面提供了行级锁。顾名思义，行级锁锁定的是某一行数据。行级锁同样分为共享锁（S Lock）和排他锁（X Lock）。X和X可以兼容；共享锁和排他锁，排他锁和排他锁不能兼容。</p>
-<h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>行级锁和表锁之间的兼容有点麻烦。如果要对一张表加X表锁，那么首先要判断这张表是否加了X表锁，其次要判断每一行是否加了X行锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此innodb加入了表级的意向锁。</p>
-<p>和行锁一样，意向锁也分为意向共享锁（IS Lock）</p>
-
+        <p>锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。<br></p>
+        
       
 
       
@@ -205,7 +198,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2019/01/27/InnoDB锁事/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/01/27/InnoDB中的锁和MVCC/">展开全文 >></a>
         </p>
       
 
@@ -5317,6 +5310,14 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
@@ -5325,23 +5326,15 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
