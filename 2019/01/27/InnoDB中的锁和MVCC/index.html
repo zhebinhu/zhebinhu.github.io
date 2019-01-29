@@ -17,10 +17,12 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-29T15:50:10.388Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/undo%20log.png">
+<meta property="og:updated_time" content="2019-01-29T16:30:14.709Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB中的锁和MVCC">
 <meta name="twitter:description" content="锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/undo%20log.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -175,14 +177,19 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。<br><a id="more"></a></p>
-<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>表锁是在ＭySQL Server层面提供的，分为读锁和写锁，读锁是共享锁，写锁是排他锁。加锁的方式如下：</p>
-<blockquote>
-<p>LOCK TABLES orders READ; //加读锁<br>SELECT SUM(total) FROM orders;<br>UNLOCK TABLES; //解锁</p>
-</blockquote>
-<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>InnoDB在存储引擎层面提供了行级锁。顾名思义，行级锁锁定的是某一行数据。行级锁同样分为共享锁（S锁）和排他锁（X锁）。S锁和S锁可以兼容；S锁和X锁，X锁和X锁不能兼容。（InnoDB存储引擎默认采用行级锁，所以下文如无指明，S锁和X锁均指行锁）</p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>innodb直接沿用了ＭySQL提供的表锁。事实上，表锁的加锁和解锁都是在MySQL server层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
+<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>顾名思义，行级锁锁定的是某一行数据。innodb中的所有数据项都保存在聚簇索引中，所以行级锁实质上锁住的是索引项。如果表中有多个索引存在，一行数据会对应到多个索引项，此时行级锁会锁住所有索引上的相应索引项。</p>
+<p>行级锁分为共享锁（S锁）和排他锁（X锁）。S锁和S锁可以兼容；S锁和X锁，X锁和X锁不能兼容。（InnoDB存储引擎默认采用行级锁，所以下文如无指明，S锁和X锁均指行锁）</p>
 <h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>在没有引入意向锁之前，行级锁和表锁之间的兼容有点麻烦：如果要对一张表加X表锁，那么首先要判断这张表是否加了X表锁和S表锁，其次要判断每一行是否加了X锁和S锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此InnoDB引入了意向锁。</p>
-<p>和行锁一样，意向锁也分为意向共享锁（IS锁）和意向排他锁（IX锁）。InnoDB中的意向锁是表级别的锁，事务在申请S或X锁之前，必须先申请到IS或IX锁。意向锁之间相互兼容，意向锁和行级锁之间互相兼容，但意向锁和表锁之间不兼容。具体表现为IS和S表锁兼容，IS和X表锁不兼容，IX和S表锁不兼容，IX和X表锁不兼容。</p>
-<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。</p>
+<p>和行锁一样，意向锁也分为意向共享锁（IS锁）和意向排他锁（IX锁）。事务在申请S或X锁之前，必须先申请到IS或IX锁。innodb中的意向锁是一种特殊的表锁：意向锁之间互不冲突，意向锁和表锁之间会冲突，此时意向锁相当于同类型的表锁。</p>
+<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。innodb利用undo log实现了MVCC。undo log的数据结构如图所示：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/undo log.png"></p>
+<p>前四行是数据列，后三列是隐藏列。隐藏列的含义如下：</p>
+<ul>
+<li>DB_ROW_ID：行ID。占7字节，他就项自增主键一样随着插入新数据自增。如果表中不存主键或者唯一索引，那么数据库就会采用DB_ROW_ID生成聚簇索引。否则DB_ROW_ID不会出现在索引中。</li>
+<li>DB_TRX_ID：事务id。占6字节，表示这一行数据最后插入或修改的事务id。此外删除在内部也被当作一次更新，在行的特殊位置添加一个删除标记（记录头信息有一个字节存储是否删除的标记）。</li>
+<li>DB_ROLL_PTR：回滚指针。占7字节，每次对数据进行更新操作时，都会copy当前数据，保存到undo log中。并修改当前行的回滚指针指向undo log中的旧数据行。</li>
+</ul>
 
       
 
@@ -4732,10 +4739,6 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
@@ -4749,6 +4752,10 @@ gitalk.render('gitalk-ctn')
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
