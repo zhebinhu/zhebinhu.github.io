@@ -18,7 +18,13 @@
 <meta property="og:description" content="锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/undo%20log.png">
-<meta property="og:updated_time" content="2019-01-29T16:30:14.709Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合一.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合二.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合三.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg">
+<meta property="og:updated_time" content="2019-01-31T05:18:56.561Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB中的锁和MVCC">
 <meta name="twitter:description" content="锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。">
@@ -177,19 +183,99 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。<br><a id="more"></a></p>
-<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>innodb直接沿用了ＭySQL提供的表锁。事实上，表锁的加锁和解锁都是在MySQL server层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
-<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>顾名思义，行级锁锁定的是某一行数据。innodb中的所有数据项都保存在聚簇索引中，所以行级锁实质上锁住的是索引项。如果表中有多个索引存在，一行数据会对应到多个索引项，此时行级锁会锁住所有索引上的相应索引项。</p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>InnoDB直接沿用了ＭySQL提供的表锁。事实上，表锁的加锁和解锁都是在MySQL server层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
+<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>顾名思义，行级锁锁定的是某一行数据。InnoDB中的所有数据项都保存在聚簇索引中，所以行级锁实质上锁住的是索引项。如果表中有多个索引存在，一行数据会对应到多个索引项，此时行级锁会锁住所有索引上的相应索引项。</p>
 <p>行级锁分为共享锁（S锁）和排他锁（X锁）。S锁和S锁可以兼容；S锁和X锁，X锁和X锁不能兼容。（InnoDB存储引擎默认采用行级锁，所以下文如无指明，S锁和X锁均指行锁）</p>
 <h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>在没有引入意向锁之前，行级锁和表锁之间的兼容有点麻烦：如果要对一张表加X表锁，那么首先要判断这张表是否加了X表锁和S表锁，其次要判断每一行是否加了X锁和S锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此InnoDB引入了意向锁。</p>
-<p>和行锁一样，意向锁也分为意向共享锁（IS锁）和意向排他锁（IX锁）。事务在申请S或X锁之前，必须先申请到IS或IX锁。innodb中的意向锁是一种特殊的表锁：意向锁之间互不冲突，意向锁和表锁之间会冲突，此时意向锁相当于同类型的表锁。</p>
-<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。innodb利用undo log实现了MVCC。undo log的数据结构如图所示：</p>
+<p>和行锁一样，意向锁也分为意向共享锁（IS锁）和意向排他锁（IX锁）。事务在申请S或X锁之前，必须先申请到IS或IX锁。InnoDB中的意向锁是一种特殊的表锁：意向锁之间互不冲突，意向锁和表锁之间会冲突，此时意向锁相当于同类型的表锁。</p>
+<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。InnoDB利用undo log实现了MVCC。undo log的数据结构如图所示：</p>
 <p><img src="/2019/01/27/InnoDB中的锁和MVCC/undo log.png"></p>
 <p>前四行是数据列，后三列是隐藏列。隐藏列的含义如下：</p>
 <ul>
 <li>DB_ROW_ID：行ID。占7字节，他就项自增主键一样随着插入新数据自增。如果表中不存主键或者唯一索引，那么数据库就会采用DB_ROW_ID生成聚簇索引。否则DB_ROW_ID不会出现在索引中。</li>
-<li>DB_TRX_ID：事务id。占6字节，表示这一行数据最后插入或修改的事务id。此外删除在内部也被当作一次更新，在行的特殊位置添加一个删除标记（记录头信息有一个字节存储是否删除的标记）。</li>
+<li>DB_TRX_ID：事务ID。占6字节，表示这一行数据最后插入或修改的事务id。此外删除在内部也被当作一次更新，在行的特殊位置添加一个删除标记（记录头信息有一个字节存储是否删除的标记）。</li>
 <li>DB_ROLL_PTR：回滚指针。占7字节，每次对数据进行更新操作时，都会copy当前数据，保存到undo log中。并修改当前行的回滚指针指向undo log中的旧数据行。</li>
 </ul>
+<p>MVCC只有在隔离级别是READ COMMITED和REPEATABLE READ两个隔离级别下工作。MVCC可以通过比较数据行的事务ID和当前事务ID来判断该记录是否对当前事务可见。但仅有undo log还不够。试想这样一种情况：事务599开始——事务599更新了表A——事务600开始——事务600查询了表A——事务599再次更新了表A——事务600再次查询表A。可知事务600的两次查询会得到不同的结果，无法满足RR隔离级别的要求。这是因为事务599的事务ID虽然比事务600小，但事务599还未结束，仍有可能改变数据项的值。</p>
+<h3 id="read-view"><a href="#read-view" class="headerlink" title="read view"></a>read view</h3><p>InnoDB使用了read view解决了这个问题。read view是一张表，记录了当前活跃的事务ID。InnoDB在查询时会先对比数据行的事务ID和read view中的事务ID。具体如下：</p>
+<ul>
+<li>如果数据行事务ID大于read view中最大的ID，表示数据行一定是在当前事务之后修改的，对当前事务不可见；</li>
+<li>如果数据行事务ID小于read view中最小的ID，表示数据行一定是在当前事务开始之前修改并且已提交，所以对当前事务可见。</li>
+<li>如果数据行事务ID落在read view最大最小ID的区间中，则要判断数据行事务ID和当前事务ID的关系：<ul>
+<li>如果数据行事务ID不在活跃事务数组中，表示该事务已提交，此时和当前事务ID比较，若小于则可见，大于则不可见；</li>
+<li>如果数据行事务ID在活跃事务数组中，表示该事务未提交，这里要判断一下数据行事务ID是否为当前事务ID，若是，虽然未提交但同一事务内的修改可见，若不是，则不可见。</li>
+</ul>
+</li>
+</ul>
+<p>当前数据行若是不可见，InnoDB会沿着DB_ROLL_PTR往下查找，直到找到第一个可见的数据行或者null。</p>
+<p>可见与否只是第一步，实际返回的数据还要经过判断。因为删除和更新共用一个字段，区别只是删除有一个字节的删除标记，那么在返回的时候InnoDB就要判断当前的数据行是否被标记为删除。如果标记了删除，就不会返回。</p>
+<p>MVCC在READ COMMITED和REPEATABLE READ两个隔离级别下共用一套逻辑，区别只是在于<strong>RC隔离级别是在语句开始时刻创建read view的，而RR隔离级别是在事务开始时刻，确切地说是第一个读操作创建read view的。</strong>由于这一点上的不同，使得MVCC在RC隔离级别下读取的是最新提交的数据，而RR隔离级别下读取的是事务开始前提交的数据。</p>
+<h2 id="next-key解决幻读问题"><a href="#next-key解决幻读问题" class="headerlink" title="next-key解决幻读问题"></a>next-key解决幻读问题</h2><p>幻读是指一个事务内连续进行两次相同的SQL语句可能导致不同的结果，第二次的SQL语句可能会返回之前不存在的行。发生这种现象的原因是事务A两次查找的间隔中事务B插入了一条或多条数据并提交，导致事务A的第二次查询查到了新插入的数据。</p>
+<p>InnoDB中有三种锁算法：</p>
+<ul>
+<li>Record Lock：单个行记录上的锁</li>
+<li>Gap Lock：间隙锁，锁住一个范围，但不包含记录本身</li>
+<li>Next-Key Lock：Record Lock+Gap Lock，锁定一个范围，并且锁定记录本身</li>
+</ul>
+<p>幻读现象问题的根本原因是Record Lock只锁住记录本身而不锁范围，导致其它事务可以在记录间插入数据。InnoDB使用了Next-Key Lock来解决这个问题。Next-Key Lock会锁住一个范围，例如一个索引有10,11,13,20这四个值，那么该索引可能被Next-Key Locking的区间为：<br>(-∞,10]<br>(10,11]<br>(11,13]<br>(13,20]<br>(20,+∞)</p>
+<p>当然，如果查询的索引是唯一索引的话，就不用担心被插入的问题，InnoDB会对Next-Key Lock进行优化，将其降级为Record Lock。</p>
+<h2 id="innodb加锁处理分析"><a href="#innodb加锁处理分析" class="headerlink" title="innodb加锁处理分析"></a>innodb加锁处理分析</h2><p>以上是理论部分，那么实际innodb怎么加锁呢？我们结合SQL语句来分析。</p>
+<p>在支持MVCC并发控制的系统中，读操作可以分成两类：快照读 (snapshot read)与当前读 (current read)。快照读，读取的是记录的可见版本 (有可能是历史版本)，不用加锁。当前读，读取的是记录的最新版本，并且，当前读返回的记录，都会加上锁，保证其他事务不会再并发修改这条记录。</p>
+<ul>
+<li>快照读：<ul>
+<li>select * from table where ?;</li>
+</ul>
+</li>
+<li>当前读：<ul>
+<li>select * from table where ? lock in share mode;</li>
+<li>select * from table where ? for update;</li>
+<li>insert into table values (…);</li>
+<li>update table set ? where ?;</li>
+<li>delete from table where ?;</li>
+</ul>
+</li>
+</ul>
+<p>简而言之，所有的插入/更新/删除操作都是当前读，且都加了X锁；读取操作默认是快照读，但可以声明加X锁或者S锁。</p>
+<h3 id="一条简单SQL的加锁实现分析"><a href="#一条简单SQL的加锁实现分析" class="headerlink" title="一条简单SQL的加锁实现分析"></a>一条简单SQL的加锁实现分析</h3><p>我们拿一条SQL语句：delete from t1 where id = 10; 来分析innodb的加锁情况。但光有这一条SQL是不够的，我们还需要知道一些前提：</p>
+<ul>
+<li>前提1：id列是不是主键？</li>
+<li>前提2：当前系统的隔离级别是什么？</li>
+<li>前提3：如果id列不是主键，那么id列上有索引吗？</li>
+<li>前提4：如果id列上有二级索引，那么这个索引是唯一索引吗？</li>
+</ul>
+<p>基于这些前提的不同，我们可以组合出以下几种情况（隔离级别只考虑RC和RR的情况）：</p>
+<ul>
+<li>组合1：id列是主键，RC隔离级别</li>
+<li>组合2：id列是二级唯一索引，RC隔离级别</li>
+<li>组合3：id列是二级非唯一索引，RC隔离级别</li>
+<li>组合4：id列上没有索引，RC隔离级别</li>
+<li>组合5：id列是主键，RR隔离级别</li>
+<li>组合6：id列是二级唯一索引，RR隔离级别</li>
+<li>组合7：id列是二级非唯一索引，RR隔离级别</li>
+<li>组合8：id列上没有索引，RR隔离级别</li>
+</ul>
+<h3 id="组合1：id列是主键，RC隔离级别"><a href="#组合1：id列是主键，RC隔离级别" class="headerlink" title="组合1：id列是主键，RC隔离级别"></a>组合1：id列是主键，RC隔离级别</h3><p>这个组合，是最简单，最容易分析的组合。id是主键，Read Committed隔离级别，给定SQL：delete from t1 where id = 10; 只需要将主键上，id = 10的记录加上X锁即可。如下图所示：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合一.jpg"></p>
+<p>id是主键时，此SQL只需要在id=10这条记录上加X锁即可。</p>
+<h3 id="组合2：id列是二级唯一索引，RC隔离级别"><a href="#组合2：id列是二级唯一索引，RC隔离级别" class="headerlink" title="组合2：id列是二级唯一索引，RC隔离级别"></a>组合2：id列是二级唯一索引，RC隔离级别</h3><p>这个组合，id不是主键，而是一个unique的二级索引键值。那么在RC隔离级别下，delete from t1 where id = 10; 需要加什么锁呢？见下图：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合二.jpg"></p>
+<p>此组合中，id是unique索引，而主键是name列。此时，加锁的情况由于组合一有所不同。由于id是unique索引，因此delete语句会选择走id列的索引进行where条件的过滤，在找到id=10的记录后，首先会将unique索引上的id=10索引记录加上X锁，同时，会根据读取到的name列，回主键索引(聚簇索引)，然后将聚簇索引上的name = ‘d’ 对应的主键索引项加X锁。为什么聚簇索引上的记录也要加锁？试想一下，如果并发的一个SQL，是通过主键索引来更新：update t1 set id = 100 where name = ‘d’; 此时，如果delete语句没有将主键索引上的记录加锁，那么并发的update就会感知不到delete语句的存在，违背了同一记录上的更新/删除需要串行执行的约束。</p>
+<h3 id="组合3：id列是二级非唯一索引，RC隔离级别"><a href="#组合3：id列是二级非唯一索引，RC隔离级别" class="headerlink" title="组合3：id列是二级非唯一索引，RC隔离级别"></a>组合3：id列是二级非唯一索引，RC隔离级别</h3><p>相对于组合一、二，组合三又发生了变化，隔离级别仍旧是RC不变，但是id列上的约束又降低了，id列不再唯一，只有一个普通的索引。假设delete from t1 where id = 10; 语句，仍旧选择id列上的索引进行过滤where条件，那么此时会持有哪些锁？同样见下图：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合三.jpg"></p>
+<p>可以看到，首先，id列索引上，满足id = 10查询条件的记录，均已加锁。同时，这些记录对应的主键索引上的记录也都加上了锁。与组合二唯一的区别在于，组合二最多只有一个满足等值查询的记录，而组合三会将所有满足查询条件的记录都加锁。</p>
+<h3 id="组合4：id列上没有索引，RC隔离级别"><a href="#组合4：id列上没有索引，RC隔离级别" class="headerlink" title="组合4：id列上没有索引，RC隔离级别"></a>组合4：id列上没有索引，RC隔离级别</h3><p>相对于前面三个组合，这是一个比较特殊的情况。id列上没有索引，where id = 10;这个过滤条件，没法通过索引进行过滤，那么只能走全表扫描做过滤。对应于这个组合，SQL会加什么锁？或者是换句话说，全表扫描时，会加什么锁？这个答案也有很多：有人说会在表上加X锁；有人说会将聚簇索引上，选择出来的id = 10;的记录加上X锁。那么实际情况呢？请看下图：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg"></p>
+<p>由于id列上没有索引，因此只能走聚簇索引，进行全部扫描。从图中可以看到，满足删除条件的记录有两条，但是，聚簇索引上所有的记录，都被加上了X锁。无论记录是否满足条件，全部被加上X锁。既不是加表锁，也不是在满足条件的记录上加行锁。</p>
+<p>有人可能会问？为什么不是只在满足条件的记录上加锁呢？这是由于MySQL的实现决定的。如果一个条件无法通过索引快速过滤，那么存储引擎层面就会将所有记录加锁后返回，然后由MySQL Server层进行过滤。因此也就把所有的记录，都锁上了。</p>
+<h3 id="组合5：id列是主键，RR隔离级别"><a href="#组合5：id列是主键，RR隔离级别" class="headerlink" title="组合5：id列是主键，RR隔离级别"></a>组合5：id列是主键，RR隔离级别</h3><p>上面的四个组合，都是在Read Committed隔离级别下的加锁行为，接下来的四个组合，是在Repeatable Read隔离级别下的加锁行为。</p>
+<p>组合五，id列是主键列，Repeatable Read隔离级别，针对delete from t1 where id = 10; 这条SQL，加锁与组合一：[id主键，Read Committed]一致。</p>
+<h3 id="组合6：id列是二级唯一索引，RR隔离级别"><a href="#组合6：id列是二级唯一索引，RR隔离级别" class="headerlink" title="组合6：id列是二级唯一索引，RR隔离级别"></a>组合6：id列是二级唯一索引，RR隔离级别</h3><p>与组合五类似，组合六的加锁，与组合二：[id唯一索引，Read Committed]一致。两个X锁，id唯一索引满足条件的记录上一个，对应的聚簇索引上的记录一个。</p>
+<h3 id="组合7：id列是二级非唯一索引，RR隔离级别"><a href="#组合7：id列是二级非唯一索引，RR隔离级别" class="headerlink" title="组合7：id列是二级非唯一索引，RR隔离级别"></a>组合7：id列是二级非唯一索引，RR隔离级别</h3><p>组合七，Repeatable Read隔离级别，id上有一个非唯一索引，执行delete from t1 where id = 10; 假设选择id列上的索引进行条件过滤，最后的加锁行为，是怎么样的呢？同样看下面这幅图：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg"></p>
+<p>此图，相对于组合三多了一个GAP锁，这是因为RR级别区别于RC级别的一点是RR级别要防止幻读。我们在前一节讲过innodb基于Next-Lock防止幻读，而Next-Lock就是GAP Lock+Record Lock。加在索引上的是Record Lock，而在中间的就是GAP Lock。</p>
+<p>那么为什么组合五、组合六，也是RR隔离级别，却不需要加GAP锁呢？这是因为组合五，id是主键；组合六，id是unique键，都能够保证唯一性。一个等值查询，最多只能返回一条记录，而且新的相同取值的记录，一定不会再新插入进来，因此也就避免了GAP锁的使用。</p>
+<h3 id="组合8：id列上没有索引，RR隔离级别"><a href="#组合8：id列上没有索引，RR隔离级别" class="headerlink" title="组合8：id列上没有索引，RR隔离级别"></a>组合8：id列上没有索引，RR隔离级别</h3><p>组合八，Repeatable Read隔离级别下的最后一种情况，id列上没有索引。此时SQL：delete from t1 where id = 10; 没有其他的路径可以选择，只能进行全表扫描。最终的加锁情况，如下图所示：</p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg"></p>
 
       
 
@@ -302,7 +388,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#锁"><span class="toc-number">1.</span> <span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、表锁"><span class="toc-number">1.1.</span> <span class="toc-text">1、表锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、行级锁"><span class="toc-number">1.2.</span> <span class="toc-text">2、行级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、意向锁"><span class="toc-number">1.3.</span> <span class="toc-text">3、意向锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC"><span class="toc-number">2.</span> <span class="toc-text">MVCC</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#锁"><span class="toc-number">1.</span> <span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、表锁"><span class="toc-number">1.1.</span> <span class="toc-text">1、表锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、行级锁"><span class="toc-number">1.2.</span> <span class="toc-text">2、行级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、意向锁"><span class="toc-number">1.3.</span> <span class="toc-text">3、意向锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC"><span class="toc-number">2.</span> <span class="toc-text">MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#read-view"><span class="toc-number">2.1.</span> <span class="toc-text">read view</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next-key解决幻读问题"><span class="toc-number">3.</span> <span class="toc-text">next-key解决幻读问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#innodb加锁处理分析"><span class="toc-number">4.</span> <span class="toc-text">innodb加锁处理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条简单SQL的加锁实现分析"><span class="toc-number">4.1.</span> <span class="toc-text">一条简单SQL的加锁实现分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合1：id列是主键，RC隔离级别"><span class="toc-number">4.2.</span> <span class="toc-text">组合1：id列是主键，RC隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合2：id列是二级唯一索引，RC隔离级别"><span class="toc-number">4.3.</span> <span class="toc-text">组合2：id列是二级唯一索引，RC隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合3：id列是二级非唯一索引，RC隔离级别"><span class="toc-number">4.4.</span> <span class="toc-text">组合3：id列是二级非唯一索引，RC隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合4：id列上没有索引，RC隔离级别"><span class="toc-number">4.5.</span> <span class="toc-text">组合4：id列上没有索引，RC隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合5：id列是主键，RR隔离级别"><span class="toc-number">4.6.</span> <span class="toc-text">组合5：id列是主键，RR隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合6：id列是二级唯一索引，RR隔离级别"><span class="toc-number">4.7.</span> <span class="toc-text">组合6：id列是二级唯一索引，RR隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合7：id列是二级非唯一索引，RR隔离级别"><span class="toc-number">4.8.</span> <span class="toc-text">组合7：id列是二级非唯一索引，RR隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合8：id列上没有索引，RR隔离级别"><span class="toc-number">4.9.</span> <span class="toc-text">组合8：id列上没有索引，RR隔离级别</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -4739,11 +4825,7 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4751,11 +4833,15 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
