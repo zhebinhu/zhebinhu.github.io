@@ -9,19 +9,19 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Java中的异常 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
-<meta name="keywords" content="原创,Java">
+  <meta name="description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。">
+<meta name="keywords" content="Java,原创">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java中的异常">
 <meta property="og:url" content="http://yoursite.com/2017/12/29/Java中的异常/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
+<meta property="og:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2017/12/29/Java中的异常/常见异常继承关系.png">
-<meta property="og:updated_time" content="2018-06-06T14:01:47.860Z">
+<meta property="og:updated_time" content="2019-02-01T06:37:18.819Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java中的异常">
-<meta name="twitter:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。 一、异常的分类Java中的异常是指程序在编译或者运行中遇到的问题。 Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。  Error：Error">
+<meta name="twitter:description" content="异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。">
 <meta name="twitter:image" content="http://yoursite.com/2017/12/29/Java中的异常/常见异常继承关系.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
@@ -176,7 +176,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。</p>
+        <p>异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。<br><a id="more"></a></p>
 <h2 id="一、异常的分类"><a href="#一、异常的分类" class="headerlink" title="一、异常的分类"></a>一、异常的分类</h2><p>Java中的异常是指程序在编译或者运行中遇到的问题。</p>
 <p>Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。</p>
 <ul>
@@ -184,7 +184,6 @@
 <li>Exception：Exception是程序可以处理的异常。它有很多子类，比如IOException,RuntimeException,SQLException等等。其中RuntimeException比较特殊，它表示程序运行中        发生的异常，在编译时可以不接受检查。而其它异常编译时就要接受检查，对于抛出异常的部分，要么throw给子类，要么用try…catch处理。</li>
 </ul>
 <p>常见异常继承关系：</p>
-<a id="more"></a>
 <p><img src="/2017/12/29/Java中的异常/常见异常继承关系.png" width="70%" length="70%"></p>
 <h2 id="二、常见的异常"><a href="#二、常见的异常" class="headerlink" title="二、常见的异常"></a>二、常见的异常</h2><p>记住常见的异常可以让我们更高效地调试程序代码，有助于提高开发效率。</p>
 <h3 id="runtimeException子类"><a href="#runtimeException子类" class="headerlink" title="runtimeException子类"></a>runtimeException子类</h3><ul>
@@ -241,11 +240,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -4785,6 +4784,10 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4793,15 +4796,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4813,11 +4812,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>

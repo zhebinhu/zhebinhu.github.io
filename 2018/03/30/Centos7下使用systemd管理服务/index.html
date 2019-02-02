@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/一号进程.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/redis.service.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/30/Centos7下使用systemd管理服务/systemctl_status.png">
-<meta property="og:updated_time" content="2018-04-13T09:08:41.953Z">
+<meta property="og:updated_time" content="2019-02-01T06:35:40.482Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Centos7下使用systemd管理服务">
 <meta name="twitter:description" content="Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可">
@@ -179,8 +179,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可以统一交给Systemd管理，方便许多。</p>
-<h2 id="Systemd概述"><a href="#Systemd概述" class="headerlink" title="Systemd概述"></a>Systemd概述</h2><p>在Linux系统中，我们经常会遇到结尾为’d’的进程，比如initd，mysqld。根据Linux惯例，字母‘d’是守护进程（daemon）的缩写。systemd这个名字的含义，就是它是整个系统的守护进程。在Centos7中，它是系统的第一个进程（PID等于1），创建于系统启动的过程中，其他进程都是它的子进程。</p>
 <a id="more"></a>
+<h2 id="Systemd概述"><a href="#Systemd概述" class="headerlink" title="Systemd概述"></a>Systemd概述</h2><p>在Linux系统中，我们经常会遇到结尾为’d’的进程，比如initd，mysqld。根据Linux惯例，字母‘d’是守护进程（daemon）的缩写。systemd这个名字的含义，就是它是整个系统的守护进程。在Centos7中，它是系统的第一个进程（PID等于1），创建于系统启动的过程中，其他进程都是它的子进程。</p>
 <p><img src="/2018/03/30/Centos7下使用systemd管理服务/一号进程.png"></p>
 <p>在Centos7中，系统的启动可以汇整成如下几个过程：</p>
 <p>①、打开计算机电源，载入BIOS的硬件信息与进行自我测试，并依据设置取得第一个可开机的设备；<br>②、读取并执行第一个开机设备内MBR的boot loader（亦即是grub2，spfdisk等程序）；<br>③、依据boot loader的设置载入Kernel，Kernel会开始侦测硬件与载入驱动程序；<br>④、在硬件驱动成功后，Kernel会主动调用systemd程序，并以default.target流程开机；<br>　　1) systemd执行sysinit.target初始化系统及basic.target准备操作系统；<br>　　2) systemd启动multi-user.target下的本机与服务器服务；<br>　　3) systemd执行multi-user.target下的/etc/rc.d/rc.local文件；<br>　　4) systemd执行multi-user.target下的getty.target及登录服务；<br>　　5) systemd执行graphical需要的服务（图形化版本特有）</p>
@@ -4912,6 +4912,10 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4920,15 +4924,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4940,11 +4940,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>

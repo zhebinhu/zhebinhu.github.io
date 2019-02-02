@@ -154,6 +154,80 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-《高性能MySQL》读书笔记——库表结构优化" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/">《高性能MySQL》读书笔记——库表结构优化</a>
+    </h1>
+  
+
+        
+        <a href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/" class="archive-article-date">
+  	<time datetime="2018-08-18T10:08:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-18</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文介绍了MySQL中的常用数据类型及其适用场景，以及数据库范式和反范式化的设计。<br></p>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/08/18/《高性能MySQL》读书笔记——库表结构优化/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-GET与POST的区别" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -174,7 +248,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发的角度，或许我们更关心的是主流的工具在履行这两者上有什么区别？因此我整理了一些常见平台下GET与POST的区别，希望能有帮助。</p>
+        <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发角度看，或许这些更有价值。<br></p>
         
       
 
@@ -253,7 +327,6 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>记录一些开发中常用但不容易记住的快捷键。</p>
-<h2 id="Ctrl"><a href="#Ctrl" class="headerlink" title="Ctrl"></a>Ctrl</h2><p>Ctrl + Ｙ　　　删除行<br>Ctrl + Ｒ　　　替换<br>Ctrl + Ｆ　　　当前代码中查找<br>Ctrl + Ｗ　　　选中光标所在的单词，连按范围扩大<br>Ctrl + －／＝　折叠／展开当前光标所在代码和注释<br>Ctrl + Ｉ　　　接口方法补全　</p>
         
       
 
@@ -327,8 +400,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>昨天给云服务器装JDK，惊讶地发现版本已经更新到10。而我还停留在Java9刚刚发布的错觉中，深感自己和时代脱轨。这是我从<a href="https://www.ibm.com/developerworks/cn/" target="_blank" rel="noopener">IBM developerWorks中文社区</a>找到的<a href="https://www.ibm.com/developerworks/cn/java/the-new-features-of-Java-9/index.html" target="_blank" rel="noopener">Java9新特性概述</a>，是我在网上能找到的比较详细描述Java9新特性的文章。收藏在这里，以备随时温习。</p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。</p>
+        <p>Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。<br></p>
         
       
 
@@ -407,7 +479,6 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>Centos7新增了systemd用于为系统的启动和管理提供一套完整的解决方案，以替代原先的系统管理器system V init（SysVInit）。相比于SysVInit，systemd支持服务并行启动，从而使效率大大提高；同时它还具有日志管理、快速备份与恢复、挂载点管理等多种实用功能，是一套更完善的系统管理方案。服务器后端会经常有将mysql、redis、nginx等部件开机启动的需求，现在可以统一交给Systemd管理，方便许多。</p>
-<h2 id="Systemd概述"><a href="#Systemd概述" class="headerlink" title="Systemd概述"></a>Systemd概述</h2><p>在Linux系统中，我们经常会遇到结尾为’d’的进程，比如initd，mysqld。根据Linux惯例，字母‘d’是守护进程（daemon）的缩写。systemd这个名字的含义，就是它是整个系统的守护进程。在Centos7中，它是系统的第一个进程（PID等于1），创建于系统启动的过程中，其他进程都是它的子进程。</p>
         
       
 
@@ -485,8 +556,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
-<h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
+        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。<br></p>
         
       
 
@@ -642,8 +712,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>数据库索引是面试中的常考项，也是日常开发中提高程序可用性的实用技巧。我在<a href="https://tech.meituan.com/" target="_blank" rel="noopener">美团技术点评团队</a>中找到了这篇文章<a href="https://tech.meituan.com/mysql-index.html" target="_blank" rel="noopener">《MySQL索引原理及慢查询优化》</a>，摘录了其中专讲索引原理的部分，以供随时复习。</p>
-<h2 id="索引目的"><a href="#索引目的" class="headerlink" title="索引目的"></a>索引目的</h2><p>索引的目的在于提高查询效率，可以类比字典，如果要查“mysql”这个单词，我们肯定需要定位到m字母，然后从下往下找到y字母，再找到剩下的sql。如果没有索引，那么你可能需要把所有单词看一遍才能找到你想要的，如果我想找到m开头的单词呢？或者ze开头的单词呢？是不是觉得如果没有索引，这个事情根本无法完成？</p>
+        <p>数据库索引是面试中的常考项，也是日常开发中提高程序可用性的实用技巧。我在<a href="https://tech.meituan.com/" target="_blank" rel="noopener">美团技术点评团队</a>中找到了这篇文章<a href="https://tech.meituan.com/mysql-index.html" target="_blank" rel="noopener">《MySQL索引原理及慢查询优化》</a>，摘录了其中专讲索引原理的部分，以供随时复习。<br></p>
         
       
 
@@ -722,11 +791,6 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>workbench是MySQL自带的数据库可视化工具，相比另一款常用的数据库可视化工具Navicat最大的优势就是它是免费的。两者的操作逻辑没有太大区别，不过workbench英文的界面对初学者不是太友好。我花了一点时间学习了如何作图，希望能为以后节省时间。</p>
-<p>E-R图是描述数据库关系最常用的方式。优点是直观、详尽。workbench当然也提供了这种图表的绘制方式，不过在里面叫EER图。经过我的一番考证，这个EER图就是我们常说的E-R图。</p>
-<h2 id="一、已有数据库，自动生成EER图："><a href="#一、已有数据库，自动生成EER图：" class="headerlink" title="一、已有数据库，自动生成EER图："></a>一、已有数据库，自动生成EER图：</h2><p>①、首先在mysql workbench里选中Database——&gt; reverse engineering</p>
-<p>②、然后选择你建立的连接（也就是数据库）</p>
-<p>③、接下来一路next，直到最后选择导出的数据库</p>
-<p>④、自动生成的 E-R 图大概长相如图：</p>
         
       
 
@@ -808,14 +872,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。</p>
-<h2 id="一、异常的分类"><a href="#一、异常的分类" class="headerlink" title="一、异常的分类"></a>一、异常的分类</h2><p>Java中的异常是指程序在编译或者运行中遇到的问题。</p>
-<p>Java中的异常都继承自Throwable类。Throwable是java语言中所有错误和异常的超类，它表示可抛（万物皆可抛）。它有两个子类：Error和Exception。</p>
-<ul>
-<li>Error：Error为错误，是程序无法处理的。如OutOfMemoryError、ThreadDeath等，出现这种情况只能听之任之，交由JVM处理。一般情况下JVM也没法子，只好终止线程。</li>
-<li>Exception：Exception是程序可以处理的异常。它有很多子类，比如IOException,RuntimeException,SQLException等等。其中RuntimeException比较特殊，它表示程序运行中        发生的异常，在编译时可以不接受检查。而其它异常编译时就要接受检查，对于抛出异常的部分，要么throw给子类，要么用try…catch处理。</li>
-</ul>
-<p>常见异常继承关系：</p>
+        <p>异常是Java中非常基础但重要的一块内容，异常的概念理解起来简单，但系统讲起来却并不容易。专门抽了一个下午将它整理出来，以备所需。<br></p>
         
       
 
@@ -829,11 +886,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
         		</li>
       		
 		</ul>
@@ -5273,6 +5330,10 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -5281,15 +5342,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5301,11 +5358,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>

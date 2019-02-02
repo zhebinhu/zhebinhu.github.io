@@ -9,23 +9,23 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>简单的密码学生成唯一邀请码 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
+  <meta name="description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。">
 <meta name="keywords" content="原创,密码学">
 <meta property="og:type" content="article">
 <meta property="og:title" content="简单的密码学生成唯一邀请码">
 <meta property="og:url" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
+<meta property="og:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_2.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_1.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myCode_2.png">
 <meta property="og:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/myResult_1.png">
-<meta property="og:updated_time" content="2018-04-11T03:24:15.288Z">
+<meta property="og:updated_time" content="2019-02-01T06:36:09.394Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简单的密码学生成唯一邀请码">
-<meta name="twitter:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。 需求分析从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：">
+<meta name="twitter:description" content="最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。">
 <meta name="twitter:image" content="http://yoursite.com/2018/03/23/简单的密码学生成唯一邀请码/RC4_1.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
@@ -180,9 +180,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。</p>
+        <p>最近项目需要生成用户邀请码，网上找了几个算法都不太满意，就自己写了一个。里面借鉴了一些密码学里的思路，最后的算法效果还不错。想把思路记录下来，可以用在类似对加密强度要求不高的场合下。<br><a id="more"></a></p>
 <h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>从业务需求和市面上其它产品邀请码的使用体验上来看，邀请码有以下几个强制性的要求：</p>
-<a id="more"></a>
 <ul>
 <li>不可重复</li>
 <li>唯一确定</li>
@@ -4803,6 +4802,10 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4811,15 +4814,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4831,11 +4830,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>

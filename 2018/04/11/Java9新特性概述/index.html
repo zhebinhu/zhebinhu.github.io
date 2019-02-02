@@ -9,18 +9,18 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Java9新特性概述 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="昨天给云服务器装JDK，惊讶地发现版本已经更新到10。而我还停留在Java9刚刚发布的错觉中，深感自己和时代脱轨。这是我从IBM developerWorks中文社区找到的Java9新特性概述，是我在网上能找到的比较详细描述Java9新特性的文章。收藏在这里，以备随时温习。 前言Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最">
+  <meta name="description" content="Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。">
 <meta name="keywords" content="Java,收藏">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java9新特性概述">
 <meta property="og:url" content="http://yoursite.com/2018/04/11/Java9新特性概述/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="昨天给云服务器装JDK，惊讶地发现版本已经更新到10。而我还停留在Java9刚刚发布的错觉中，深感自己和时代脱轨。这是我从IBM developerWorks中文社区找到的Java9新特性概述，是我在网上能找到的比较详细描述Java9新特性的文章。收藏在这里，以备随时温习。 前言Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最">
+<meta property="og:description" content="Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-04-11T12:01:00.670Z">
+<meta property="og:updated_time" content="2019-02-01T06:48:16.136Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java9新特性概述">
-<meta name="twitter:description" content="昨天给云服务器装JDK，惊讶地发现版本已经更新到10。而我还停留在Java9刚刚发布的错觉中，深感自己和时代脱轨。这是我从IBM developerWorks中文社区找到的Java9新特性概述，是我在网上能找到的比较详细描述Java9新特性的文章。收藏在这里，以备随时温习。 前言Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最">
+<meta name="twitter:description" content="Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -174,9 +174,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>昨天给云服务器装JDK，惊讶地发现版本已经更新到10。而我还停留在Java9刚刚发布的错觉中，深感自己和时代脱轨。这是我从<a href="https://www.ibm.com/developerworks/cn/" target="_blank" rel="noopener">IBM developerWorks中文社区</a>找到的<a href="https://www.ibm.com/developerworks/cn/java/the-new-features-of-Java-9/index.html" target="_blank" rel="noopener">Java9新特性概述</a>，是我在网上能找到的比较详细描述Java9新特性的文章。收藏在这里，以备随时温习。</p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。</p>
-<a id="more"></a>
+        <p>Java9正式发布于2017年9月21日。作为Java8之后3年半才发布的新版本，Java9带来了很多重大的变化。其中最重要的改动是Java平台模块系统的引入。除此之外，还有一些新的特性。本文对Java9中包含的新特性做了概括性的介绍，可以帮助你快速了解Java9。<br><a id="more"></a></p>
 <h2 id="Java平台模块系统"><a href="#Java平台模块系统" class="headerlink" title="Java平台模块系统"></a>Java平台模块系统</h2><p>Java平台模块系统，也就是Project Jigsaw，把模块化开发实践引入到了Java平台中。在引入了模块系统之后，JDK 被重新组织成94个模块。Java应用可以通过新增的jlink工具，创建出只包含所依赖的JDK模块的自定义运行时镜像。这样可以极大的减少Java运行时环境的大小。这对于目前流行的不可变基础设施的实践来说，镜像的大小的减少可以节省很多存储空间和带宽资源。</p>
 <p>模块化开发的实践在软件开发领域并不是一个新的概念。Java开发社区已经使用这样的模块化实践有相当长的一段时间。主流的构建工具，包括Apache Maven和Gradle都支持把一个大的项目划分成若干个子项目。子项目之间通过不同的依赖关系组织在一起。每个子项目在构建之后都会产生对应的JAR文件。在Java9中，已有的这些项目可以很容易的升级转换为Java9模块，并保持原有的组织结构不变。</p>
 <p>Java9模块的重要特征是在其工件（artifact）的根目录中包含了一个描述模块的module-info.class文件。工件的格式可以是传统的JAR文件或是Java9新增的JMOD文件。这个文件由根目录中的源代码文件module-info.java编译而来。该模块声明文件可以描述模块的不同特征。模块声明文件中可以包含的内容如下：</p>
@@ -370,7 +368,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java平台模块系统"><span class="toc-number">2.</span> <span class="toc-text">Java平台模块系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jshell"><span class="toc-number">3.</span> <span class="toc-text">Jshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合、Stream和Optional"><span class="toc-number">4.</span> <span class="toc-text">集合、Stream和Optional</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程API"><span class="toc-number">5.</span> <span class="toc-text">进程API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#平台日志API和服务"><span class="toc-number">6.</span> <span class="toc-text">平台日志API和服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反应式流（Reactive-Streams）"><span class="toc-number">7.</span> <span class="toc-text">反应式流（Reactive Streams）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量句柄"><span class="toc-number">8.</span> <span class="toc-text">变量句柄</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进方法句柄（Method-Handle）"><span class="toc-number">9.</span> <span class="toc-text">改进方法句柄（Method Handle）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发"><span class="toc-number">10.</span> <span class="toc-text">并发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nashorn"><span class="toc-number">11.</span> <span class="toc-text">Nashorn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-流新特性"><span class="toc-number">12.</span> <span class="toc-text">I/O 流新特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进应用安全性能"><span class="toc-number">13.</span> <span class="toc-text">改进应用安全性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用户界面"><span class="toc-number">14.</span> <span class="toc-text">用户界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#统一JVM日志"><span class="toc-number">15.</span> <span class="toc-text">统一JVM日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他改动方面"><span class="toc-number">16.</span> <span class="toc-text">其他改动方面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">17.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资源-resources"><span class="toc-number">18.</span> <span class="toc-text">参考资源 (resources)</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java平台模块系统"><span class="toc-number">1.</span> <span class="toc-text">Java平台模块系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jshell"><span class="toc-number">2.</span> <span class="toc-text">Jshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合、Stream和Optional"><span class="toc-number">3.</span> <span class="toc-text">集合、Stream和Optional</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程API"><span class="toc-number">4.</span> <span class="toc-text">进程API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#平台日志API和服务"><span class="toc-number">5.</span> <span class="toc-text">平台日志API和服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反应式流（Reactive-Streams）"><span class="toc-number">6.</span> <span class="toc-text">反应式流（Reactive Streams）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量句柄"><span class="toc-number">7.</span> <span class="toc-text">变量句柄</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进方法句柄（Method-Handle）"><span class="toc-number">8.</span> <span class="toc-text">改进方法句柄（Method Handle）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发"><span class="toc-number">9.</span> <span class="toc-text">并发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nashorn"><span class="toc-number">10.</span> <span class="toc-text">Nashorn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-流新特性"><span class="toc-number">11.</span> <span class="toc-text">I/O 流新特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进应用安全性能"><span class="toc-number">12.</span> <span class="toc-text">改进应用安全性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用户界面"><span class="toc-number">13.</span> <span class="toc-text">用户界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#统一JVM日志"><span class="toc-number">14.</span> <span class="toc-text">统一JVM日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他改动方面"><span class="toc-number">15.</span> <span class="toc-text">其他改动方面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">16.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资源-resources"><span class="toc-number">17.</span> <span class="toc-text">参考资源 (resources)</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4807,6 +4805,10 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4815,15 +4817,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4835,11 +4833,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>

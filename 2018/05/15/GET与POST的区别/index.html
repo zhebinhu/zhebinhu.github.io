@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。RFC7231规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform r">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-15T08:54:33.168Z">
+<meta property="og:updated_time" content="2019-02-01T06:47:40.877Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GET与POST的区别">
 <meta name="twitter:description" content="HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。RFC7231规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform r">
@@ -174,8 +174,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发的角度，或许我们更关心的是主流的工具在履行这两者上有什么区别？因此我整理了一些常见平台下GET与POST的区别，希望能有帮助。</p>
-<a id="more"></a>
+        <p>HTTP定义了一组请求方法, 以表明要对给定资源执行的操作。而硕果仅存的只剩两个半（笑）。实际开发中我们常用到的一般是POST和GET，极少数情况下会用到PUT。<a href="https://tools.ietf.org/html/rfc7231#section-4" target="_blank" rel="noopener">RFC7231</a>规范了GET方法用于请求一个指定资源的表示形式（transfer a current representation of the target resource），而POST方法用于将实体提交到指定的资源（Perform resource-specific processing on the request payload）。但仅仅了解规范是不够的，很多工具比如chrome,nginx有它自己履行规范的方式，从开发角度看，或许这些更有价值。<br><a id="more"></a></p>
 <h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><p>GET传递的参数只能带URL后面，文本格式QueryString，长度受限于浏览器发送长度和服务器接收长度。各家标准不一，作为开发人员宜选取其中最短一个（2083字节）作为开发标准，以避免不必要的兼容问题。</p>
 <ul>
 <li>IE(Browser)　2,083 Bytes</li>
@@ -4769,6 +4768,10 @@ gitalk.render('gitalk-ctn')
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
@@ -4777,15 +4780,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4797,11 +4796,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
+                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">密码学</a>
+                <a href="javascript:void(0)" class="js-tag color5">读书笔记</a>
               </li>
             
             <div class="clearfix"></div>
