@@ -17,10 +17,12 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="本文主要介绍了Redis持久化的两种机制和键过期的策略。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-05T15:57:21.032Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis持久化和过期机制/过期键的保存.png">
+<meta property="og:updated_time" content="2019-02-05T16:25:22.289Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis持久化和过期机制">
 <meta name="twitter:description" content="本文主要介绍了Redis持久化的两种机制和键过期的策略。">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/05/Redis持久化和过期机制/过期键的保存.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -177,7 +179,8 @@
         <p>本文主要介绍了Redis持久化的两种机制和键过期的策略。<br><a id="more"></a></p>
 <h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p>RDB是Redis持久化的第一种方式。有两个Redis命令可以用于生成RDB文件，一个是SAVE，另一个是BGSAVE。<br>SAVE会阻塞Redis服务器进程，执行时Redis服务器会阻塞所有客户端发送的命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br></pre></td></tr></table></figure></p>
 <p>BGSAVE会派生出一个子进程执行，执行时仍可继续处理客户端的命令，但会拒绝客户端SAVE和BGSAVE的命令，延迟BGREWRITEAOF命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure></p>
-<h3 id="执行条件"><a href="#执行条件" class="headerlink" title="执行条件"></a>执行条件</h3><p>SAVE命令会阻塞服务器，所以只能手动执行。BGSAVE可以在不阻塞的情况下执行，所以可以配置save选项让服务器每隔一段时间自动执行一次。<br>比如我们可以向服务器提供以下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save  900  1</span><br><span class="line">save  300  10</span><br><span class="line">save  60  10000</span><br></pre></td></tr></table></figure></p>
+<h3 id="执行条件"><a href="#执行条件" class="headerlink" title="执行条件"></a>执行条件</h3><p>SAVE命令会阻塞服务器，所以只能手动执行。BGSAVE可以在不阻塞的情况下执行，所以可以配置save选项让服务器每隔一段时间自动执行一次。</p>
+<p>比如我们可以向服务器提供以下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save  900  1</span><br><span class="line">save  300  10</span><br><span class="line">save  60  10000</span><br></pre></td></tr></table></figure></p>
 <p>那么只要满足以下三个条件中的任意一个即可被执行：</p>
 <ul>
 <li>服务器在900秒之内对数据库进行了至少1次修改。</li>
@@ -202,19 +205,39 @@
 <h3 id="AOF重写"><a href="#AOF重写" class="headerlink" title="AOF重写"></a>AOF重写</h3><p>随着服务器运行时间的流逝，AOF文件中的内容会越来越多，文件的体积也会越来越大，不仅会对宿主计算机造成影响，也拖慢了数据恢复所需要的时间。</p>
 <p>AOF重写是指重新生成一个AOF文件替换原来的AOF文件。但这里的重写不会对原有的文件进行读取、分析或者写入，而是把数据库中的键值对折算成命令，重新写入新的文件。</p>
 <p>重写是一个耗时的操作，因此Redis把它放到后台去操作，对应的指令是BGREWRITEAOF。在重写过程中服务器还可能接收新的指令，因此Redis会维护一个AOF重写缓冲区，记录重写期间的写命令，在重写完成后追加到AOF文件末尾。</p>
-<h2 id="RDB和AOF对比"><a href="#RDB和AOF对比" class="headerlink" title="RDB和AOF对比"></a>RDB和AOF对比</h2><p>**RDB的优点：</p>
+<h2 id="RDB和AOF对比"><a href="#RDB和AOF对比" class="headerlink" title="RDB和AOF对比"></a>RDB和AOF对比</h2><p><strong>RDB的优点</strong>：</p>
 <ul>
 <li>RDB 是一个非常紧凑的文件，它的体积更小，且可以选择持久化的时间，适合做备份的文件。比如每天的备份，每月的备份。</li>
 <li>RDB 对主进程更友好，父进程只需要fork出一个子进程，无须执行任何磁盘I/O操作。</li>
-<li>RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>**RDB的缺点：</li>
+<li>RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。</li>
+</ul>
+<p><strong>RDB的缺点</strong>：</p>
+<ul>
 <li>因为RDB 文件需要保存整个数据集的状态， 所以它并不是一个轻松的操作。 因此你可能会至少 5 分钟才保存一次 RDB 文件，间隔时间比较长。</li>
-<li>RDB 虽然会把持久化的操作交给子进程，但每次都会从头开始，在数据集比较庞大时， fork() 可能会非常耗时，造成服务器在某某毫秒内停止处理客户端； 如果数据集非常巨大，并且 CPU 时间非常紧张的话，那么这种停止时间甚至可能会长达整整一秒。<br>**AOF的优点：</li>
+<li>RDB 虽然会把持久化的操作交给子进程，但每次都会从头开始，在数据集比较庞大时， fork() 可能会非常耗时，造成服务器在某某毫秒内停止处理客户端； 如果数据集非常巨大，并且 CPU 时间非常紧张的话，那么这种停止时间甚至可能会长达整整一秒。 </li>
+</ul>
+<p><strong>AOF的优点</strong>：</p>
+<ul>
 <li>AOF使用追加的方式，每次写入时间很短，因此可以允许更短间隔的持久化操作，比如1秒。</li>
-<li>AOF文件的可读性比较好，如果你不小心执行了一条命令，只要AOF文件未被重写，那么只要停止服务器，移除AOF文件里的该条命令然后重启Redis即可。<br>**AOF的缺点：</li>
+<li>AOF文件的可读性比较好，如果你不小心执行了一条命令，只要AOF文件未被重写，那么只要停止服务器，移除AOF文件里的该条命令然后重启Redis即可。</li>
+</ul>
+<p><strong>AOF的缺点</strong>：</p>
+<ul>
 <li>对于相同的数据集来说，AOF 文件的体积通常要大于 RDB 文件的体积。</li>
 <li>使用 fsync 会降低Redis的性能，导致AOF 的速度可能会慢于 RDB 。</li>
 </ul>
 <p>RDB和AOF各有所长，RDB体积小，恢复速度快，而且可以生成快照；AOF 频率更高，可以保存更新的数据。一般来说，推荐同时使用。</p>
+<h2 id="Redis过期机制"><a href="#Redis过期机制" class="headerlink" title="Redis过期机制"></a>Redis过期机制</h2><p>Redis采取的是惰性删除和定期删除配合使用的方式。</p>
+<p>惰性删除是指Redis会在访问某个键的时候检查该键是否过期，如果过期，就会将输入键从数据库中删除。但惰性删除不能及时清理内存，因此Redis还有定期删除的机制。</p>
+<p>定期删除是另一种过期键删除方式。Redis会维护一个过期字典（如下图所示），所有声明了过期时间的键都会被添加进这个字典中。周期操作函数serverCron执行时，会在规定时间内随机检查一部分键的过期时间，并删除其中的过期键。</p>
+<p><img src="/2019/02/05/Redis持久化和过期机制/过期键的保存.png"></p>
+<h2 id="RDB、AOF和复制功能对过期键的处理"><a href="#RDB、AOF和复制功能对过期键的处理" class="headerlink" title="RDB、AOF和复制功能对过期键的处理"></a>RDB、AOF和复制功能对过期键的处理</h2><h2 id="RDB对过期键的处理"><a href="#RDB对过期键的处理" class="headerlink" title="RDB对过期键的处理"></a>RDB对过期键的处理</h2><p>RDB文件在生成时会检查每个键的过期时间，过期键不会被添加进RDB文件里。</p>
+<p>载入RDB文件时，如果该服务器是主服务器，则不会载入文件中过期的键；如果该服务器是从服务器，则不论过期与否都会被载入。不过，因为主从服务器在同步的时候，从服务器的数据库会被清空，所以一般来讲，过期键对载入RDB文件的从服务器不会造成影响。</p>
+<h2 id="AOF对过期键的处理"><a href="#AOF对过期键的处理" class="headerlink" title="AOF对过期键的处理"></a>AOF对过期键的处理</h2><p>AOF文件写入时，如果数据库中的某个键已过期，但它还没被删除，那么AOF文件不会因为这个键产生任何影响。当它被惰性删除或者定期删除之后，程序会向AOF文件追加一条DEL命令显示记录该键已被删除。</p>
+<p>AOF重写时，和生成RDB文件一样，会过滤掉已经过期的键。</p>
+<h2 id="复制功能对过期键的处理"><a href="#复制功能对过期键的处理" class="headerlink" title="复制功能对过期键的处理"></a>复制功能对过期键的处理</h2><p>主服务器在删除一个过期键后，会显式地向所有从服务器发送一个DEL命令，告知从服务器删除这个过期键。</p>
+<p>为了保持主从一致性，从服务器在执行客户端发送的读命令时，即使碰到过期键也不会将过期键删除，而是继续像处理未过期键一样处理过期键。</p>
+<p>从服务器只有在接到主服务器发来的DEL命令之后，才会删除过期键。</p>
 
       
 
@@ -327,7 +350,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB"><span class="toc-number">1.</span> <span class="toc-text">RDB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#执行条件"><span class="toc-number">1.1.</span> <span class="toc-text">执行条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件内容"><span class="toc-number">1.2.</span> <span class="toc-text">文件内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF"><span class="toc-number">2.</span> <span class="toc-text">AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件的写入与同步"><span class="toc-number">2.1.</span> <span class="toc-text">文件的写入与同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF重写"><span class="toc-number">2.2.</span> <span class="toc-text">AOF重写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB和AOF对比"><span class="toc-number">3.</span> <span class="toc-text">RDB和AOF对比</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB"><span class="toc-number">1.</span> <span class="toc-text">RDB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#执行条件"><span class="toc-number">1.1.</span> <span class="toc-text">执行条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件内容"><span class="toc-number">1.2.</span> <span class="toc-text">文件内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF"><span class="toc-number">2.</span> <span class="toc-text">AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件的写入与同步"><span class="toc-number">2.1.</span> <span class="toc-text">文件的写入与同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF重写"><span class="toc-number">2.2.</span> <span class="toc-text">AOF重写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB和AOF对比"><span class="toc-number">3.</span> <span class="toc-text">RDB和AOF对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis过期机制"><span class="toc-number">4.</span> <span class="toc-text">Redis过期机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB、AOF和复制功能对过期键的处理"><span class="toc-number">5.</span> <span class="toc-text">RDB、AOF和复制功能对过期键的处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB对过期键的处理"><span class="toc-number">6.</span> <span class="toc-text">RDB对过期键的处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF对过期键的处理"><span class="toc-number">7.</span> <span class="toc-text">AOF对过期键的处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#复制功能对过期键的处理"><span class="toc-number">8.</span> <span class="toc-text">复制功能对过期键的处理</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4768,7 +4791,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4776,11 +4799,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
