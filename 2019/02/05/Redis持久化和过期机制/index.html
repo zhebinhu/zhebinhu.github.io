@@ -7,18 +7,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives | huzb的小书斋</title>
+  <title>Redis持久化和过期机制 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/archives/index.html">
+  <meta name="description" content="本文主要介绍了Redis持久化的两种机制和键过期的策略。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis持久化和过期机制">
+<meta property="og:url" content="http://yoursite.com/2019/02/05/Redis持久化和过期机制/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="本文主要介绍了Redis持久化的两种机制和键过期的策略。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-02-05T15:57:21.032Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="Redis持久化和过期机制">
+<meta name="twitter:description" content="本文主要介绍了Redis持久化的两种机制和键过期的策略。">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -152,36 +154,75 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Redis持久化和过期机制" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/02/05/Redis持久化和过期机制/" class="archive-article-date">
-  	<time datetime="2019-02-05T06:12:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-05</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/02/05/Redis持久化和过期机制/">Redis持久化和过期机制</a>
+    <h1 class="article-title" itemprop="name">
+      Redis持久化和过期机制
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/02/05/Redis持久化和过期机制/" class="archive-article-date">
+  	<time datetime="2019-02-05T06:12:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文主要介绍了Redis持久化的两种机制和键过期的策略。<br><a id="more"></a></p>
+<h2 id="RDB"><a href="#RDB" class="headerlink" title="RDB"></a>RDB</h2><p>RDB是Redis持久化的第一种方式。有两个Redis命令可以用于生成RDB文件，一个是SAVE，另一个是BGSAVE。<br>SAVE会阻塞Redis服务器进程，执行时Redis服务器会阻塞所有客户端发送的命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; SAVE</span><br><span class="line">OK</span><br></pre></td></tr></table></figure></p>
+<p>BGSAVE会派生出一个子进程执行，执行时仍可继续处理客户端的命令，但会拒绝客户端SAVE和BGSAVE的命令，延迟BGREWRITEAOF命令。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; BGSAVE</span><br><span class="line">Background saving started</span><br></pre></td></tr></table></figure></p>
+<h3 id="执行条件"><a href="#执行条件" class="headerlink" title="执行条件"></a>执行条件</h3><p>SAVE命令会阻塞服务器，所以只能手动执行。BGSAVE可以在不阻塞的情况下执行，所以可以配置save选项让服务器每隔一段时间自动执行一次。<br>比如我们可以向服务器提供以下配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save  900  1</span><br><span class="line">save  300  10</span><br><span class="line">save  60  10000</span><br></pre></td></tr></table></figure></p>
+<p>那么只要满足以下三个条件中的任意一个即可被执行：</p>
+<ul>
+<li>服务器在900秒之内对数据库进行了至少1次修改。</li>
+<li>服务器在300秒之内对数据库进行了至少10次修改。</li>
+<li>服务器在60秒之内对数据库进行了至少10000次修改。</li>
+</ul>
+<p>为了实现这一功能，服务器会维持一个记录距离上次保存之后修改的次数的dirty计数器和一个记录上次保存时间的lastsave属性。</p>
+<p>周期操作函数serverCron默认每个100毫秒就会执行一次，它的其中一项工作就是检查save选项设置的条件是否满足，如果满足的话就会执行BGSAVE命令。</p>
+<h3 id="文件内容"><a href="#文件内容" class="headerlink" title="文件内容"></a>文件内容</h3><p>RDB文件有多个部分，包括握手字段’REDIS’字符串，版本号，数据库，’EOF’和校验字段。</p>
+<p>核心部分是数据库字段，数据库字段包括了握手字段’SELECTDB’，数据库编号和键值对，数据库编号指示了这是第几个数据库，而键值对则保存了各项数据。</p>
+<p>键值对中除了类型和数据，还可能会有过期时间。对于不同类型的键值对，RDB文件会用不同的方式来保存它们。</p>
+<p>RDB文件本身是一个经过压缩的二进制文件，每次SAVE或者BGSAVE都会创建一个新的RDB文件，不支持追加操作。</p>
+<h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>AOF是Redis持久化的第二种方式，在AOF和RDB同时开启时，服务器会优先考虑从AOF恢复数据，因为AOF每次记录间隔的时间更短。</p>
+<p>和RDB直接记录键值对不同，AOF记录的是命令。服务器在执行完一个写命令以后，会把这条命令追加到服务器aof_buf缓冲区的末尾，并在一个适当的时候写入文件。重建时服务器会创建一个伪客户端，依次执行文件中的命令即可完成数据的载入。</p>
+<h3 id="文件的写入与同步"><a href="#文件的写入与同步" class="headerlink" title="文件的写入与同步"></a>文件的写入与同步</h3><p>AOF在持久化时会调用操作系统的write函数，但通常该函数会把数据保存在一个内存缓冲区里面而不是立刻刷入磁盘。这就带来一个安全问题。为了避免这个问题操作系统又提供了fsync和fdatasync两个强制刷盘的同步函数。我们把write称为写入，把fsync和fdatasync称为同步。</p>
+<p>服务器会在每次事件循环结束之前根据appendfsync选项写入和同步aof_buf中的数据：</p>
+<ul>
+<li>always：写入并同步</li>
+<li>everysec：写入，如果距离上次同步超过1秒，则同步</li>
+<li>no：只写入，何时同步由操作系统决定</li>
+</ul>
+<h3 id="AOF重写"><a href="#AOF重写" class="headerlink" title="AOF重写"></a>AOF重写</h3><p>随着服务器运行时间的流逝，AOF文件中的内容会越来越多，文件的体积也会越来越大，不仅会对宿主计算机造成影响，也拖慢了数据恢复所需要的时间。</p>
+<p>AOF重写是指重新生成一个AOF文件替换原来的AOF文件。但这里的重写不会对原有的文件进行读取、分析或者写入，而是把数据库中的键值对折算成命令，重新写入新的文件。</p>
+<p>重写是一个耗时的操作，因此Redis把它放到后台去操作，对应的指令是BGREWRITEAOF。在重写过程中服务器还可能接收新的指令，因此Redis会维护一个AOF重写缓冲区，记录重写期间的写命令，在重写完成后追加到AOF文件末尾。</p>
+<h2 id="RDB和AOF对比"><a href="#RDB和AOF对比" class="headerlink" title="RDB和AOF对比"></a>RDB和AOF对比</h2><p>**RDB的优点：</p>
+<ul>
+<li>RDB 是一个非常紧凑的文件，它的体积更小，且可以选择持久化的时间，适合做备份的文件。比如每天的备份，每月的备份。</li>
+<li>RDB 对主进程更友好，父进程只需要fork出一个子进程，无须执行任何磁盘I/O操作。</li>
+<li>RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快。<br>**RDB的缺点：</li>
+<li>因为RDB 文件需要保存整个数据集的状态， 所以它并不是一个轻松的操作。 因此你可能会至少 5 分钟才保存一次 RDB 文件，间隔时间比较长。</li>
+<li>RDB 虽然会把持久化的操作交给子进程，但每次都会从头开始，在数据集比较庞大时， fork() 可能会非常耗时，造成服务器在某某毫秒内停止处理客户端； 如果数据集非常巨大，并且 CPU 时间非常紧张的话，那么这种停止时间甚至可能会长达整整一秒。<br>**AOF的优点：</li>
+<li>AOF使用追加的方式，每次写入时间很短，因此可以允许更短间隔的持久化操作，比如1秒。</li>
+<li>AOF文件的可读性比较好，如果你不小心执行了一条命令，只要AOF文件未被重写，那么只要停止服务器，移除AOF文件里的该条命令然后重启Redis即可。<br>**AOF的缺点：</li>
+<li>对于相同的数据集来说，AOF 文件的体积通常要大于 RDB 文件的体积。</li>
+<li>使用 fsync 会降低Redis的性能，导致AOF 的速度可能会慢于 RDB 。</li>
+</ul>
+<p>RDB和AOF各有所长，RDB体积小，恢复速度快，而且可以生成快照；AOF 频率更高，可以保存更新的数据。一般来说，推荐同时使用。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -193,374 +234,140 @@
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/02/01/HTTP2-0和QUIC/" class="archive-article-date">
-  	<time datetime="2019-02-01T05:23:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-01</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/02/01/HTTP2-0和QUIC/">HTTP2.0和QUIC</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/27/InnoDB中的锁和MVCC/" class="archive-article-date">
-  	<time datetime="2019-01-27T13:20:11.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-27</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/27/InnoDB中的锁和MVCC/">InnoDB中的锁和MVCC</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/23/TCP协议回顾/" class="archive-article-date">
-  	<time datetime="2019-01-23T13:28:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-23</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/23/TCP协议回顾/">TCP协议回顾</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/14/插入缓冲、两次写和自适应哈希索引/" class="archive-article-date">
-  	<time datetime="2019-01-14T03:56:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/14/插入缓冲、两次写和自适应哈希索引/">插入缓冲、两次写和自适应哈希索引</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/09/Java-NIO浅析/" class="archive-article-date">
-  	<time datetime="2019-01-09T04:10:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/09/Java-NIO浅析/">Java NIO浅析</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
       
-        </div></section>
+
       
+
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/09/15/Java-线程池浅析/" class="archive-article-date">
-  	<time datetime="2018-09-15T05:58:26.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-15</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/09/15/Java-线程池浅析/">Java 线程池浅析</a>
-    </h1>
-  
+      </div>
+    </span>
+  </div>
+</div>
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/05/Redis持久化和过期机制/" alt="微信分享二维码">
+    </div>
+</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/09/03/Java-阻塞队列浅析/" class="archive-article-date">
-  	<time datetime="2018-09-03T13:58:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-03</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/02/01/HTTP2-0和QUIC/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">HTTP2.0和QUIC</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/09/03/Java-阻塞队列浅析/">Java 阻塞队列浅析</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB"><span class="toc-number">1.</span> <span class="toc-text">RDB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#执行条件"><span class="toc-number">1.1.</span> <span class="toc-text">执行条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件内容"><span class="toc-number">1.2.</span> <span class="toc-text">文件内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF"><span class="toc-number">2.</span> <span class="toc-text">AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件的写入与同步"><span class="toc-number">2.1.</span> <span class="toc-text">文件的写入与同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF重写"><span class="toc-number">2.2.</span> <span class="toc-text">AOF重写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB和AOF对比"><span class="toc-number">3.</span> <span class="toc-text">RDB和AOF对比</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/09/03/CAS原理和缺陷/" class="archive-article-date">
-  	<time datetime="2018-09-03T12:21:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-03</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/09/03/CAS原理和缺陷/">CAS原理和缺陷</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/08/28/《高性能MySQL》读书笔记——查询优化/" class="archive-article-date">
-  	<time datetime="2018-08-28T10:34:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/08/28/《高性能MySQL》读书笔记——查询优化/">《高性能MySQL》读书笔记——查询优化</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">MySQL</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-    </nav>
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
   
 
 
@@ -583,8 +390,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
