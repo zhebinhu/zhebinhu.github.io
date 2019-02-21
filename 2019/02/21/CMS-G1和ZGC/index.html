@@ -7,20 +7,29 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>CAS原理和缺陷 | huzb的小书斋</title>
+  <title>CMS,G1和ZGC | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
+  <meta name="description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CAS原理和缺陷">
-<meta property="og:url" content="http://yoursite.com/2018/09/03/CAS原理和缺陷/index.html">
+<meta property="og:title" content="CMS,G1和ZGC">
+<meta property="og:url" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
+<meta property="og:description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-01-26T16:26:25.265Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/CMS.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/G1-1.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/G1-2.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-1.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-2.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-3.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-4.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-5.png">
+<meta property="og:updated_time" content="2019-02-21T14:49:12.190Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CAS原理和缺陷">
-<meta name="twitter:description" content="JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。 CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供原子性操作。其实现方式是基于硬件平台的汇编">
+<meta name="twitter:title" content="CMS,G1和ZGC">
+<meta name="twitter:description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/CMS.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -154,61 +163,96 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-CAS原理和缺陷" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-CMS-G1和ZGC" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      CAS原理和缺陷
+      CMS,G1和ZGC
     </h1>
   
 
         
-        <a href="/2018/09/03/CAS原理和缺陷/" class="archive-article-date">
-  	<time datetime="2018-09-03T12:21:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-03</time>
+        <a href="/2019/02/21/CMS-G1和ZGC/" class="archive-article-date">
+  	<time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-21</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>JDK1.6以后JVM对synchronize锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了CAS操作，其实Java中java.util.concurrent包的实现也是差不多建立在CAS之上，可见CAS在Java同步领域的重要性。</p>
-<p>CAS是Compare and Swap的简写形式，可翻译为：比较并交换。用于在硬件层面上提供<strong>原子性</strong>操作。其实现方式是基于硬件平台的汇编指令，就是说CAS是靠硬件实现的，JVM只是封装了汇编调用。比较是否和给定的数值一致，如果一致则修改，不一致则不修改。</p>
+        <p>本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。</p>
 <a id="more"></a>
-<h2 id="CAS案例分析"><a href="#CAS案例分析" class="headerlink" title="CAS案例分析"></a>CAS案例分析</h2><p>AtomicInteger的原子特性就是CAS机制的典型使用场景。 其相关的源码片段如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">get</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> value;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">incrementAndGet</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;  </span><br><span class="line">        <span class="keyword">int</span> current = get();  </span><br><span class="line">        <span class="keyword">int</span> next = current + <span class="number">1</span>;  </span><br><span class="line">        <span class="keyword">if</span> (compareAndSet(current, next))  </span><br><span class="line">            <span class="keyword">return</span> next;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">compareAndSet</span><span class="params">(<span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span> </span>&#123;     </span><br><span class="line">    <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="keyword">this</span>, valueOffset, expect, update);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>AtomicInteger在没有锁的机制下借助volatile原语，保证了线程间的数据是可见的（共享的）。其get()方法可以获取最新的内存中的值。</p>
-<p>在incrementAndGet()的操作中，使用了CAS操作，每次从内存中读取最新的数据然后将此数据+1，最终写入内存时，先比较内存中最新的值，同累加之前读出来的值是否一致，不一致则写失败，循环重试直到成功为止。</p>
-<p>compareAndSet的具体实现调用了unsafe类的compareAndSwapInt方法，它其实是一个Java Native Interface（简称JNI）java本地方法，会根据不同的JDK环境调用不同平台的对应C实现，下面以windows操作系统，X86处理器的实现为例，这个本地方法在openjdk中依次调用的c++代码为：unsafe.cpp，atomic.cpp和atomic_windows_x86.inline.hpp，它的实现代码存在于：openjdk7\hotspot\src\os_cpu\windows_x86\vm\atomic_windows_x86.inline.hpp，下面是相关的代码片段：<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Adding a lock prefix to an instruction on MP machine  </span></span><br><span class="line"><span class="comment">// VC++ doesn't like the lock prefix to be on a single line  </span></span><br><span class="line"><span class="comment">// so we can't insert a label after the lock prefix.  </span></span><br><span class="line"><span class="comment">// By emitting a lock prefix, we can define a label after it.  </span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOCK_IF_MP(mp) __asm cmp mp, 0  \  </span></span><br><span class="line">                       __asm je L0      \  </span><br><span class="line">                       __asm _emit <span class="number">0xF0</span> \  </span><br><span class="line">                       __asm L0:  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">inline</span> jint     Atomic::cmpxchg    (jint     exchange_value, <span class="keyword">volatile</span> jint*     dest, jint     compare_value) &#123;  </span><br><span class="line">  <span class="comment">// alternative for InterlockedCompareExchange  </span></span><br><span class="line">  <span class="keyword">int</span> mp = os::is_MP();  </span><br><span class="line">  __asm &#123;  </span><br><span class="line">    mov edx, dest  </span><br><span class="line">    mov ecx, exchange_value  </span><br><span class="line">    mov eax, compare_value  </span><br><span class="line">    LOCK_IF_MP(mp)  </span><br><span class="line">    cmpxchg dword ptr [edx], ecx  </span><br><span class="line">  &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>由上面源代码可见在该平台的处理器上CAS通过指令cmpxchg（就是x86的比较并交换指令）实现，并且程序会根据当前处理器是否是多处理器(is_MP)来决定是否为cmpxchg指令添加lock前缀(LOCK_IF_MP)，如果是单核处理器则省略lock前缀(单处理器自身会维护单处理器内的顺序一致性，不需要lock前缀提供的内存屏障效果(而在JDK9中，已经忽略了这种判断都会直接添加lock前缀，这或许是因为现代单核处理器几乎已经消亡)。关于Lock前缀指令：</p>
+<h2 id="1、低停顿的CMS"><a href="#1、低停顿的CMS" class="headerlink" title="1、低停顿的CMS"></a>1、低停顿的CMS</h2><p>CMS，Concurrent Mark Sweep，是一款老年代的收集器，它关注的是垃圾回收最短的停顿时间。命名中Concurrent说明这个收集器是有与工作执行并发的能力的，Mark Sweep则代表算法用的是标记-清除算法。</p>
+<p>CMS的工作原理分为四步：</p>
 <ul>
-<li>Lock前缀指令可以通过对总线或者处理器内部缓存加锁，使得其他处理器无法读写该指令要访问的内存区域，因此能保存指令执行的原子性。</li>
-<li>Lock前缀指令将禁止该指令与之前和之后的读和写指令重排序。</li>
-<li>Lock前缀指令将会把写缓冲区中的所有数据立即刷新到主内存中。</li>
+<li>初始标记：单线程执行，仅仅把GC Roots的直接关联可达的对象标记一下，速度很快，需要停顿。</li>
+<li>并发标记：对于初始标记过程所标记的初始对象，进行并发追踪标记，不需要停顿。</li>
+<li>重新标记：为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，需要停顿。</li>
+<li>并发清除：清除之前标记的垃圾，不需要停顿。</li>
 </ul>
-<p>上面的第1点保证了CAS操作是一个原子操作，第2点和第3点所具有的内存屏障效果，保证了CAS同时具有volatile读和volatile写的内存语义（不过一般还是认为CAS只具有原子性而不具有可见性，因为底层的处理器平台可能不同）。</p>
-<p><strong>关于总线锁定和缓存锁定</strong></p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/CMS.png"></p>
+<p>由于最耗费时间的并发标记与并发清除阶段都不需要暂停工作，所以整体的回收是低停顿的。</p>
+<p>由于CMS以上特性，缺点也是比较明显的：</p>
+<ul>
+<li>标记-清除算法会导致内存碎片比较多。</li>
+<li>CMS的并发能力依赖于CPU资源，所以在CPU数少和CPU资源紧张的情况下，性能较差。</li>
+<li>无法处理浮动垃圾。浮动垃圾是指在并发清除阶段用户线程继续运行而产生的垃圾，这部分垃圾只能等下次GC时处理。由于浮动垃圾的存在，CMS不能等待内存耗尽的时候才进行GC，而要预留一部分内存空间给用户线程。这里会浪费一些空间。</li>
+</ul>
+<p><strong>既然标记-清除会造成内存碎片，那为什么不用标记-整理？</strong></p>
 <blockquote>
-<p>1、早期的处理器只支持通过总线锁保证原子性。所谓总线锁就是使用处理器提供的一个LOCK＃信号，当一个处理器在总线上输出此信号时，其他处理器的请求将被阻塞住,那么该处理器可以独占使用共享内存。很显然，这会带来昂贵的开销。<br>2、缓存锁定是改进后的方案。在同一时刻我们只需保证对某个内存地址的操作是原子性即可，但总线锁定把CPU和内存之间通信锁住了，这使得锁定期间，其他处理器不能操作其他内存地址的数据，所以总线锁定的开销比较大，最近的处理器在某些场合下使用缓存锁定代替总线锁定来进行优化。缓存锁定是指当两个CPU的缓存行同时指向一片内存区域时，如果A CPU希望对该内存区域进行修改并使用了缓存锁定，那么B CPU将无法访问自己缓存中相应的缓存行，自然也没法访问对应的内存区域，这样就A CPU就实现了独享内存。<br>　<br>但是有两种情况下处理器不会使用缓存锁定。第一种情况是：当操作的数据不能被缓存在处理器内部，或操作的数据跨多个缓存行（cache line），则处理器会调用总线锁定。第二种情况是：有些处理器不支持缓存锁定。对于Inter486和奔腾处理器，就算锁定的内存区域在处理器的缓存行中也会调用总线锁定。</p>
+<p>因为在并发清除阶段，其它用户线程还在工作，要保证它们运行的资源不受影响。而标记-整理算法会移动对象，所以不能使用标记-整理。</p>
 </blockquote>
-<p><strong>关于同样使用Lock前缀的volatile却无法保证原子性</strong></p>
+<h2 id="2、停顿可控的G1"><a href="#2、停顿可控的G1" class="headerlink" title="2、停顿可控的G1"></a>2、停顿可控的G1</h2><p>G1是一款可以掌管所有堆内存空间的收集器。G1 把堆划分成多个大小相等的独立区域（Region），新生代和老年代不再物理隔离。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/G1-1.png"></p>
+<p>通过引入Region的概念，将原来的一整块内存空间划分成多个的小空间，使得每个小空间可以单独进行垃圾回收。这种划分方法避免了空间碎片化，也提高了回收的灵活性——G1会根据平均每个 Region回收需要的时间（经验预测）和各个Region的回收收益，制定回收计划。</p>
+<p>每个Region都有一个Remembered Set，用来记录该Region对象的引用对象所在的Region。通过使用Remembered Set，在做可达性分析的时候就可以避免全堆扫描。</p>
+<p>三种GC模式：</p>
+<ul>
+<li>Young GC，发生于新生代空间不足时，回收全部新生代，可以通过控制新生代Region的个数来控制Young GC的时间开销。</li>
+<li>Mixed GC，当堆中内存使用超过整个堆大小的InitiatingHeapOccupancyPercent（默认45）时启动。 回收全部新生代，并根据预期停顿时间回收部分收益较高的老年代。</li>
+<li>Full GC（JDK 9引入），发生于老年代空间不足时，相当于执行一次STW的full gc。</li>
+</ul>
+<p>整体的执行流程：</p>
+<ul>
+<li>初始标记：标记了从GC Root开始直接关联可达的对象，速度很快，单线程，需停顿。</li>
+<li>并发标记：对于初始标记过程所标记的初始对象，进行并发追踪标记，并记录下每个Region中的存活对象信息用于计算收益，不需要停顿。</li>
+<li>最终标记：为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，需要停顿。</li>
+<li>筛选回收：根据GC模式、回收时间和回收收益确定回收计划，回收后的空Region会加入到空闲列表，需要停顿。</li>
+</ul>
+<p><img src="/2019/02/21/CMS-G1和ZGC/G1-2.png"></p>
+<p>由于G1会把存活的对象集中起来放到Survivor Region中，并通过空闲列表整理所有的空Region，所以整体来看是基于“标记 - 整理”算法实现的收集器；但从局部（两个 Region 之间）上来看又是基于“复制”算法实现的。但不论如何，这两种算法都需要移动对象，所以G1的回收阶段是需要停顿的。</p>
+<h2 id="3、几乎无停顿的ZGC"><a href="#3、几乎无停顿的ZGC" class="headerlink" title="3、几乎无停顿的ZGC"></a>3、几乎无停顿的ZGC</h2><p>在JDK 11当中，加入了实验性质的ZGC。它的回收耗时平均不到2毫秒。它是一款低停顿高并发的收集器。</p>
+<p>ZGC几乎在所有地方并发执行的，除了初始标记的是STW的。所以停顿时间几乎就耗费在初始标记上，这部分的实际是非常少的。那么其他阶段是怎么做到可以并发执行的呢？</p>
+<p>ZGC主要新增了两项技术，一个是着色指针Colored Pointer，另一个是读屏障Load Barrier。</p>
+<p><strong>着色指针Colored Pointer</strong></p>
+<p>ZGC利用指针的64位中的几位表示Finalizable、Remapped、Marked1、Marked0（ZGC仅支持64位平台），以标记该指向内存的存储状态。相当于在对象的指针上标注了对象的信息。注意，这里的指针相当于Java术语当中的引用。</p>
+<p>在这个被指向的内存发生变化的时候（内存在整理时被移动），颜色就会发生变化。</p>
+<p><strong>读屏障Load Barrier</strong></p>
+<p>由于着色指针的存在，在程序运行时访问对象的时候，可以轻易知道对象在内存的存储状态（通过指针访问对象），若请求读的内存在被着色了。那么则会触发读屏障。读屏障会更新指针再返回结果，此过程有一定的耗费，从而达到与用户线程并发的效果。</p>
+<p>把这两项技术联合下理解，引用R大（RednaxelaFX）的话</p>
 <blockquote>
-<p>volatile和cas都是基于lock前缀实现，但volatile却无法保证原子性这是因为：Lock前缀只能保证缓存一致性，但不能保证寄存器中数据的一致性，如果指令在lock的缓存刷新生效之前把数据写入了寄存器，那么寄存器中的数据不会因此失效而是继续被使用，就好像数据库中的事务执行失败却没有回滚，原子性就被破坏了。以被volatile修饰的i作i++为例，实际上分为4个步骤：<br>mov　　　　 0xc(%r10),%r8d ; 把i的值赋给寄存器<br>inc　　　　　%r8d　　　　　 ; 寄存器的值+1<br>mov　　　　 %r8d,0xc(%r10) ; 把寄存器的值写回<br>lock addl　　$0x0,(%rsp)　　; 内存屏障，禁止指令重排序，并同步所有缓存<br>　<br>如果两个线程AB同时把i读进自己的寄存器，此时B线程等待，A线程继续工作，把i++后放回内存。按照原子性的性质，此时B应该回滚，重新从内存中读取i，但因为此时i已经拷贝到寄存器中，所以B线程会继续运行，原子性被破坏。<br>　<br>而cas没有这个问题，因为cas操作对应指令只有一个：<br>lock cmpxchg dword ptr [edx], ecx ;<br>　<br>该指令确保了直接从内存拿数据（ptr [edx]），然后放回内存这一系列操作都在lock状态下，所以是原子性的。<br>　<br>总结：volatile之所以不是原子性的原因是jvm对volatile语义的实现只是在volatile写后面加一个内存屏障，而内存屏障前的操作不在lock状态下，这些操作可能会把数据放入寄存器从而导致无法有效同步；cas能保证原子性是因为cas指令只有一个，这个指令从头到尾都是在lock状态下而且从内存到内存，所以它是原子性的。</p>
+<p>与标记对象的传统算法相比，ZGC在指针上做标记，在访问指针时加入Load Barrier（读屏障），比如当对象正被GC移动，指针上的颜色就会不对，这个屏障就会先把指针更新为有效地址再返回，也就是，永远只有单个对象读取时有概率被减速，而不存在为了保持应用与GC一致而粗暴整体的Stop The World。</p>
 </blockquote>
-<h2 id="CAS缺陷"><a href="#CAS缺陷" class="headerlink" title="CAS缺陷"></a>CAS缺陷</h2><p>1、<strong>ABA问题</strong>。因为CAS需要在操作值的时候检查下值有没有发生变化，如果没有发生变化则更新，但是如果一个值原来是A，变成了B，又变成了A，那么使用CAS进行检查时会发现它的值没有发生变化，但是实际上却变化了。ABA问题的解决思路就是使用版本号。在变量前面追加上版本号，每次变量更新的时候把版本号加一，那么 A－B－A 就会变成 1A - 2B－3A。</p>
-<p>从Java1.5开始JDK的atomic包里提供了一个类AtomicStampedReference来解决ABA问题。这个类的compareAndSet方法作用是首先检查当前引用是否等于预期引用，并且当前标志是否等于预期标志，如果全部相等，则以原子方式将该引用和该标志的值设置为给定的更新值。</p>
-<p>2、<strong>循环时间长开销大</strong>。自旋CAS如果长时间不成功，会给CPU带来非常大的执行开销。如果JVM能支持处理器提供的pause指令那么效率会有一定的提升，pause指令有两个作用，第一它可以延迟流水线执行指令（de-pipeline），使CPU不会消耗过多的执行资源，延迟的时间取决于具体实现的版本，在一些处理器上延迟时间是零。第二它可以避免在退出循环的时候因内存顺序冲突（memory order violation）而引起CPU流水线被清空（CPU pipeline flush），从而提高CPU的执行效率。 </p>
-<p>3、<strong>只能保证一个共享变量的原子操作</strong>。当对一个共享变量执行操作时，我们可以使用循环CAS的方式来保证原子操作，但是对多个共享变量操作时，循环CAS就无法保证操作的原子性，这个时候就可以用锁，或者有一个取巧的办法，就是把多个共享变量合并成一个共享变量来操作。比如有两个共享变量i＝2，j=a，合并一下ij=2a，然后用CAS来操作ij。从Java1.5开始JDK提供了AtomicReference类来保证引用对象之间的原子性，你可以把多个变量放在一个对象里来进行CAS操作。 </p>
-<p>4、<strong>总线风暴带来的本地延迟</strong>。在多处理架构中，所有处理器会共享一条总线，靠此总线连接主存，每个处理器核心都有自己的高速缓存，各核相对于BUS对称分布，这种结构称为“对称多处理器”即SMP。当主存中的数据同时存在于多个处理器高速缓存的时候，某一个处理器的高速缓存中相应的数据更新之后，会通过总线使其它处理器的高速缓存中相应的数据失效，从而使其重新通过总线从主存中加载最新的数据，大家通过总线的来回通信称为“Cache一致性流量”，因为总线被设计为固定的“通信能力”，如果Cache一致性流量过大，总线将成为瓶颈。而CAS恰好会导致Cache一致性流量，如果有很多线程都共享同一个对象，当某个核心CAS成功时必然会引起总线风暴，这就是所谓的本地延迟。而偏向锁就是为了消除CAS，降低Cache一致性流量。</p>
-<p>　<br><strong>关于偏向锁如何消除CAS</strong></p>
-<blockquote>
-<p>试想这样一种情况：线程A：申请锁 - 执行临界区代码 - 释放锁 - 申请锁 - 执行临界区代码 - 释放锁。锁的申请和释放都会执行CAS，一共执行4次CAS。而在偏向锁中，线程A：申请锁 - 执行临界区代码 - 比较对象头 - 执行临界区代码。只执行了1次CAS。</p>
-</blockquote>
-<p><strong>关于总线风暴</strong></p>
-<blockquote>
-<p>其实也不是所有的 CAS 都会导致总线风暴，这跟 Cache 一致性协议有关，具体参考：<a href="http://blogs.oracle.com/dave/entry/biased_locking_in_hotspot" target="_blank" rel="noopener">http://blogs.oracle.com/dave/entry/biased_locking_in_hotspot</a><br>另外与 SMP 对应还有非对称多处理器架构，现在主要应用在一些高端处理器上，主要特点是没有总线，没有公用主存，每个 Core 有自己的内存。</p>
-</blockquote>
+<p>ZGC和G1一样将堆划分为Region来清理、移动，稍有不同的是ZGC中Region的大小是会动态变化的。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-1.png"></p>
+<p>ZGC的回收流程如下：</p>
+<p><strong>1、初始停顿标记</strong></p>
+<p>停顿JVM地标记Root对象，1，2，4三个被标为live。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-2.png"></p>
+<p><strong>2、并发标记</strong></p>
+<p>并发地递归标记其他对象，5和8也被标记为live。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-3.png"></p>
+<p><strong>3、移动对象</strong></p>
+<p>对比发现3、6、7是过期对象，也就是中间的两个灰色region需要被压缩清理，所以陆续将4、5、8  对象移动到最右边的新Region。移动过程中，有个forward table纪录这种转向。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-4.png"></p>
+<p>活的对象都移走之后，这个region可以立即释放掉，并且用来当作下一个要扫描的region的to region。所以理论上要收集整个堆，只需要有一个空region就OK了。</p>
+<p><strong>4、修正指针</strong></p>
+<p>最后将指针都妥帖地更新指向新地址。</p>
+<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-5.png"></p>
+<p>ZGC虽然目前还在JDK 11还在实验阶段，但由于算法与思想是一个非常大的提升，相信在未来不久会成为主流的GC收集器使用。</p>
 
       
 
@@ -278,7 +322,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/03/CAS原理和缺陷/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/21/CMS-G1和ZGC/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -292,18 +336,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/09/03/Java-阻塞队列浅析/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Java 阻塞队列浅析
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/08/28/《高性能MySQL》读书笔记——查询优化/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">《高性能MySQL》读书笔记——查询优化</div>
+    <a href="/2019/02/05/Redis持久化和过期机制/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Redis持久化和过期机制</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -330,7 +365,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS案例分析"><span class="toc-number">1.</span> <span class="toc-text">CAS案例分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CAS缺陷"><span class="toc-number">2.</span> <span class="toc-text">CAS缺陷</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、低停顿的CMS"><span class="toc-number">1.</span> <span class="toc-text">1、低停顿的CMS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、停顿可控的G1"><span class="toc-number">2.</span> <span class="toc-text">2、停顿可控的G1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、几乎无停顿的ZGC"><span class="toc-number">3.</span> <span class="toc-text">3、几乎无停顿的ZGC</span></a></li></ol>
                     </div>
                 </span>
             </div>
