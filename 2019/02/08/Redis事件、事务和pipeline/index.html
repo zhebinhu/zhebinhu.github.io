@@ -7,18 +7,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 计算机网络 | huzb的小书斋</title>
+  <title>Redis事件、事务和pipeline | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/tags/计算机网络/index.html">
+  <meta name="description" content="本文介绍了Redis中事件、事务和pipeline的概念。">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis事件、事务和pipeline">
+<meta property="og:url" content="http://yoursite.com/2019/02/08/Redis事件、事务和pipeline/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="本文介绍了Redis中事件、事务和pipeline的概念。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/02/08/Redis事件、事务和pipeline/文件事件分派器.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/08/Redis事件、事务和pipeline/事件的调度与执行.png">
+<meta property="og:updated_time" content="2019-02-22T16:02:57.176Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="Redis事件、事务和pipeline">
+<meta name="twitter:description" content="本文介绍了Redis中事件、事务和pipeline的概念。">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/08/Redis事件、事务和pipeline/文件事件分派器.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -152,150 +157,223 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Redis事件、事务和pipeline" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/02/01/HTTP2-0和QUIC/" class="archive-article-date">
-  	<time datetime="2019-02-01T05:23:15.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-01</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/02/01/HTTP2-0和QUIC/">HTTP2.0和QUIC</a>
+    <h1 class="article-title" itemprop="name">
+      Redis事件、事务和pipeline
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/02/08/Redis事件、事务和pipeline/" class="archive-article-date">
+  	<time datetime="2019-02-08T11:34:57.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文介绍了Redis中事件、事务和pipeline的概念。</p>
+<a id="more"></a>
+<h2 id="一、事件"><a href="#一、事件" class="headerlink" title="一、事件"></a>一、事件</h2><p>Redis服务器是一个事件驱动程序。Redis的事件有两类：</p>
+<ul>
+<li>文件事件：服务器通过套接字与客户端连接，文件事件就是服务器对套接字操作的抽象。</li>
+<li>时间事件：服务器对定时操作的抽象。</li>
+</ul>
+<h3 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h3><p>Redis包装了底层的select、epoll等来实现自己的网络事件处理器。它使用 I/O 多路复用程序来同时监听多个套接字，并将到达的事件传送给文件事件分派器，分派器会根据套接字产生的事件类型调用相应的事件处理器。</p>
+<p><img src="/2019/02/08/Redis事件、事务和pipeline/文件事件分派器.png"></p>
+<h3 id="时间事件"><a href="#时间事件" class="headerlink" title="时间事件"></a>时间事件</h3><p>服务器有一些操作需要在给定的时间点执行，时间事件是对这类定时操作的抽象。</p>
+<p>时间事件又分为：</p>
+<ul>
+<li>定时事件：是让一段程序在指定的时间之内执行一次；</li>
+<li>周期性事件：是让一段程序每隔指定时间就执行一次。</li>
+</ul>
+<p>时间事件中的属性when会记录下次执行的时间，周期性事件在执行后会更新when的值，而定时事件会被删除。</p>
+<p>Redis将所有时间事件都放在一个无序链表中，由时间事件执行器通过遍历整个链表查找出已到达的时间事件，并调用相应的事件处理器。</p>
+<h3 id="事件的调度与执行"><a href="#事件的调度与执行" class="headerlink" title="事件的调度与执行"></a>事件的调度与执行</h3><p>服务器需要不断监听文件事件的套接字才能得到待处理的文件事件，但是不能一直监听，否则时间事件无法在规定的时间内执行，因此监听时间应该根据距离现在最近的时间事件来决定。</p>
+<p>事件调度与执行由 aeProcessEvents 函数负责，伪代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">aeProcessEvents</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># 获取到达时间离当前时间最接近的时间事件</span></span><br><span class="line">    time_event = aeSearchNearestTimer()</span><br><span class="line">    <span class="comment"># 计算最接近的时间事件距离到达还有多少毫秒</span></span><br><span class="line">    remaind_ms = time_event.when - unix_ts_now()</span><br><span class="line">    <span class="comment"># 如果事件已到达，那么 remaind_ms 的值可能为负数，将它设为 0</span></span><br><span class="line">    <span class="keyword">if</span> remaind_ms &lt; <span class="number">0</span>:</span><br><span class="line">        remaind_ms = <span class="number">0</span></span><br><span class="line">    <span class="comment"># 根据 remaind_ms 的值，创建 timeval</span></span><br><span class="line">    timeval = create_timeval_with_ms(remaind_ms)</span><br><span class="line">    <span class="comment"># 阻塞并等待文件事件产生，最大阻塞时间由传入的 timeval 决定</span></span><br><span class="line">    aeApiPoll(timeval)</span><br><span class="line">    <span class="comment"># 处理所有已产生的文件事件</span></span><br><span class="line">    procesFileEvents()</span><br><span class="line">    <span class="comment"># 处理所有已到达的时间事件</span></span><br><span class="line">    processTimeEvents()</span><br></pre></td></tr></table></figure></p>
+<p>将 aeProcessEvents 函数置于一个循环里面，加上初始化和清理函数，就构成了 Redis 服务器的主函数，伪代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># 初始化服务器</span></span><br><span class="line">    init_server()</span><br><span class="line">    <span class="comment"># 一直处理事件，直到服务器关闭为止</span></span><br><span class="line">    <span class="keyword">while</span> server_is_not_shutdown():</span><br><span class="line">        aeProcessEvents()</span><br><span class="line">    <span class="comment"># 服务器关闭，执行清理操作</span></span><br><span class="line">    clean_server()</span><br></pre></td></tr></table></figure>
+<p>从事件处理的角度来看，服务器运行流程如下：</p>
+<p><img src="/2019/02/08/Redis事件、事务和pipeline/事件的调度与执行.png"></p>
+<h2 id="二、事务"><a href="#二、事务" class="headerlink" title="二、事务"></a>二、事务</h2><p>Redis通过MULTI、EXEC、WATCH等命令来实现事务功能。事务提供了一种将多个命令请求打包，然后一次性、按顺序地执行多个命令的机制，并且在事务执行期间，服务器不会中断事务而改去执行其他客户端的命令请求，它会将事务中的所有命令都执行完毕，然后才去处理其他客户端的命令请求。</p>
+<p>一个事务包括三个步骤：</p>
+<ul>
+<li>事务开始：事务以 MULTI 开始，返回OK命令。</li>
+<li>命令入队：每个事务命令成功进入队列后，返回QUEUED。</li>
+<li>事务执行：EXEC执行事务。</li>
+</ul>
+<p>Redis不支持事务回滚功能，事务中的一个Redis命令执行失败以后，会继续执行后续的命令。</p>
+<h2 id="三、pipeline"><a href="#三、pipeline" class="headerlink" title="三、pipeline"></a>三、pipeline</h2><p>多个命令被一次性发送给服务器，而不是一条一条发送，这种方式被称为流水线，它可以减少客户端与服务器之间的网络通信次数从而提升性能。</p>
+<p>可以通过<code>redis-cli --pipe</code>的方式批量发送命令。如<code>cat commands.txt | redis-cli --pipe</code>，commands.txt中的命令会被以RESP协议（这是一个Redis自行规定的协议，用于命令的批量执行）的格式发给服务器，服务器也会返回一个RESP格式的结果。</p>
+<p>当然我们不用自己去实现这个协议，Jedis为我们实现好了，我们可以很方便地调用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Jedis jedis = <span class="keyword">new</span> Jedis(<span class="string">"localhost"</span>, <span class="number">6379</span>);</span><br><span class="line"><span class="comment">//使用pipeline</span></span><br><span class="line">Pipeline pipeline = jedis.pipelined();</span><br><span class="line"><span class="comment">//删除lists</span></span><br><span class="line">pipeline.del(<span class="string">"lists"</span>);</span><br><span class="line"><span class="comment">//循环添加10000个元素</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++)&#123;</span><br><span class="line">    pipeline.rpush(<span class="string">"lists"</span>, i + <span class="string">""</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//执行</span></span><br><span class="line">pipeline.sync();</span><br></pre></td></tr></table></figure></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Redis</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/08/Redis事件、事务和pipeline/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/01/23/TCP协议回顾/" class="archive-article-date">
-  	<time datetime="2019-01-23T13:28:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-23</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/2019/02/21/CMS-G1和ZGC/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          CMS,G1和ZGC
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/02/05/Redis持久化和过期机制/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Redis持久化和过期机制</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/01/23/TCP协议回顾/">TCP协议回顾</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、事件"><span class="toc-number">1.</span> <span class="toc-text">一、事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#文件事件"><span class="toc-number">1.1.</span> <span class="toc-text">文件事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#时间事件"><span class="toc-number">1.2.</span> <span class="toc-text">时间事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#事件的调度与执行"><span class="toc-number">1.3.</span> <span class="toc-text">事件的调度与执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、事务"><span class="toc-number">2.</span> <span class="toc-text">二、事务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、pipeline"><span class="toc-number">3.</span> <span class="toc-text">三、pipeline</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/05/15/GET与POST的区别/" class="archive-article-date">
-  	<time datetime="2018-05-15T06:55:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-15</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/15/GET与POST的区别/">GET与POST的区别</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">原创</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">计算机网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
+
+  
+
+  
+
+  
+  <div id="gitment-ctn">
+<div id="gitalk-ctn"></div> 
+</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script>
+var gitalk = new Gitalk({
+  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
+  clientID: '0ff941a9de6ccc9b531d',
+  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+  repo: 'zhebinhu.github.io',
+  owner: 'zhebinhu',
+  admin: 'zhebinhu',
+  distractionFreeMode: true
+})
+gitalk.render('gitalk-ctn')
+</script>
+  
 
 
           </div>
@@ -317,9 +395,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
