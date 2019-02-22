@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/02/Redis数据结构和对象/压缩列表2.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/02/Redis数据结构和对象/集合对象.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/02/Redis数据结构和对象/有序集合.png">
-<meta property="og:updated_time" content="2019-02-22T08:51:26.161Z">
+<meta property="og:updated_time" content="2019-02-22T08:54:01.786Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis数据结构和对象">
 <meta name="twitter:description" content="本文主要介绍了Redis的6种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和5种对象：字符串、列表、哈希、集合、有序集合。">
@@ -222,7 +222,7 @@
 <ul>
 <li>重复存储分层节点，消耗内存</li>
 </ul>
-<h2 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h2><p>整数集合是集合键的底层实现之一，它的底层是一个数组，这个数组以有序、无重复的方式保存集合元素。元素的类型可以为int16_t,int32_t或者int64_t。程序会根据新添加元素的类型，改变数组中元素的类型。</p>
+<h3 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h3><p>整数集合是集合键的底层实现之一，它的底层是一个数组，这个数组以有序、无重复的方式保存集合元素。元素的类型可以为int16_t,int32_t或者int64_t。程序会根据新添加元素的类型，改变数组中元素的类型。</p>
 <p><img src="/2019/02/02/Redis数据结构和对象/整数集合.png"></p>
 <p>encoding表示元素的类型，数组中所有元素的类型是一样的。当有更大的数加入进来的时候，数组会进行升级操作，比如从int16_t升级到int32_t。</p>
 <p>整数集合只能升级，不能降级。</p>
@@ -403,7 +403,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、数据结构"><span class="toc-number">1.</span> <span class="toc-text">一、数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS"><span class="toc-number">1.1.</span> <span class="toc-text">SDS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#链表"><span class="toc-number">1.2.</span> <span class="toc-text">链表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-number">1.3.</span> <span class="toc-text">字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跳跃表"><span class="toc-number">1.4.</span> <span class="toc-text">跳跃表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#整数集合"><span class="toc-number">2.</span> <span class="toc-text">整数集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#压缩列表"><span class="toc-number">2.1.</span> <span class="toc-text">压缩列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、对象"><span class="toc-number">3.</span> <span class="toc-text">二、对象</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、数据结构"><span class="toc-number">1.</span> <span class="toc-text">一、数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS"><span class="toc-number">1.1.</span> <span class="toc-text">SDS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#链表"><span class="toc-number">1.2.</span> <span class="toc-text">链表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-number">1.3.</span> <span class="toc-text">字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跳跃表"><span class="toc-number">1.4.</span> <span class="toc-text">跳跃表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整数集合"><span class="toc-number">1.5.</span> <span class="toc-text">整数集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#压缩列表"><span class="toc-number">1.6.</span> <span class="toc-text">压缩列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、对象"><span class="toc-number">2.</span> <span class="toc-text">二、对象</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -4844,7 +4844,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4852,19 +4852,19 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
