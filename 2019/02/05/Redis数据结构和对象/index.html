@@ -7,29 +7,31 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>CMS,G1和ZGC | huzb的小书斋</title>
+  <title>Redis数据结构和对象 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
-<meta name="keywords" content="Java">
+  <meta name="description" content="本文主要介绍了Redis的6种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和5种对象：字符串、列表、哈希、集合、有序集合。">
+<meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CMS,G1和ZGC">
-<meta property="og:url" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/index.html">
+<meta property="og:title" content="Redis数据结构和对象">
+<meta property="og:url" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
+<meta property="og:description" content="本文主要介绍了Redis的6种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和5种对象：字符串、列表、哈希、集合、有序集合。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/CMS.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/G1-1.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/G1-2.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-1.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-2.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-3.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-4.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/ZGC-5.png">
-<meta property="og:updated_time" content="2019-02-21T14:49:12.190Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/SDS.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/链表.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/字典.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/跳跃表1.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/跳跃表2.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/整数集合.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/压缩列表1.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/压缩列表2.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/集合对象.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/有序集合.png">
+<meta property="og:updated_time" content="2019-02-23T06:06:18.743Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CMS,G1和ZGC">
-<meta name="twitter:description" content="本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。">
-<meta name="twitter:image" content="http://yoursite.com/2019/02/21/CMS-G1和ZGC/CMS.png">
+<meta name="twitter:title" content="Redis数据结构和对象">
+<meta name="twitter:description" content="本文主要介绍了Redis的6种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和5种对象：字符串、列表、哈希、集合、有序集合。">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/SDS.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -163,96 +165,123 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-CMS-G1和ZGC" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Redis数据结构和对象" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      CMS,G1和ZGC
+      Redis数据结构和对象
     </h1>
   
 
         
-        <a href="/2019/02/21/CMS-G1和ZGC/" class="archive-article-date">
-  	<time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-21</time>
+        <a href="/2019/02/05/Redis数据结构和对象/" class="archive-article-date">
+  	<time datetime="2019-02-05T05:45:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-05</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文主要介绍比较常用的垃圾收集器：CMS，G1和ZGC。CMS是服务器使用比较多的收集器，侧重点在低停顿；JDK 9以后，G1成为了默认收集器，它的设计目标是停顿可控；最新的JDK 11中，加入了实验性质的ZGC，这个收集器可以将停顿时间降至10ms以下。</p>
-<a id="more"></a>
-<h2 id="1、低停顿的CMS"><a href="#1、低停顿的CMS" class="headerlink" title="1、低停顿的CMS"></a>1、低停顿的CMS</h2><p>CMS，Concurrent Mark Sweep，是一款老年代的收集器，它关注的是垃圾回收最短的停顿时间。命名中Concurrent说明这个收集器是有与工作执行并发的能力的，Mark Sweep则代表算法用的是标记-清除算法。</p>
-<p>CMS的工作原理分为四步：</p>
+        <p>本文主要介绍了Redis的6种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和5种对象：字符串、列表、哈希、集合、有序集合。<br><a id="more"></a></p>
+<h2 id="一、数据结构"><a href="#一、数据结构" class="headerlink" title="一、数据结构"></a>一、数据结构</h2><h3 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h3><p>SDS是对C字符串的封装，用于表示字符串</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/SDS.png"></p>
+<p>SDS使用预分配的方式为字符串分配空间，free字段表示当前未使用的空间，当字符串增长时，会优先使用未使用的空间，如果未使用的空间不足，Redis会为SDS分配额外的空间。分配算法具体为：1）如果增长后的字符串长度小于1MB，Redis将额外分配等同于增长后的字符串长度的空间，此时free和len的大小相等；2）如果增长后的字符串长度大于1MB，Redis将额外分配1MB大小的空间。</p>
+<p>分配后的空间不会被回收，如果字符串缩短，缩短的空间会被加入到free空间中。</p>
+<h3 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h3><p><img src="/2019/02/05/Redis数据结构和对象/链表.png"></p>
+<p>Redis的链表是一个双向链表，它的特性如下：</p>
 <ul>
-<li>初始标记：单线程执行，仅仅把GC Roots的直接关联可达的对象标记一下，速度很快，需要停顿。</li>
-<li>并发标记：对于初始标记过程所标记的初始对象，进行并发追踪标记，不需要停顿。</li>
-<li>重新标记：为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，需要停顿。</li>
-<li>并发清除：清除之前标记的垃圾，不需要停顿。</li>
+<li>双端：链表节点带有prev和next指针，获取某个节点的前置和后置节点的复杂度都是O(1)。</li>
+<li>无环：表头节点的prev和表尾节点的next指针都指向NULL。</li>
+<li>带表头指针和表尾指针：通过head和tail指针获取表头和表尾节点的复杂度为O(1)。</li>
+<li>计数器：获取节点个数复杂度为O(1)</li>
+<li>多态：利用dup（复制节点保存的值）、free(释放节点保存的值)和match（比较节点的值和输入的值是否相等），来实现保存不同的值。</li>
 </ul>
-<p><img src="/2019/02/21/CMS-G1和ZGC/CMS.png"></p>
-<p>由于最耗费时间的并发标记与并发清除阶段都不需要暂停工作，所以整体的回收是低停顿的。</p>
-<p>由于CMS以上特性，缺点也是比较明显的：</p>
+<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><p>字典是一个散列表结构，使用MurmurHash2算法计算哈希值，使用拉链法保存哈希冲突。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/字典.png"></p>
+<p>Redis的字典dict中包含两个哈希表dictht，这是为了方便进行rehash操作。在扩容时，将其中一个dictht上的键值对rehash到另一个dictht上面，完成之后释放空间并交换两个dictht的角色。</p>
+<p>渐进式rehash通过记录dict的rehashidx完成，它从0开始，然后每执行一次rehash都会递增。例如在一次rehash中，要把dict[0] rehash到dict[1]，这一次会把dict[0]上table[rehashidx]的键值对rehash到dict[1]上，dict[0]的table[rehashidx]指向null，并令rehashidx++。</p>
+<p>在rehash期间，每次对字典执行添加、删除、查找或者更新操作时，都会执行一次渐进式rehash。</p>
+<p>采用渐进式rehash会导致字典中的数据分散在两个dictht上，因此对字典的查找操作也需要到对应的dictht去执行。</p>
+<h3 id="跳跃表"><a href="#跳跃表" class="headerlink" title="跳跃表"></a>跳跃表</h3><p>跳跃表是有序集合的底层实现之一。</p>
+<p>跳跃表是基于多指针有序链表实现的，可以看成多个有序链表。每个跳跃表节点的层高都是1-32之间的随机数。</p>
+<p>跳跃表中的节点按照分数大小排列，当分值相同时，节点按照成员对象的大小进行排序。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/跳跃表1.png"></p>
+<p>在查找时，从上层指针开始查找，找到对应的区间之后再到下一层去查找。下图演示了查找 22 的过程。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/跳跃表2.png"></p>
+<p>与红黑树等平衡树相比，跳跃表具有以下优点：</p>
 <ul>
-<li>标记-清除算法会导致内存碎片比较多。</li>
-<li>CMS的并发能力依赖于CPU资源，所以在CPU数少和CPU资源紧张的情况下，性能较差。</li>
-<li>无法处理浮动垃圾。浮动垃圾是指在并发清除阶段用户线程继续运行而产生的垃圾，这部分垃圾只能等下次GC时处理。由于浮动垃圾的存在，CMS不能等待内存耗尽的时候才进行GC，而要预留一部分内存空间给用户线程。这里会浪费一些空间。</li>
+<li>插入速度非常快速，因为不需要进行旋转等操作来维护平衡性；</li>
+<li>并发插入时只需锁住少数节点</li>
+<li>支持范围查找</li>
+<li>更容易实现</li>
 </ul>
-<p><strong>既然标记-清除会造成内存碎片，那为什么不用标记-整理？</strong></p>
+<p>跳跃表的缺点：</p>
+<ul>
+<li>重复存储分层节点，消耗内存</li>
+</ul>
+<h3 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h3><p>整数集合是集合键的底层实现之一，它的底层是一个数组，这个数组以有序、无重复的方式保存集合元素。元素的类型可以为int16_t,int32_t或者int64_t。程序会根据新添加元素的类型，改变数组中元素的类型。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/整数集合.png"></p>
+<p>encoding表示元素的类型，数组中所有元素的类型是一样的。当有更大的数加入进来的时候，数组会进行升级操作，比如从int16_t升级到int32_t。</p>
+<p>整数集合只能升级，不能降级。</p>
+<h3 id="压缩列表"><a href="#压缩列表" class="headerlink" title="压缩列表"></a>压缩列表</h3><p>压缩列表被用作列表和哈希的底层实现之一，是一种为节约内存而开发的，由任意多个节点组成的顺序数据结构。每个节点可以保存一个字节数组或一个整数值。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/压缩列表1.png"></p>
+<p>entry1、entry2…是实际存储数据的节点，除此之外还有些字段记录列表的信息：zlbytes记录整个压缩列表占用的内存字节数，zltail指向压缩列表表尾节点，zllen记录包含的节点数量，zlend是个特殊值字段（0xFF）用于标记末端。</p>
+<p>每个节点由previous_entry_length、encoding、content三部分组成。previous_entry_length保存了前一个节点的长度，由此可以实现从表尾向表头的遍历。encoding是个复用字段，记录了content的编码和长度。下图的encoding最高两位00表示节点保存的是一个字节数组，后六位001011记录了字节数组长度11。content保存着节点的值”hello world”。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/压缩列表2.png"></p>
+<h2 id="二、对象"><a href="#二、对象" class="headerlink" title="二、对象"></a>二、对象</h2><p>Redis并没有使用以上的数据结构来实现键值对数据库，而是基于这些数据结构创建了一个对象系统。</p>
+<table>
+<thead>
+<tr>
+<th>对象类型</th>
+<th>底层实现</th>
+<th>可以存储的值</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STRING</td>
+<td>int，sds</td>
+<td>字符串、整数或者浮点数</td>
+<td>对整个字符串或者字符串的其中一部分执行操作<br>对整数和浮点数执行自增或者自减操作</td>
+</tr>
+<tr>
+<td>LIST</td>
+<td>链表，压缩列表</td>
+<td>列表</td>
+<td>从两端压入或者弹出元素 <br>对单个或者多个元素<br>进行修剪，只保留一个范围内的元素</td>
+</tr>
+<tr>
+<td>HASH</td>
+<td>字典，压缩列表</td>
+<td>包含键值对的无序散列表</td>
+<td>添加、获取、移除单个键值对<br>获取所有键值对<br>检查某个键是否存在</td>
+</tr>
+<tr>
+<td>SET</td>
+<td>整数集合，字典</td>
+<td>无序集合</td>
+<td>添加、获取、移除单个元素<br>检查一个元素是否存在于集合中<br>计算交集、并集、差集<br>从集合里面随机获取元素</td>
+</tr>
+<tr>
+<td>ZSET</td>
+<td>（字典+跳跃表），压缩列表</td>
+<td>有序集合</td>
+<td>添加、获取、删除元素<br>根据分值范围或者成员来获取元素<br>计算一个键的排名</td>
+</tr>
+</tbody>
+</table>
+<p>SET对象使用整数集合保存只包含整数的集合，使用字典保存含有字符串的集合。使用字典保存集合时，字典的键是一个元素的成员，字典的值为NULL。</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/集合对象.png"></p>
+<p>ZSET对象同时使用字典和跳跃表保存有序集合，使用字典保存有序集合时，字典的键保存了元素的成员，字典的值保存了元素的分值。ZSET集合元素会同时共享在字典和跳跃表中（保存的是指针，不会造成数据的重复）</p>
+<p><img src="/2019/02/05/Redis数据结构和对象/有序集合.png"></p>
+<p><strong>为什么有序集合需要同时使用字典和跳跃表来实现？</strong></p>
 <blockquote>
-<p>因为在并发清除阶段，其它用户线程还在工作，要保证它们运行的资源不受影响。而标记-整理算法会移动对象，所以不能使用标记-整理。</p>
+<p>在理论上，有序集合可以单独使用字典或者跳跃表来实现。但两者都有不可替代的地方：字典可以在O(1)时间复杂度查找成员的分值，跳跃表可以执行范围型操作。因此为了同时获得这两个特性，Redis使用了字典和跳跃表来实现有序集合。</p>
 </blockquote>
-<h2 id="2、停顿可控的G1"><a href="#2、停顿可控的G1" class="headerlink" title="2、停顿可控的G1"></a>2、停顿可控的G1</h2><p>G1是一款可以掌管所有堆内存空间的收集器。G1 把堆划分成多个大小相等的独立区域（Region），新生代和老年代不再物理隔离。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/G1-1.png"></p>
-<p>通过引入Region的概念，将原来的一整块内存空间划分成多个的小空间，使得每个小空间可以单独进行垃圾回收。这种划分方法避免了空间碎片化，也提高了回收的灵活性——G1会根据平均每个 Region回收需要的时间（经验预测）和各个Region的回收收益，制定回收计划。</p>
-<p>每个Region都有一个Remembered Set，用来记录该Region对象的引用对象所在的Region。通过使用Remembered Set，在做可达性分析的时候就可以避免全堆扫描。</p>
-<p>三种GC模式：</p>
-<ul>
-<li>Young GC，发生于新生代空间不足时，回收全部新生代，可以通过控制新生代Region的个数来控制Young GC的时间开销。</li>
-<li>Mixed GC，当堆中内存使用超过整个堆大小的InitiatingHeapOccupancyPercent（默认45）时启动。 回收全部新生代，并根据预期停顿时间回收部分收益较高的老年代。</li>
-<li>Full GC（JDK 9引入），发生于老年代空间不足时，相当于执行一次STW的full gc。</li>
-</ul>
-<p>整体的执行流程：</p>
-<ul>
-<li>初始标记：标记了从GC Root开始直接关联可达的对象，速度很快，单线程，需停顿。</li>
-<li>并发标记：对于初始标记过程所标记的初始对象，进行并发追踪标记，并记录下每个Region中的存活对象信息用于计算收益，不需要停顿。</li>
-<li>最终标记：为了修正并发标记期间因用户程序继续运作而导致标记产生变动的那一部分对象的标记记录，需要停顿。</li>
-<li>筛选回收：根据GC模式、回收时间和回收收益确定回收计划，回收后的空Region会加入到空闲列表，需要停顿。</li>
-</ul>
-<p><img src="/2019/02/21/CMS-G1和ZGC/G1-2.png"></p>
-<p>由于G1会把存活的对象集中起来放到Survivor Region中，并通过空闲列表整理所有的空Region，所以整体来看是基于“标记 - 整理”算法实现的收集器；但从局部（两个 Region 之间）上来看又是基于“复制”算法实现的。但不论如何，这两种算法都需要移动对象，所以G1的回收阶段是需要停顿的。</p>
-<h2 id="3、几乎无停顿的ZGC"><a href="#3、几乎无停顿的ZGC" class="headerlink" title="3、几乎无停顿的ZGC"></a>3、几乎无停顿的ZGC</h2><p>在JDK 11当中，加入了实验性质的ZGC。它的回收耗时平均不到2毫秒。它是一款低停顿高并发的收集器。</p>
-<p>ZGC几乎在所有地方并发执行的，除了初始标记的是STW的。所以停顿时间几乎就耗费在初始标记上，这部分的实际是非常少的。那么其他阶段是怎么做到可以并发执行的呢？</p>
-<p>ZGC主要新增了两项技术，一个是着色指针Colored Pointer，另一个是读屏障Load Barrier。</p>
-<p><strong>着色指针Colored Pointer</strong></p>
-<p>ZGC利用指针的64位中的几位表示Finalizable、Remapped、Marked1、Marked0（ZGC仅支持64位平台），以标记该指向内存的存储状态。相当于在对象的指针上标注了对象的信息。注意，这里的指针相当于Java术语当中的引用。</p>
-<p>在这个被指向的内存发生变化的时候（内存在整理时被移动），颜色就会发生变化。</p>
-<p><strong>读屏障Load Barrier</strong></p>
-<p>由于着色指针的存在，在程序运行时访问对象的时候，可以轻易知道对象在内存的存储状态（通过指针访问对象），若请求读的内存在被着色了。那么则会触发读屏障。读屏障会更新指针再返回结果，此过程有一定的耗费，从而达到与用户线程并发的效果。</p>
-<p>把这两项技术联合下理解，引用R大（RednaxelaFX）的话</p>
-<blockquote>
-<p>与标记对象的传统算法相比，ZGC在指针上做标记，在访问指针时加入Load Barrier（读屏障），比如当对象正被GC移动，指针上的颜色就会不对，这个屏障就会先把指针更新为有效地址再返回，也就是，永远只有单个对象读取时有概率被减速，而不存在为了保持应用与GC一致而粗暴整体的Stop The World。</p>
-</blockquote>
-<p>ZGC和G1一样将堆划分为Region来清理、移动，稍有不同的是ZGC中Region的大小是会动态变化的。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-1.png"></p>
-<p>ZGC的回收流程如下：</p>
-<p><strong>1、初始停顿标记</strong></p>
-<p>停顿JVM地标记Root对象，1，2，4三个被标为live。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-2.png"></p>
-<p><strong>2、并发标记</strong></p>
-<p>并发地递归标记其他对象，5和8也被标记为live。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-3.png"></p>
-<p><strong>3、移动对象</strong></p>
-<p>对比发现3、6、7是过期对象，也就是中间的两个灰色region需要被压缩清理，所以陆续将4、5、8  对象移动到最右边的新Region。移动过程中，有个forward table纪录这种转向。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-4.png"></p>
-<p>活的对象都移走之后，这个region可以立即释放掉，并且用来当作下一个要扫描的region的to region。所以理论上要收集整个堆，只需要有一个空region就OK了。</p>
-<p><strong>4、修正指针</strong></p>
-<p>最后将指针都妥帖地更新指向新地址。</p>
-<p><img src="/2019/02/21/CMS-G1和ZGC/ZGC-5.png"></p>
-<p>ZGC虽然目前还在JDK 11还在实验阶段，但由于算法与思想是一个非常大的提升，相信在未来不久会成为主流的GC收集器使用。</p>
 
       
 
@@ -266,7 +295,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Redis</a>
         		</li>
       		
 		</ul>
@@ -322,7 +351,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/21/CMS-G1和ZGC/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/02/05/Redis数据结构和对象/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -336,18 +365,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2019/02/23/Redis高可用和分布式/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/02/08/Redis持久化和过期机制/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          Redis高可用和分布式
+          Redis持久化和过期机制
         
       </div>
     </a>
   
   
-    <a href="/2019/02/12/Redis事件、事务和pipeline/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Redis事件、事务和pipeline</div>
+    <a href="/2019/02/01/HTTP2-0和QUIC/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">HTTP2.0和QUIC</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -374,7 +403,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、低停顿的CMS"><span class="toc-number">1.</span> <span class="toc-text">1、低停顿的CMS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、停顿可控的G1"><span class="toc-number">2.</span> <span class="toc-text">2、停顿可控的G1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、几乎无停顿的ZGC"><span class="toc-number">3.</span> <span class="toc-text">3、几乎无停顿的ZGC</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、数据结构"><span class="toc-number">1.</span> <span class="toc-text">一、数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS"><span class="toc-number">1.1.</span> <span class="toc-text">SDS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#链表"><span class="toc-number">1.2.</span> <span class="toc-text">链表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-number">1.3.</span> <span class="toc-text">字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跳跃表"><span class="toc-number">1.4.</span> <span class="toc-text">跳跃表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整数集合"><span class="toc-number">1.5.</span> <span class="toc-text">整数集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#压缩列表"><span class="toc-number">1.6.</span> <span class="toc-text">压缩列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、对象"><span class="toc-number">2.</span> <span class="toc-text">二、对象</span></a></li></ol>
                     </div>
                 </span>
             </div>
