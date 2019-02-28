@@ -19,7 +19,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义流量控制.png">
-<meta property="og:updated_time" content="2019-02-02T13:07:42.924Z">
+<meta property="og:updated_time" content="2019-02-28T06:52:35.705Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP2.0和QUIC">
 <meta name="twitter:description" content="HTTP1.1在应用层以纯文本的形式进行通信。每次通信都要带完整的HTTP的头，而且不考虑pipeline模式的话，每次都是一去一回。这样在实时性、并发性上都存在问题。http2.0通过首部压缩、多路复用、二进制分帧、服务端推送等方式获得了更高的并发和更低的延迟。">
@@ -195,7 +195,7 @@
 <h3 id="机制二：自定义重传机制"><a href="#机制二：自定义重传机制" class="headerlink" title="机制二：自定义重传机制"></a>机制二：自定义重传机制</h3><p>TCP为了保证可靠性，通过使用序号和应答机制，来解决顺序问题和丢包问题。</p>
 <p>任何一个序号的包发过去，都要在一定的时间内得到应答，否则一旦超时，就会重发。超时时间是通过采样往返时间RTT不断调整的。这就会带来一个采样不准确的问题。例如：发送一个包，序号为100，发现没有返回，于是再发送一个100，过一阵返回一个ACK101。这个时候客户端知道这个包肯定收到了，但往返时间是多少呢？是ACK达到的时间减去后一个100发送的时间，还是减去前一个100发送的时间呢？</p>
 <p>QUIC也有个序列号，是递增的。任何一个序列号的包只发送一次，下次就要加一了。例如，发送一个包，序号是100，发现没有返回；再次发送的时候，序号就是101了；如果返回的ACK100，就是对第一个包的响应，如果返回ACK101就是对第二个包的响应，RTT计算相对准确。</p>
-<p>但是这里有一个问题，就是这么知道包100和包101发送的是同样的内容呢？QUIC定义了一个offset的概念。QUIC既然面向连接，也就像TCP一样，是一个数据流，发送的数据在这个数据流里面有个偏移量offset，可以通过offset查看数据发送到了哪里，这样只要这个offset的包没有来，就要重发；如果来了，按照offset拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png"></p>
+<p>但是这里有一个问题，就是这么知道包100和包101发送的是同样的内容呢？QUIC定义了一个stream offset的概念。QUIC既然面向连接，也就像TCP一样，是一个数据流，发送的数据在这个数据流里面有个偏移量stream offset，可以通过stream offset查看数据发送到了哪里，这样只要这个stream offset的包没有来，就要重发；如果来了，按照stream offset拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png"></p>
 <h3 id="无阻塞的多路复用"><a href="#无阻塞的多路复用" class="headerlink" title="无阻塞的多路复用"></a>无阻塞的多路复用</h3><p>有了自定义的连接和重传机制，我们可以解决上面HTTP2.0的多路复用问题。</p>
 <p>同HTTP2.0一样，同一条QUIC连接上可以创建多个stream，来发送多个HTTP请求。但是，QUIC是基于UDP的，一个连接上的多个stream之间没有依赖。这样，假如stream2丢了一个UDP包，后面跟着stream3的一个UDP包，虽然stream2的那个包需要重传，但是stream3的包无需等待，就可以发给用户。</p>
 <h3 id="自定义流量控制"><a href="#自定义流量控制" class="headerlink" title="自定义流量控制"></a>自定义流量控制</h3><p>TCP的流量控制是通过滑动窗口协议。QUIC的流量控制也是通过window_update，来告诉对端它可以接受的字节数。但是QUIC的窗口是适应自己的多路复用机制的，不但在一个连接上控制窗口，还在一个连接中的每个stream控制窗口。</p>
@@ -4780,11 +4780,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">

@@ -24,7 +24,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg">
-<meta property="og:updated_time" content="2019-01-31T05:18:56.561Z">
+<meta property="og:updated_time" content="2019-02-28T05:55:19.766Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB中的锁和MVCC">
 <meta name="twitter:description" content="锁和MVCC是MySQL控制并发访问的两种手段。InnoDB在MySQL的基础上提供了更细粒度的行级锁，使用了next-key算法解决了幻读的问题。另外InnoDB提供了一套基于MVCC的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。">
@@ -196,7 +196,7 @@
 <li>DB_TRX_ID：事务ID。占6字节，表示这一行数据最后插入或修改的事务id。此外删除在内部也被当作一次更新，在行的特殊位置添加一个删除标记（记录头信息有一个字节存储是否删除的标记）。</li>
 <li>DB_ROLL_PTR：回滚指针。占7字节，每次对数据进行更新操作时，都会copy当前数据，保存到undo log中。并修改当前行的回滚指针指向undo log中的旧数据行。</li>
 </ul>
-<p>MVCC只有在隔离级别是READ COMMITED和REPEATABLE READ两个隔离级别下工作。MVCC可以通过比较数据行的事务ID和当前事务ID来判断该记录是否对当前事务可见。但仅有undo log还不够。试想这样一种情况：事务599开始——事务599更新了表A——事务600开始——事务600查询了表A——事务599再次更新了表A——事务600再次查询表A。可知事务600的两次查询会得到不同的结果，无法满足RR隔离级别的要求。这是因为事务599的事务ID虽然比事务600小，但事务599还未结束，仍有可能改变数据项的值。</p>
+<p>MVCC只有在隔离级别是READ COMMITED和REPEATABLE READ两个隔离级别下工作。MVCC可以通过比较数据行的事务ID和当前事务ID来判断该记录是否对当前事务可见。但仅有undo log还不够。试想这样一种情况：事务599开始——事务600开始——事务600查询了表A——事务599更新了表A——事务599提交——事务600再次查询表A。可知事务600的两次查询会得到不同的结果，无法满足RR隔离级别的要求。这是因为事务599的事务ID虽然比事务600小，但事务599还未结束，仍有可能改变数据项的值。</p>
 <h3 id="read-view"><a href="#read-view" class="headerlink" title="read view"></a>read view</h3><p>InnoDB使用了read view解决了这个问题。read view是一张表，记录了当前活跃的事务ID。InnoDB在查询时会先对比数据行的事务ID和read view中的事务ID。具体如下：</p>
 <ul>
 <li>如果数据行事务ID大于read view中最大的ID，表示数据行一定是在当前事务之后修改的，对当前事务不可见；</li>
@@ -209,7 +209,7 @@
 </ul>
 <p>当前数据行若是不可见，InnoDB会沿着DB_ROLL_PTR往下查找，直到找到第一个可见的数据行或者null。</p>
 <p>可见与否只是第一步，实际返回的数据还要经过判断。因为删除和更新共用一个字段，区别只是删除有一个字节的删除标记，那么在返回的时候InnoDB就要判断当前的数据行是否被标记为删除。如果标记了删除，就不会返回。</p>
-<p>MVCC在READ COMMITED和REPEATABLE READ两个隔离级别下共用一套逻辑，区别只是在于<strong>RC隔离级别是在语句开始时刻创建read view的，而RR隔离级别是在事务开始时刻，确切地说是第一个读操作创建read view的。</strong>由于这一点上的不同，使得MVCC在RC隔离级别下读取的是最新提交的数据，而RR隔离级别下读取的是事务开始前提交的数据。</p>
+<p>MVCC在READ COMMITED和REPEATABLE READ两个隔离级别下共用一套逻辑，区别只是在于<strong>RC隔离级别是在读操作开始时刻创建read view的，而RR隔离级别是在事务开始时刻，确切地说是第一个读操作创建read view的。</strong>由于这一点上的不同，使得MVCC在RC隔离级别下读取的是最新提交的数据，而RR隔离级别下读取的是事务开始前提交的数据。</p>
 <h2 id="next-key解决幻读问题"><a href="#next-key解决幻读问题" class="headerlink" title="next-key解决幻读问题"></a>next-key解决幻读问题</h2><p>幻读是指一个事务内连续进行两次相同的SQL语句可能导致不同的结果，第二次的SQL语句可能会返回之前不存在的行。发生这种现象的原因是事务A两次查找的间隔中事务B插入了一条或多条数据并提交，导致事务A的第二次查询查到了新插入的数据。</p>
 <p>InnoDB中有三种锁算法：</p>
 <ul>
@@ -4854,11 +4854,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
+                <a href="javascript:void(0)" class="js-tag color4">备忘录</a>
               </li>
              
               <li class="article-tag-list-item">
