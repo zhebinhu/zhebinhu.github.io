@@ -7,20 +7,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Java 阻塞队列浅析 | huzb的小书斋</title>
+  <title>Archives: 2019/3 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
-<meta name="keywords" content="Java">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Java 阻塞队列浅析">
-<meta property="og:url" content="http://yoursite.com/2018/09/03/Java-阻塞队列浅析/index.html">
+  <meta name="description" content="一枚前行的小码农">
+<meta property="og:type" content="website">
+<meta property="og:title" content="huzb的小书斋">
+<meta property="og:url" content="http://yoursite.com/archives/2019/03/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
+<meta property="og:description" content="一枚前行的小码农">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-02-26T11:06:36.735Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java 阻塞队列浅析">
-<meta name="twitter:description" content="阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。">
+<meta name="twitter:title" content="huzb的小书斋">
+<meta name="twitter:description" content="一枚前行的小码农">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -154,73 +152,36 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Java-阻塞队列浅析" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
+            
   
-    <h1 class="article-title" itemprop="name">
-      Java 阻塞队列浅析
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2019" class="archive-year">2019</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2019/03/03/Spring源码浅析——容器创建流程概览/" class="archive-article-date">
+  	<time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2019/03/03/Spring源码浅析——容器创建流程概览/">Spring源码浅析——容器创建流程概览</a>
     </h1>
   
 
-        
-        <a href="/2018/09/03/Java-阻塞队列浅析/" class="archive-article-date">
-  	<time datetime="2018-09-03T13:58:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>阻塞队列（BlockingQueue）是一个支持两个附加操作的队列。这两个附加的操作是：在队列为空时，获取元素的线程会等待队列变为非空。当队列满时，存储元素的线程会等待队列可用。阻塞队列常用于生产者和消费者的场景，生产者是往队列里添加元素的线程，消费者是从队列里拿元素的线程。阻塞队列就是生产者存放元素的容器，而消费者也只从容器里拿元素。<br><a id="more"></a></p>
-<h2 id="一、Java中的阻塞队列"><a href="#一、Java中的阻塞队列" class="headerlink" title="一、Java中的阻塞队列"></a>一、Java中的阻塞队列</h2><p>JDK7中提供了7个阻塞队列，分别是：</p>
-<ul>
-<li>ArrayBlockingQueue ：一个由数组结构组成的有界阻塞队列。</li>
-<li>LinkedBlockingQueue ：一个由链表结构组成的有界阻塞队列。</li>
-<li>PriorityBlockingQueue ：一个支持优先级排序的无界阻塞队列。</li>
-<li>DelayQueue：一个使用优先级队列实现的无界阻塞队列。</li>
-<li>SynchronousQueue：一个不存储元素的阻塞队列。</li>
-<li>LinkedTransferQueue：一个由链表结构组成的无界阻塞队列。</li>
-<li>LinkedBlockingDeque：一个由链表结构组成的双向阻塞队列。</li>
-</ul>
-<h3 id="ArrayBlockingQueue"><a href="#ArrayBlockingQueue" class="headerlink" title="ArrayBlockingQueue"></a>ArrayBlockingQueue</h3><p>ArrayBlockingQueue是一个用数组实现的有界阻塞队列。此队列按照先进先出（FIFO）的原则对元素进行排序。默认情况下不保证访问者公平的访问队列，所谓公平访问队列是指阻塞的所有生产者线程或消费者线程，当队列可用时，可以按照阻塞的先后顺序访问队列，即先阻塞的生产者线程，可以先往队列里插入元素，先阻塞的消费者线程，可以先从队列里获取元素。ArrayBlockingQueue的公平性是由ReentrantLock实现的，公平模式下的ReentrantLock在有一个线程申请锁时，会检测AQS队头是否有等待的线程，如果有则执行队头的线程，而非公平模式下则不会进行检测。通常情况下为了保证公平性会降低吞吐量。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayBlockingQueue</span><span class="params">(<span class="keyword">int</span> capacity, <span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (capacity &lt;= <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">        <span class="keyword">this</span>.items = <span class="keyword">new</span> Object[capacity];</span><br><span class="line">        lock = <span class="keyword">new</span> ReentrantLock(fair); <span class="comment">// ReentrantLock实现了公平策略</span></span><br><span class="line">        notEmpty = lock.newCondition();</span><br><span class="line">        notFull =  lock.newCondition();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="LinkedBlockingQueue"><a href="#LinkedBlockingQueue" class="headerlink" title="LinkedBlockingQueue"></a>LinkedBlockingQueue</h3><p>LinkedBlockingQueue是一个用链表实现的有界阻塞队列。此队列的默认最大长度为Integer.MAX_VALUE。此队列按照先进先出的原则对元素进行排序。</p>
-<h3 id="PriorityBlockingQueue"><a href="#PriorityBlockingQueue" class="headerlink" title="PriorityBlockingQueue"></a>PriorityBlockingQueue</h3><p>PriorityBlockingQueue是一个支持优先级的无界队列，底层由数组实现，数组最大长度为Integer.MAX_VALUE - 8（所以并不是真的无界），默认数组大小为11，如果元素超过数组大小，数组会进行扩容，具体扩容的大小，在数组长度小于64时+2，大于64时变为150%，当数组扩容后大小超过Integer.MAX_VALUE - 8时，不会再用150%扩容，而是使用+1的方式扩容。最后若+1的方式扩容的数组大小也超过了Integer.MAX_VALUE - 8，则报OutOfMemoryError()。默认情况下元素采取自然顺序，排列采用二叉树最小堆实现（所以有序不是数据存储的有序，而是取出数据的有序），也可以通过比较器comparator来指定元素的排序规则。元素按照升序排列。</p>
-<h3 id="DelayQueue"><a href="#DelayQueue" class="headerlink" title="DelayQueue"></a>DelayQueue</h3><p>DelayQueue是一个支持延时获取元素的无界阻塞队列。队列使用PriorityQueue，PriorityQueue和PriorityBlockingQueue一样都是使用小顶堆实现的，唯一的区别在于PriorityQueue是非线程安全的，而PriorityBlockingQueue是线程安全的。队列中的元素必须实现Delayed接口（该接口有两个方法<em>getDelay()</em>和<em>compareTo()</em>），在创建元素时可以指定多久才能从队列中获取当前元素。只有在延迟期满时才能从队列中提取元素。我们可以将DelayQueue运用在以下应用场景：</p>
-<ul>
-<li>缓存系统的设计：可以用DelayQueue保存缓存元素的有效期，使用一个线程循环查询DelayQueue，一旦能从DelayQueue中获取元素时，表示缓存有效期到了。</li>
-<li>定时任务调度。使用DelayQueue保存当天将会执行的任务和执行时间，一旦从DelayQueue中获取到任务就开始执行，从比如TimerQueue就是使用DelayQueue实现的。</li>
-</ul>
-<h4 id="compareTo-接口实现示例"><a href="#compareTo-接口实现示例" class="headerlink" title="compareTo()接口实现示例"></a>compareTo()接口实现示例</h4><p>队列中的Delayed必须实现compareTo来指定元素的顺序。比如让延时时间最长的放在队列的末尾。实现代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compareTo</span><span class="params">(Delayed other)</span> </span>&#123;</span><br><span class="line">           <span class="keyword">if</span> (other == <span class="keyword">this</span>) <span class="comment">// compare zero ONLY if same object</span></span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">           <span class="keyword">if</span> (other <span class="keyword">instanceof</span> ScheduledFutureTask) &#123;</span><br><span class="line">                ScheduledFutureTask x = (ScheduledFutureTask)other;</span><br><span class="line">                <span class="keyword">long</span> diff = time - x.time;</span><br><span class="line">                <span class="keyword">if</span> (diff &lt; <span class="number">0</span>)</span><br><span class="line">                    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (diff &gt; <span class="number">0</span>)</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">           &#125;<span class="keyword">else</span> <span class="keyword">if</span> (sequenceNumber &lt; x.sequenceNumber)&#123;</span><br><span class="line">                    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">           &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">long</span> d = (getDelay(TimeUnit.NANOSECONDS) - other.getDelay(TimeUnit.NANOSECONDS));</span><br><span class="line">           <span class="keyword">return</span> (d == <span class="number">0</span>) ? <span class="number">0</span> : ((d &lt; <span class="number">0</span>) ? -<span class="number">1</span> : <span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h4 id="getDelay-接口实现示例"><a href="#getDelay-接口实现示例" class="headerlink" title="getDelay()接口实现示例"></a>getDelay()接口实现示例</h4><p>getDelay()可以查询当前元素还需要延时多久，需要在对象创建时传入一个开始时间。以ScheduledThreadPoolExecutor里ScheduledFutureTask类为例。这个类实现了Delayed接口。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ScheduledFutureTask(Runnable r, V result, <span class="keyword">long</span> ns, <span class="keyword">long</span> period) &#123;</span><br><span class="line">            <span class="keyword">super</span>(r, result);</span><br><span class="line">            <span class="keyword">this</span>.time = ns; <span class="comment">// 这个time就是开始时间</span></span><br><span class="line">            <span class="keyword">this</span>.period = period;</span><br><span class="line">            <span class="keyword">this</span>.sequenceNumber = sequencer.getAndIncrement();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>然后使用getDelay可以查询当前元素还需要延时多久，代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getDelay</span><span class="params">(TimeUnit unit)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> unit.convert(time - now(), TimeUnit.NANOSECONDS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>最后是延时队列的使用，当消费者从队列里获取元素时，如果元素没有达到延时时间，就阻塞当前线程。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> delay = first.getDelay(TimeUnit.NANOSECONDS);</span><br><span class="line"><span class="keyword">if</span> (delay &lt;= <span class="number">0</span>)</span><br><span class="line">   <span class="keyword">return</span> q.poll();</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (leader != <span class="keyword">null</span>)</span><br><span class="line">   available.await();</span><br></pre></td></tr></table></figure></p>
-<h3 id="SynchronousQueue"><a href="#SynchronousQueue" class="headerlink" title="SynchronousQueue"></a>SynchronousQueue</h3><p>SynchronousQueue是一个不存储元素的阻塞队列。每一个put操作必须等待一个take操作，否则不能继续添加元素。SynchronousQueue可以看成是一个传球手，负责把生产者线程处理的数据直接传递给消费者线程。队列本身并不存储任何元素，非常适合于传递性场景,比如在一个线程中使用的数据，传递给另外一个线程使用，SynchronousQueue的吞吐量高于LinkedBlockingQueue 和 ArrayBlockingQueue。</p>
-<h3 id="LinkedTransferQueue"><a href="#LinkedTransferQueue" class="headerlink" title="LinkedTransferQueue"></a>LinkedTransferQueue</h3><p>LinkedTransferQueue是一个由链表结构组成的无界阻塞TransferQueue队列。TransferQueue队列继承了BlockingQueue，在BlockingQueue的基础上多了tryTransfer和transfer方法。transfer会在元素进入阻塞队列前，先判断有没有消费者线程在等待获取，若有，则直接移交；否则将元素插入到队列尾部。tryTransfer相比transfer少了插入的步骤，多了返回值boolean，即若当前没有消费者线程空闲，则直接返回false，不会插入到阻塞队列。</p>
-<h3 id="LinkedBlockingDeque"><a href="#LinkedBlockingDeque" class="headerlink" title="LinkedBlockingDeque"></a>LinkedBlockingDeque</h3><p>LinkedBlockingDeque是一个由链表结构组成的双向阻塞队列。所谓双向队列指的你可以从队列的两端插入和移出元素。双端队列因为多了一个操作队列的入口，在多线程同时入队时，也就减少了一半的竞争。相比其他的阻塞队列，LinkedBlockingDeque多了addFirst，addLast，offerFirst，offerLast，peekFirst，peekLast等方法，以First单词结尾的方法，表示插入，获取（peek）或移除双端队列的第一个元素。以Last单词结尾的方法，表示插入，获取或移除双端队列的最后一个元素。另外插入方法add等同于addLast，移除方法remove等效于removeFirst。但是take方法却等同于takeFirst，不知道是不是Jdk的bug，使用时还是用带有First和Last后缀的方法更清楚。在初始化LinkedBlockingDeque时可以初始化队列的容量，用来防止其再扩容时过渡膨胀。另外双向阻塞队列可以运用在“工作窃取”模式中。</p>
-<h2 id="二、阻塞队列的实现原理"><a href="#二、阻塞队列的实现原理" class="headerlink" title="二、阻塞队列的实现原理"></a>二、阻塞队列的实现原理</h2><p>阻塞队列的实现需要满足这样两个要求：如果队列为空，消费者会一直等待；如果队列为满，生产者会一直等待。因此，在实现阻塞队列的方式上，消费者和生产者的通信是必不可少的。JDK使用Condition实现了线程间通信，代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> ReentrantLock lock;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Condition notFull; <span class="comment">// 非满条件，插入元素的时候需要满足这个条件</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Condition notEmpty; <span class="comment">// 非空条件，取出元素的时候需要满足这个条件</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ArrayBlockingQueue</span><span class="params">(<span class="keyword">int</span> capacity, <span class="keyword">boolean</span> fair)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 初始容量必须大于0</span></span><br><span class="line">        <span class="keyword">if</span> (capacity &lt;= <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();</span><br><span class="line">        <span class="comment">// 初始化数组</span></span><br><span class="line">        <span class="keyword">this</span>.items = <span class="keyword">new</span> Object[capacity];</span><br><span class="line">        <span class="comment">// 初始化可重入锁</span></span><br><span class="line">        lock = <span class="keyword">new</span> ReentrantLock(fair);</span><br><span class="line">        <span class="comment">// 初始化等待条件</span></span><br><span class="line">        notEmpty = lock.newCondition();</span><br><span class="line">        notFull =  lock.newCondition();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        checkNotNull(e);</span><br><span class="line">        <span class="comment">// 获取可重入锁</span></span><br><span class="line">        <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">        <span class="comment">// 如果当前线程未被中断，则获取锁</span></span><br><span class="line">        lock.lockInterruptibly();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (count == items.length) <span class="comment">// 判断元素是否已满</span></span><br><span class="line">                <span class="comment">// 若满，则等待</span></span><br><span class="line">                notFull.await();</span><br><span class="line">            <span class="comment">// 入队列</span></span><br><span class="line">            enqueue(e);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> E <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// 可重入锁</span></span><br><span class="line">        <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">        <span class="comment">// 如果当前线程未被中断，则获取锁，中断会抛出异常</span></span><br><span class="line">        lock.lockInterruptibly();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">while</span> (count == <span class="number">0</span>) <span class="comment">// 元素数量为0，即Object数组为空</span></span><br><span class="line">                <span class="comment">// 则等待notEmpty条件</span></span><br><span class="line">                notEmpty.await();</span><br><span class="line">            <span class="comment">// 出队列</span></span><br><span class="line">            <span class="keyword">return</span> dequeue();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// 释放锁</span></span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(E x)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// assert lock.getHoldCount() == 1;</span></span><br><span class="line">        <span class="comment">// assert items[putIndex] == null;</span></span><br><span class="line">        <span class="comment">// 获取数组</span></span><br><span class="line">        <span class="keyword">final</span> Object[] items = <span class="keyword">this</span>.items;</span><br><span class="line">        <span class="comment">// 将元素放入</span></span><br><span class="line">        items[putIndex] = x;</span><br><span class="line">        <span class="keyword">if</span> (++putIndex == items.length) <span class="comment">// 放入后存元素的索引等于数组长度（表示已满）</span></span><br><span class="line">            <span class="comment">// 重置存索引为0</span></span><br><span class="line">            putIndex = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// 元素数量加1</span></span><br><span class="line">        count++;</span><br><span class="line">        <span class="comment">// 唤醒在notEmpty条件上等待的线程</span></span><br><span class="line">        notEmpty.signal();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> E <span class="title">dequeue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// assert lock.getHoldCount() == 1;</span></span><br><span class="line">        <span class="comment">// assert items[takeIndex] != null;</span></span><br><span class="line">        <span class="keyword">final</span> Object[] items = <span class="keyword">this</span>.items;</span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        <span class="comment">// 取元素</span></span><br><span class="line">        E x = (E) items[takeIndex];</span><br><span class="line">        <span class="comment">// 该索引的值赋值为null</span></span><br><span class="line">        items[takeIndex] = <span class="keyword">null</span>;</span><br><span class="line">        <span class="comment">// 取值索引等于数组长度</span></span><br><span class="line">        <span class="keyword">if</span> (++takeIndex == items.length)</span><br><span class="line">            <span class="comment">// 重新赋值取值索引</span></span><br><span class="line">            takeIndex = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// 元素个数减1</span></span><br><span class="line">        count--;</span><br><span class="line">        <span class="keyword">if</span> (itrs != <span class="keyword">null</span>) </span><br><span class="line">            itrs.elementDequeued();</span><br><span class="line">        <span class="comment">// 唤醒在notFull条件上等待的线程</span></span><br><span class="line">        notFull.signal();</span><br><span class="line">        <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>当我们往队列里插入一个元素时或者取出一个元素时，如果队列不可用，则会调用Condition的await()方法来阻塞当前线程，该方法主要通过是LockSupport.park(this);来实现的<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">await</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (Thread.interrupted())</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">        <span class="comment">// 加入等待队列</span></span><br><span class="line">        Node node = addConditionWaiter();</span><br><span class="line">        <span class="comment">// 释放同步状态（锁）</span></span><br><span class="line">        <span class="keyword">int</span> savedState = fullyRelease(node);</span><br><span class="line">        <span class="keyword">int</span> interruptMode = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// 判断节点是否在同步队列中</span></span><br><span class="line">        <span class="keyword">while</span> (!isOnSyncQueue(node)) &#123;</span><br><span class="line">            LockSupport.park(<span class="keyword">this</span>); <span class="comment">// 核心部分，阻塞（和Object.wait(0)一样进入无限等待状态）</span></span><br><span class="line">            <span class="keyword">if</span> ((interruptMode = checkInterruptWhileWaiting(node)) != <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 退出while循环说明节点被signal()调入同步队列中，调用acquireQueued()加入同步状态竞争，竞争到锁后从await()方法返回</span></span><br><span class="line">        <span class="keyword">if</span> (acquireQueued(node, savedState) &amp;&amp; interruptMode != THROW_IE)</span><br><span class="line">            interruptMode = REINTERRUPT;</span><br><span class="line">        <span class="keyword">if</span> (node.nextWaiter != <span class="keyword">null</span>) <span class="comment">// clean up if cancelled</span></span><br><span class="line">            unlinkCancelledWaiters();</span><br><span class="line">        <span class="keyword">if</span> (interruptMode != <span class="number">0</span>)</span><br><span class="line">            reportInterruptAfterWait(interruptMode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>函数的核心部分是第8行的LockSupport.park()函数，该函数表示阻塞当前线程，它的源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">park</span><span class="params">(Object blocker)</span> </span>&#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    setBlocker(t, blocker);</span><br><span class="line">    unsafe.park(<span class="keyword">false</span>, <span class="number">0L</span>); <span class="comment">// 核心部分</span></span><br><span class="line">    setBlocker(t, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>函数的核心部分是第4行unsafe.park()函数，这是一个native方法，park这个方法会阻塞当前线程，只有以下四种情况中的一种发生时，该方法才会返回。</p>
-<ul>
-<li>与park对应的unpark执行或已经执行时。注意：已经执行是指unpark先执行，然后再执行的park。</li>
-<li>线程被中断时。</li>
-<li>如果参数中的time不是零，等待了指定的毫秒数时。</li>
-<li>发生异常现象时。这些异常事先无法确定。</li>
-</ul>
-<p>JVM中park在不同的操作系统使用不同的方式实现，在linux下是使用的是系统方法pthread_cond_wait实现。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> os::PlatformEvent::park() &#123;</span><br><span class="line">             <span class="keyword">int</span> v ;</span><br><span class="line">         <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        v = _Event ;</span><br><span class="line">         <span class="keyword">if</span> (Atomic::cmpxchg (v<span class="number">-1</span>, &amp;_Event, v) == v) <span class="keyword">break</span> ;</span><br><span class="line">         &#125;</span><br><span class="line">         guarantee (v &gt;= <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         <span class="keyword">if</span> (v == <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="comment">// Do this the hard way by blocking ...</span></span><br><span class="line">         <span class="keyword">int</span> status = pthread_mutex_lock(_mutex);</span><br><span class="line">         assert_status(status == <span class="number">0</span>, status, <span class="string">"mutex_lock"</span>);</span><br><span class="line">         guarantee (_nParked == <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         ++ _nParked ;</span><br><span class="line">         <span class="keyword">while</span> (_Event &lt; <span class="number">0</span>) &#123;</span><br><span class="line">         status = pthread_cond_wait(_cond, _mutex); <span class="comment">// 核心部分</span></span><br><span class="line">         <span class="comment">// for some reason, under 2.7 lwp_cond_wait() may return ETIME ...</span></span><br><span class="line">         <span class="comment">// Treat this the same as if the wait was interrupted</span></span><br><span class="line">         <span class="keyword">if</span> (status == ETIME) &#123; status = EINTR; &#125;</span><br><span class="line">         assert_status(status == <span class="number">0</span> || status == EINTR, status, <span class="string">"cond_wait"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">         -- _nParked ;</span><br><span class="line"> </span><br><span class="line">         <span class="comment">// In theory we could move the ST of 0 into _Event past the unlock(),</span></span><br><span class="line">         <span class="comment">// but then we'd need a MEMBAR after the ST.</span></span><br><span class="line">         _Event = <span class="number">0</span> ;</span><br><span class="line">         status = pthread_mutex_unlock(_mutex);</span><br><span class="line">         assert_status(status == <span class="number">0</span>, status, <span class="string">"mutex_unlock"</span>);</span><br><span class="line">         &#125;</span><br><span class="line">         guarantee (_Event &gt;= <span class="number">0</span>, <span class="string">"invariant"</span>) ;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure></p>
-<p>pthread_cond_wait是一个多线程的条件变量函数，cond是condition的缩写，字面意思可以理解为线程在等待一个条件发生，这个条件是一个全局变量。这个方法接收两个参数，一个共享变量_cond，一个互斥量_mutex。而unpark方法在linux下是使用pthread_cond_signal实现的。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
+        <div class="article-info info-on-right">
+          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -228,154 +189,65 @@
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
+        		</li>
       		
 		</ul>
 	</div>
 
-      
+          
 
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/03/Java-阻塞队列浅析/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
   
-<nav id="article-nav">
-  
-    <a href="/2018/09/15/Java-线程池浅析/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Java 线程池浅析
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2018/09/03/CAS原理和缺陷/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">CAS原理和缺陷</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
+    
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2019/03/03/Spring源码浅析——创建单例bean对象/" class="archive-article-date">
+  	<time datetime="2019-03-03T05:52:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
+</a>
         </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Java中的阻塞队列"><span class="toc-number">1.</span> <span class="toc-text">一、Java中的阻塞队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-number">1.1.</span> <span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-number">1.2.</span> <span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-number">1.3.</span> <span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DelayQueue"><span class="toc-number">1.4.</span> <span class="toc-text">DelayQueue</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#compareTo-接口实现示例"><span class="toc-number">1.4.1.</span> <span class="toc-text">compareTo()接口实现示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getDelay-接口实现示例"><span class="toc-number">1.4.2.</span> <span class="toc-text">getDelay()接口实现示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SynchronousQueue"><span class="toc-number">1.5.</span> <span class="toc-text">SynchronousQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedTransferQueue"><span class="toc-number">1.6.</span> <span class="toc-text">LinkedTransferQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LinkedBlockingDeque"><span class="toc-number">1.7.</span> <span class="toc-text">LinkedBlockingDeque</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、阻塞队列的实现原理"><span class="toc-number">2.</span> <span class="toc-text">二、阻塞队列的实现原理</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2019/03/03/Spring源码浅析——创建单例bean对象/">Spring源码浅析——获取单例bean</a>
+    </h1>
+  
+
+        <div class="article-info info-on-right">
+          
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">标签</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+          
+
         </div>
-        
-    </div>
-</aside>
-
-
-
+        <div class="clearfix"></div>
+    </header>
+  </div>
+</article>
   
   
-  
-
+    </div></section>
   
 
-  
-
-  
-
-  
-
-  
-  <div id="gitment-ctn">
-<div id="gitalk-ctn"></div> 
-</div>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
-<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
-<script>
-var gitalk = new Gitalk({
-  id: decodeURI(location.pathname).split("/").reverse()[1].substring(0, 49),
-  clientID: '0ff941a9de6ccc9b531d',
-  clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
-  repo: 'zhebinhu.github.io',
-  owner: 'zhebinhu',
-  admin: 'zhebinhu',
-  distractionFreeMode: true
-})
-gitalk.render('gitalk-ctn')
-</script>
-  
+    
 
 
           </div>
@@ -397,8 +269,8 @@ gitalk.render('gitalk-ctn')
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
-		isArchive: false,
+		isPost: false,
+		isArchive: true,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
