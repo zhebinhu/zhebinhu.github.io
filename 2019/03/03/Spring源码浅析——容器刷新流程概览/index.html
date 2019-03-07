@@ -7,20 +7,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Spring源码浅析——容器创建流程概览 | huzb的小书斋</title>
+  <title>Spring源码浅析——容器刷新流程概览 | huzb的小书斋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文是Spring源码浅析系列的第一篇。Spring版本是Spring Boot 2.1.2.RELEASE，以默认配置启动，分析框架工作的原理。">
+  <meta name="description" content="本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring源码浅析——容器创建流程概览">
-<meta property="og:url" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器创建流程概览/index.html">
+<meta property="og:title" content="Spring源码浅析——容器刷新流程概览">
+<meta property="og:url" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="本文是Spring源码浅析系列的第一篇。Spring版本是Spring Boot 2.1.2.RELEASE，以默认配置启动，分析框架工作的原理。">
+<meta property="og:description" content="本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-04T13:56:41.129Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext继承关系.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/BeanFactory继承关系.png">
+<meta property="og:updated_time" content="2019-03-07T07:17:27.067Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring源码浅析——容器创建流程概览">
-<meta name="twitter:description" content="本文是Spring源码浅析系列的第一篇。Spring版本是Spring Boot 2.1.2.RELEASE，以默认配置启动，分析框架工作的原理。">
+<meta name="twitter:title" content="Spring源码浅析——容器刷新流程概览">
+<meta name="twitter:description" content="本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext继承关系.png">
   
     <link rel="alternative" href="/atom.xml" title="huzb的小书斋" type="application/atom+xml">
   
@@ -38,6 +41,7 @@
 
   
 
+  <script src="https://cdn.bootcss.com/pangu/3.3.0/pangu.min.js"></script>
 </head>
 
 <body>
@@ -154,19 +158,19 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Spring源码浅析——容器创建流程概览" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Spring源码浅析——容器刷新流程概览" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      Spring源码浅析——容器创建流程概览
+      Spring源码浅析——容器刷新流程概览
     </h1>
   
 
         
-        <a href="/2019/03/03/Spring源码浅析——容器创建流程概览/" class="archive-article-date">
+        <a href="/2019/03/03/Spring源码浅析——容器刷新流程概览/" class="archive-article-date">
   	<time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
 </a>
         
@@ -174,17 +178,29 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文是Spring源码浅析系列的第一篇。Spring版本是Spring Boot 2.1.2.RELEASE，以默认配置启动，分析框架工作的原理。</p>
+        <p>本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。</p>
 <a id="more"></a>
-<p>众所周知，Spring使用IOC的方式为应用程序管理对象，实质上是把对象放在容器（BeanFactory）中。所以从大方向来看，Spring IOC分为容器准备和容器刷新（对象注入容器）两部分。</p>
-<p>容器创建核心函数在Spring Boot中是一个名为<code>refreshContext(context)</code>的函数，默认情况下它会拿到一个AnnotationConfigApplicationContext类型的对象，AnnotationConfigApplicationContext是整个应用的上下文，它保存了IOC容器BeanFactory，<code>refreshContext(context)</code>函数会对这个BeanFactory作一些设置然后注入对象。</p>
-<p>进入<code>refreshContext(context)</code>函数后会看到这个函数实质上调用的是AnnotationConfigApplicationContext的父类AbstractApplicationContext的<code>refresh()</code>方法，这个方法包含了容器创建的关键流程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">    Object var1 = <span class="keyword">this</span>.startupShutdownMonitor;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        * 刷新前的预处理：</span></span><br><span class="line"><span class="comment">        * 1）、initPropertySources() 初始化一些属性设置，子类可以自定义实现，spring boot中是个空方法；</span></span><br><span class="line"><span class="comment">        * 2）、getEnvironment().validateRequiredProperties() 检验属性的合法性；</span></span><br><span class="line"><span class="comment">        * 3）、earlyApplicationEvents= new LinkedHashSet() 用于保存容器中的一些早期的事件；</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="keyword">this</span>.prepareRefresh();</span><br><span class="line">        <span class="comment">// 拿到子类AnnotationConfigApplicationContext中的BeanFactory </span></span><br><span class="line">        ConfigurableListableBeanFactory beanFactory = <span class="keyword">this</span>.obtainFreshBeanFactory();</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 对BeanFactory进行一些设置：</span></span><br><span class="line"><span class="comment">         * 1）、设置BeanFactory的类加载器、支持表达式解析器...</span></span><br><span class="line"><span class="comment">         * 2）、添加后置处理器【ApplicationContextAwareProcessor】，用来在对象创建时调用xxxAware方法</span></span><br><span class="line"><span class="comment">         * 3）、设置忽略的自动装配的接口EnvironmentAware、EmbeddedValueResolverAware、xxx</span></span><br><span class="line"><span class="comment">         * 4）、注册能在其它任何组件中自动注入的组件：BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext</span></span><br><span class="line"><span class="comment">         * 5）、添加后置处理器【ApplicationListenerDetector】，用来在Bean创建完成后检查是否是ApplicationListener，如果是的话加入容器的applicationListeners集合中</span></span><br><span class="line"><span class="comment">         * 6）、添加编译时的AspectJ；</span></span><br><span class="line"><span class="comment">         * 7）、给BeanFactory中注册一些能用的组件：environment【ConfigurableEnvironment】、systemProperties【Map&lt;String, Object&gt;】、systemEnvironment【Map&lt;String, Object&gt;】</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">this</span>.prepareBeanFactory(beanFactory);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// BeanFactory准备工作完成后进行的后置处理工作，子类可以自定义实现，spring boot中是个空方法</span></span><br><span class="line">            <span class="keyword">this</span>.postProcessBeanFactory(beanFactory);</span><br><span class="line">            <span class="comment">//=======以上是BeanFactory的预准备工作=======</span></span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 执行BeanFactory的后置处理器。在BeanFactory标准初始化之后执行：</span></span><br><span class="line"><span class="comment">            *  1）、拿到所有实现了BeanFactoryPostProcessor接口的类，这是一种后置处理器，允许用户在BeanFactory初始化后进行一些操作。</span></span><br><span class="line"><span class="comment">            *  2）、从中选出所有实现了子接口BeanDefinitionRegistryPostProcessor的类，它允许用户在BeanFactory初始化后向容器动态注册bean</span></span><br><span class="line"><span class="comment">            *  3）、执行所有BeanDefinitionRegistryPostProcessor的postProcessBeanDefinitionRegistry方法，向容器注册bean</span></span><br><span class="line"><span class="comment">            *  4）、执行所有BeanDefinitionRegistryPostProcessor的postProcessBeanFactory方法</span></span><br><span class="line"><span class="comment">            *  5）、执行普通BeanFactoryPostProcessor的postProcessBeanFactory方法</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">/**                </span></span><br><span class="line"><span class="comment">            * 注册Bean的后置处理器</span></span><br><span class="line"><span class="comment">            * Bean的后置处理器分为普通（用户使用）的和内部（框架内部）的</span></span><br><span class="line"><span class="comment">            * 普通的：DestructionAwareBeanPostProcessor（对象销毁前）、InstantiationAwareBeanPostProcessor（对象初始化前后）、SmartInstantiationAwareBeanPostProcessor（对象初始化前后）</span></span><br><span class="line"><span class="comment">            * 内部的：MergedBeanDefinitionPostProcessor（合并定义后）</span></span><br><span class="line"><span class="comment">            * 1）、注册普通后置处理器</span></span><br><span class="line"><span class="comment">            * 2）、注册内部后置处理器</span></span><br><span class="line"><span class="comment">            * 3）、重新注册一个ApplicationListenerDetector</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.registerBeanPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 初始化MessageSource组件（做国际化功能；消息绑定，消息解析）；</span></span><br><span class="line"><span class="comment">            * 1）、获取BeanFactory</span></span><br><span class="line"><span class="comment">            * 2）、看容器中是否有id为messageSource的，类型是MessageSource的组件</span></span><br><span class="line"><span class="comment">            *     如果有赋值给messageSource，如果没有自己创建一个DelegatingMessageSource；</span></span><br><span class="line"><span class="comment">            *     MessageSource：取出国际化配置文件中的某个key的值；能按照区域信息获取；</span></span><br><span class="line"><span class="comment">            * 3）、把创建好的MessageSource注册在容器中，以后获取国际化配置文件的值的时候，可以自动注入MessageSource；</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.initMessageSource();</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 初始化事件派发器；</span></span><br><span class="line"><span class="comment">            * 1）、获取BeanFactory</span></span><br><span class="line"><span class="comment">            * 2）、尝试从BeanFactory中获取ApplicationEventMulticaster；</span></span><br><span class="line"><span class="comment">            * 3）、如果上一步没有获取到；创建一个SimpleApplicationEventMulticaster</span></span><br><span class="line"><span class="comment">            * 4）、将创建的ApplicationEventMulticaster添加到BeanFactory中</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.initApplicationEventMulticaster();</span><br><span class="line">            <span class="comment">// 空方法，子类可以自定义逻辑，Spring Boot中默认没有定义</span></span><br><span class="line">            <span class="keyword">this</span>.onRefresh();</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 将容器中的监听器注册到派发器中：</span></span><br><span class="line"><span class="comment">            * 1）、从容器中拿到所有的ApplicationListener</span></span><br><span class="line"><span class="comment">            * 2）、将每个监听器添加到事件派发器中；</span></span><br><span class="line"><span class="comment">            *     getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);</span></span><br><span class="line"><span class="comment">            * 3）、派发之前步骤产生的事件；（默认情况下没有）</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.registerListeners();</span><br><span class="line">            <span class="comment">// 初始化所有剩下的单实例bean</span></span><br><span class="line">            <span class="keyword">this</span>.finishBeanFactoryInitialization(beanFactory);</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 完成BeanFactory的刷新工作：</span></span><br><span class="line"><span class="comment">            * 1）、初始化LifecycleProcessor，这是Lifecycle的后置处理器，Lifecycle的调用发生在容器本身创建和销毁时</span></span><br><span class="line"><span class="comment">            * 2）、执行LifecycleProcessor的onRefresh()方法，即执行所有Lifecycle的start()方法，通知这些bean容器创建完成了</span></span><br><span class="line"><span class="comment">            * 3）、发布一个容器刷新完成事件：publishEvent(new ContextRefreshedEvent(this))</span></span><br><span class="line"><span class="comment">            * 4）、将容器放入容器集合中，默认只有一个：LiveBeansView.registerApplicationContext(this);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line">            <span class="keyword">this</span>.finishRefresh();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (BeansException var9) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.logger.isWarnEnabled()) &#123;</span><br><span class="line">                <span class="keyword">this</span>.logger.warn(<span class="string">"Exception encountered during context initialization - cancelling refresh attempt: "</span> + var9);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">this</span>.destroyBeans();</span><br><span class="line">            <span class="keyword">this</span>.cancelRefresh(var9);</span><br><span class="line">            <span class="keyword">throw</span> var9;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.resetCommonCaches();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们大致浏览了一遍Spring容器创建的过程，通过源码我们可以总结出以下几点：</p>
+<p>众所周知，Spring 以容器管理所有的 bean 对象，容器的实体是一个BeanFactory 对象。但我们常用的容器是另一个 ApplicationContext ，它在内部持有了 BeanFactory，所有和 BeanFactory 相关的操作都会委托给内部的 BeanFactory 来完成。</p>
+<p>ApplicationContext的继承关系如下图所示：</p>
+<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext继承关系.png"></p>
+<p>ApplicationContext是一个接口，<strong>ClassPathXmlApplicationContext</strong>和<strong>AnnotationConfigApplicationContext</strong>是两个比较常用的实现类，前者基于xml使用，后者基于注解使用。SpringBoot中默认后面一种。</p>
+<p>ApplicationContext也继承了BeanFactory接口，BeanFactory的继承关系如下图所示：</p>
+<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/BeanFactory继承关系.png"></p>
+<p>从继承关系我们可以获得以下信息：</p>
+<ul>
+<li>ApplicationContext 继承了 ListableBeanFactory，这个 Listable 的意思就是，通过这个接口，我们可以获取多个 Bean，最顶层 BeanFactory 接口的方法都是获取单个 Bean 的。</li>
+<li>ApplicationContext 继承了 HierarchicalBeanFactory，Hierarchical 的意思是说我们可以在应用中起多个 BeanFactory，然后可以将各个 BeanFactory 设置为父子关系。</li>
+</ul>
+<p>ApplicationContext非常重要，所以我们第一篇就看一下ApplicationContext初始化的过程。默认配置下，SpringBoot中的ApplicationContext初始化在<code>refresh()</code>方法中，为什么叫refresh()而不是init()呢？因为ApplicationContext建立起来以后，其实我们是可以通过调用refresh()这个方法重建的，这样会将原来的ApplicationContext销毁，然后再重新执行一次初始化操作。</p>
+<h2 id="容器刷新概览"><a href="#容器刷新概览" class="headerlink" title="容器刷新概览"></a>容器刷新概览</h2><p><code>refresh()</code>是个总览全局的方法，我们可以通过这个方法概览容器刷新的过程：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">        <span class="comment">// 准备工作，记录下容器的启动时间、标记“已启动”状态、检验配置文件格式</span></span><br><span class="line">        prepareRefresh();</span><br><span class="line">        <span class="comment">// ClassPathXmlApplicationContext 会在这里解析 xml 配置；AnnotationConfigApplicationContext 的解析发在初始化，这里只是简单的获取</span></span><br><span class="line">        <span class="comment">// 这里的解析是指把配置信息都提取出来了，保存在了一个 Map&lt;String,BeanDefinition&gt; 中</span></span><br><span class="line">        ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();</span><br><span class="line">        <span class="comment">// 设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean 等</span></span><br><span class="line">        prepareBeanFactory(beanFactory);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// BeanFactory 准备工作完成后进行的后置处理工作，子类可以自定义实现，Spring Boot 中是个空方法</span></span><br><span class="line">            postProcessBeanFactory(beanFactory);</span><br><span class="line">            <span class="comment">//=======以上是BeanFactory的预准备工作=======</span></span><br><span class="line">            <span class="comment">// 调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法</span></span><br><span class="line">            invokeBeanFactoryPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">// 注册 BeanPostProcessor 的实现类（注意和之前的 BeanFactoryPostProcessor 的区别）</span></span><br><span class="line">            registerBeanPostProcessors(beanFactory);</span><br><span class="line">            <span class="comment">// 初始化 MessageSource 组件（做国际化功能；消息绑定，消息解析）</span></span><br><span class="line">            initMessageSource();</span><br><span class="line">            <span class="comment">// 初始化当前 ApplicationContext 的事件广播器</span></span><br><span class="line">            initApplicationEventMulticaster();</span><br><span class="line">            <span class="comment">// 具体的子类可以在这里初始化一些特殊的 Bean（在初始化 singleton beans 之前），Spring Boot 中默认没有定义</span></span><br><span class="line">            onRefresh();</span><br><span class="line">            <span class="comment">// 注册事件监听器，监听器需要实现 ApplicationListener 接口</span></span><br><span class="line">            registerListeners();</span><br><span class="line">            <span class="comment">// 初始化所有的 singleton beans（lazy-init 的除外）</span></span><br><span class="line">            finishBeanFactoryInitialization(beanFactory);</span><br><span class="line">            <span class="comment">// 容器刷新完成操作</span></span><br><span class="line">            finishRefresh();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">                logger.warn(<span class="string">"Exception encountered during context initialization - "</span> +</span><br><span class="line">                        <span class="string">"cancelling refresh attempt: "</span> + ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// Destroy already created singletons to avoid dangling resources.</span></span><br><span class="line">            destroyBeans();</span><br><span class="line">            <span class="comment">// Reset 'active' flag.</span></span><br><span class="line">            cancelRefresh(ex);</span><br><span class="line">            <span class="comment">// Propagate exception to caller.</span></span><br><span class="line">            <span class="keyword">throw</span> ex;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// Reset common introspection caches in Spring's core, since we</span></span><br><span class="line">            <span class="comment">// might not ever need metadata for singleton beans anymore...</span></span><br><span class="line">            resetCommonCaches();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过上面的代码和注释我们总览了容器刷新的整个流程，下面我们来一步步探索每个环节都做了什么。</p>
+<h2 id="创建-Bean-容器前的准备工作：prepareRefresh"><a href="#创建-Bean-容器前的准备工作：prepareRefresh" class="headerlink" title="创建 Bean 容器前的准备工作：prepareRefresh()"></a>创建 Bean 容器前的准备工作：prepareRefresh()</h2><p>这个比较简单，直接看代码中的注释即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">prepareRefresh</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 记录启动时间，</span></span><br><span class="line">    <span class="comment">// 将 active 属性设置为 true，closed 属性设置为 false，它们都是 AtomicBoolean 类型</span></span><br><span class="line">    <span class="keyword">this</span>.startupDate = System.currentTimeMillis();</span><br><span class="line">    <span class="keyword">this</span>.closed.set(<span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">this</span>.active.set(<span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Initialize any placeholder property sources in the context environment</span></span><br><span class="line">    <span class="comment">// Spring Boot 中是个空方法</span></span><br><span class="line">    initPropertySources();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 校验配置属性的合法性</span></span><br><span class="line">    getEnvironment().validateRequiredProperties();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 记录早期的事件</span></span><br><span class="line">    <span class="keyword">this</span>.earlyApplicationEvents = <span class="keyword">new</span> LinkedHashSet&lt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们大致浏览了一遍Spring容器刷新的过程，通过源码我们可以总结出以下几点：</p>
 <ul>
 <li>Spring容器在启动的时候，先会将所有注册进来的Bean的定义信息保存在beanDefinitionMap中，然后在合适的时机创建这些bean：<br>　　用到这个bean的时候，利用getBean()创建bean，创建好以后保存在容器中；<br>　　finishBeanFactoryInitialization()统一创建剩下所有的bean；</li>
 <li>Spring的诸多功能都依赖于后置处理器（BeanFactoryPostProcessor和BeanPostProcessor）的实现，后置处理器工作在各种时期（容器准备完成、bean初始化之前、bean初始化之后、容器刷新完成等等），常见的有：<br>　　AutowiredAnnotationBeanPostProcessor：处理自动注入；<br>　　AnnotationAwareAspectJAutoProxyCreator：来做AOP功能；<br>　　InstantiationAwareBeanPostProcessor：对象初始化前后；<br>　　DestructionAwareBeanPostProcessor：对象销毁前；</li>
-<li>容器的创建过程分为两个阶段：容器准备和容器刷新。<br>　　容器准备阶段会对BeanFactory进行一些设置，然后执行BeanFactory的后置处理器；<br>　　容器刷新会依次：注册bean的后置处理器——初始化MessageSource组件——注册事件派发器——注册事件监听器——派发已有的事件——初始化剩下的单例bean——完成刷新工作；</li>
+<li>容器的刷新过程分为两个阶段：容器准备和对象初始化注入。<br>　　容器准备阶段会对BeanFactory进行一些设置，然后执行BeanFactory的后置处理器；<br>　　对象初始化注入会依次：注册bean的后置处理器——初始化MessageSource组件——注册事件派发器——注册事件监听器——初始化和注入剩下的单例bean——完成刷新工作；</li>
 <li>事件驱动模型：<br>　　ApplicationListener：事件监听；<br>　　ApplicationEventMulticaster：事件派发；<br>　　ApplicationContext.publishEvent()：事件发布；</li>
 </ul>
 
@@ -260,7 +276,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/03/03/Spring源码浅析——容器创建流程概览/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -274,9 +290,18 @@
   
 <nav id="article-nav">
   
+    <a href="/2019/03/04/Spring源码浅析——创建单例bean对象/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Spring源码浅析——创建单例bean对象
+        
+      </div>
+    </a>
   
-    <a href="/2019/03/03/Spring源码浅析——创建单例bean对象/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Spring源码浅析——获取单例bean</div>
+  
+    <a href="/2019/02/23/Redis高可用和分布式/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Redis高可用和分布式</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -303,7 +328,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.</span> <span class="toc-text">总结</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#容器刷新概览"><span class="toc-number">1.</span> <span class="toc-text">容器刷新概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建-Bean-容器前的准备工作：prepareRefresh"><span class="toc-number">2.</span> <span class="toc-text">创建 Bean 容器前的准备工作：prepareRefresh()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -377,7 +402,6 @@ gitalk.render('gitalk-ctn')
 		showTags: true
 	}
 </script>
-
 <script>!function (t) {
     function n(e) {
       if (r[e]) return r[e].exports;
@@ -4689,7 +4713,8 @@ gitalk.render('gitalk-ctn')
       document.getElementsByTagName("body")[0].appendChild(t), t.setAttribute("src", e)
     }("/slider.e37972.js")
   }()</script>
-
+  pangu.spacingPage();
+</script>
 
 
     
@@ -4744,7 +4769,7 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4752,15 +4777,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -4768,11 +4789,11 @@ gitalk.render('gitalk-ctn')
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Redis</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">标签</a>
+                <a href="javascript:void(0)" class="js-tag color1">Redis</a>
               </li>
              
               <li class="article-tag-list-item">

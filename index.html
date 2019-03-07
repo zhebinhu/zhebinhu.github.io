@@ -36,6 +36,7 @@
 
   
 
+  <script src="https://cdn.bootcss.com/pangu/3.3.0/pangu.min.js"></script>
 </head>
 
 <body>
@@ -154,27 +155,27 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Spring源码浅析——容器创建流程概览" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Spring源码浅析——创建单例bean对象" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/03/Spring源码浅析——容器创建流程概览/">Spring源码浅析——容器创建流程概览</a>
+      <a class="article-title" href="/2019/03/04/Spring源码浅析——创建单例bean对象/">Spring源码浅析——创建单例bean对象</a>
     </h1>
   
 
         
-        <a href="/2019/03/03/Spring源码浅析——容器创建流程概览/" class="archive-article-date">
-  	<time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
+        <a href="/2019/03/04/Spring源码浅析——创建单例bean对象/" class="archive-article-date">
+  	<time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-04</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本文是Spring源码浅析系列的第一篇。Spring版本是Spring Boot 2.1.2.RELEASE，以默认配置启动，分析框架工作的原理。</p>
+        <p>上一篇概览了源码中容器刷新的部分，但是略过了其中最重要的对象初始化和注入部分。这一篇就以一个普通单例对象为例，看它是如何加入到容器中的。</p>
         
       
 
@@ -202,7 +203,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2019/03/03/Spring源码浅析——容器创建流程概览/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/03/04/Spring源码浅析——创建单例bean对象/">展开全文 >></a>
         </p>
       
 
@@ -232,26 +233,27 @@
 
 
   
-    <article id="post-Spring源码浅析——创建单例bean对象" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Spring源码浅析——容器刷新流程概览" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/03/03/Spring源码浅析——创建单例bean对象/">Spring源码浅析——获取单例bean</a>
+      <a class="article-title" href="/2019/03/03/Spring源码浅析——容器刷新流程概览/">Spring源码浅析——容器刷新流程概览</a>
     </h1>
   
 
         
-        <a href="/2019/03/03/Spring源码浅析——创建单例bean对象/" class="archive-article-date">
-  	<time datetime="2019-03-03T05:52:47.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
+        <a href="/2019/03/03/Spring源码浅析——容器刷新流程概览/" class="archive-article-date">
+  	<time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-03</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
+        <p>本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。</p>
         
       
 
@@ -265,7 +267,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">标签</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
         		</li>
       		
 		</ul>
@@ -275,7 +281,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2019/03/03/Spring源码浅析——创建单例bean对象/">展开全文 >></a>
+          <a class="article-more-a" href="/2019/03/03/Spring源码浅析——容器刷新流程概览/">展开全文 >></a>
         </p>
       
 
@@ -935,7 +941,6 @@
 		showTags: true
 	}
 </script>
-
 <script>!function (t) {
     function n(e) {
       if (r[e]) return r[e].exports;
@@ -5247,7 +5252,8 @@
       document.getElementsByTagName("body")[0].appendChild(t), t.setAttribute("src", e)
     }("/slider.e37972.js")
   }()</script>
-
+  pangu.spacingPage();
+</script>
 
 
     
@@ -5302,7 +5308,7 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5310,15 +5316,11 @@
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">MySQL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">计算机网络</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -5326,11 +5328,11 @@
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Redis</a>
+                <a href="javascript:void(0)" class="js-tag color3">收藏</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">标签</a>
+                <a href="javascript:void(0)" class="js-tag color1">Redis</a>
               </li>
              
               <li class="article-tag-list-item">

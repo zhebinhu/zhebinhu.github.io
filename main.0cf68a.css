@@ -962,8 +962,8 @@ body {
 }
 
 .article-entry .highlight, .article-entry pre {
-  background: #272822;
-  margin: 10px 0;
+  background: #2d2d2d;
+  margin: 30px 0;
   padding: 10px;
   overflow: auto;
   color: #fff;
@@ -1003,7 +1003,7 @@ body {
 }
 
 .article-entry .highlight table {
-  margin: 0;
+  margin: 10px;
   width: auto
 }
 
@@ -2078,7 +2078,7 @@ pre .css ~ * .id, pre .id {
 }
 
 .article-inner p {
-  margin: 1em 0 1em
+  margin: 0 0 10px;
 }
 
 .article-inner {
@@ -2140,7 +2140,7 @@ pre .css ~ * .id, pre .id {
 }
 
 .article-entry {
-  line-height: 1.8em;
+  line-height: 1.5em;
   padding-right: 7.6923%;
   padding-left: 7.6923%
 }
@@ -2202,7 +2202,7 @@ pre .css ~ * .id, pre .id {
 
 .article-entry ol, .article-entry ul {
   font-size: 1rem;
-  margin: 0 0 25px 20px
+  margin: 0 0 20px 5px;
 }
 
 .article-entry li ol, .article-entry li ul {
@@ -4023,4 +4023,45 @@ a.gitment-editor-footer-tip{
 
 .gt-comment-content{
   background: white !important;
+}
+
+.highlight {
+  position: relative;
+  padding: 35px 10px 0 !important;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px 0px rgba(0, 0, 0, 0.4);
+}
+
+.highlight::after {
+  content: " ";
+  position: absolute;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  background: #fc625d;
+  width: 12px;
+  height: 12px;
+  top: 0;
+  left: 20px;
+  margin-top: 13px;
+  -webkit-box-shadow: 20px 0px #fdbc40, 40px 0px #35cd4b;
+  box-shadow: 20px 0px #fdbc40, 40px 0px #35cd4b;
+  z-index: 3;
+}
+
+.highlight::before {
+  content: " ";
+  height: 38px;
+  line-height: 38px;
+  background: #21252b;
+  color: #fff;
+  font-size: 16px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: bold;
+  padding: 0px 80px;
+  text-indent: 15px;
+  float: left;
 }
