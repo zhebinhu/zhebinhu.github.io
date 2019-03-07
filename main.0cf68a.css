@@ -2179,15 +2179,15 @@ pre .css ~ * .id, pre .id {
 
 .article-entry ul li:before {
   content: "";
-  width: 6px;
-  height: 6px;
-  border: 1px solid #999;
-  border-radius: 10px;
-  background: #aaa;
+  width: 8px;
+  height: 8px;
+  border: 1px solid #6d6d6d;
+  border-radius: 12px;
+  background: #6d6d6d;
   display: inline-block;
-  margin-right: 10px;
+  margin-right: 5px;
   float: left;
-  margin-top: 10px
+  margin-top: 6px;
 }
 
 .article-entry ol {
