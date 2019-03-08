@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Java9 新特性概述 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="Java9 正式发布于 2017 年 9 月 21 日。作为 Java8 之后 3 年半才发布的新版本，Java9 带来了很多重大的变化。其中最重要的改动是 Java 平台模块系统的引入。除此之外，还有一些新的特性。本文对 Java9 中包含的新特性做了概括性的介绍，可以帮助你快速了解 Java9。 Java 平台模块系统Java 平台模块系统，也就是 Project Jigsaw，把模块化开发">
+<meta name="keywords" content="Java,收藏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java9 新特性概述">
+<meta property="og:url" content="http://yoursite.com/2018/04/11/Java9 新特性概述/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="Java9 正式发布于 2017 年 9 月 21 日。作为 Java8 之后 3 年半才发布的新版本，Java9 带来了很多重大的变化。其中最重要的改动是 Java 平台模块系统的引入。除此之外，还有一些新的特性。本文对 Java9 中包含的新特性做了概括性的介绍，可以帮助你快速了解 Java9。 Java 平台模块系统Java 平台模块系统，也就是 Project Jigsaw，把模块化开发">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-08T14:07:49.031Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java9 新特性概述">
+<meta name="twitter:description" content="Java9 正式发布于 2017 年 9 月 21 日。作为 Java8 之后 3 年半才发布的新版本，Java9 带来了很多重大的变化。其中最重要的改动是 Java 平台模块系统的引入。除此之外，还有一些新的特性。本文对 Java9 中包含的新特性做了概括性的介绍，可以帮助你快速了解 Java9。 Java 平台模块系统Java 平台模块系统，也就是 Project Jigsaw，把模块化开发">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2018/04/11/Java9 新特性概述/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+    
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/04/Spring 源码浅析——创建单例 bean 对象/" class="title">Spring 源码浅析——创建单例 bean 对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/03/Spring 源码浅析——容器刷新流程概览/" class="title">Spring 源码浅析——容器刷新流程概览</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished">2019-03-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/23/Redis 高可用和分布式/" class="title">Redis 高可用和分布式</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/21/CMS-G1 和 ZGC/" class="title">CMS,G1 和 ZGC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/12/Redis 事件、事务和 pipeline/" class="title">Redis 事件、事务和 pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-平台模块系统"><span class="toc-text">Java 平台模块系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jshell"><span class="toc-text">Jshell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合、Stream-和-Optional"><span class="toc-text">集合、Stream 和 Optional</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#进程-API"><span class="toc-text">进程 API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#平台日志-API-和服务"><span class="toc-text">平台日志 API 和服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反应式流（Reactive-Streams）"><span class="toc-text">反应式流（Reactive Streams）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量句柄"><span class="toc-text">变量句柄</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进方法句柄（Method-Handle）"><span class="toc-text">改进方法句柄（Method Handle）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发"><span class="toc-text">并发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nashorn"><span class="toc-text">Nashorn</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#I-O-流新特性"><span class="toc-text">I/O 流新特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改进应用安全性能"><span class="toc-text">改进应用安全性能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用户界面"><span class="toc-text">用户界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#统一-JVM-日志"><span class="toc-text">统一 JVM 日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他改动方面"><span class="toc-text">其他改动方面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资源-resources"><span class="toc-text">参考资源 (resources)</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Java9 新特性概述" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java9 新特性概述
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2018/04/11/Java9 新特性概述/" class="article-date">
+	  <time datetime="2018-04-11T02:51:48.000Z" itemprop="datePublished">2018-04-11</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/收藏/">收藏</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2018/04/11/Java9 新特性概述/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Java9 正式发布于 2017 年 9 月 21 日。作为 Java8 之后 3 年半才发布的新版本，Java9 带来了很多重大的变化。其中最重要的改动是 Java 平台模块系统的引入。除此之外，还有一些新的特性。本文对 Java9 中包含的新特性做了概括性的介绍，可以帮助你快速了解 Java9。</p>
+<h2 id="Java-平台模块系统"><a href="#Java-平台模块系统" class="headerlink" title="Java 平台模块系统"></a>Java 平台模块系统</h2><p>Java 平台模块系统，也就是 Project Jigsaw，把模块化开发实践引入到了 Java 平台中。在引入了模块系统之后，JDK 被重新组织成 94 个模块。Java 应用可以通过新增的 jlink 工具，创建出只包含所依赖的 JDK 模块的自定义运行时镜像。这样可以极大的减少 Java 运行时环境的大小。这对于目前流行的不可变基础设施的实践来说，镜像的大小的减少可以节省很多存储空间和带宽资源。</p>
+<p>模块化开发的实践在软件开发领域并不是一个新的概念。Java 开发社区已经使用这样的模块化实践有相当长的一段时间。主流的构建工具，包括 Apache Maven 和 Gradle 都支持把一个大的项目划分成若干个子项目。子项目之间通过不同的依赖关系组织在一起。每个子项目在构建之后都会产生对应的 JAR 文件。在 Java9 中，已有的这些项目可以很容易的升级转换为 Java9 模块，并保持原有的组织结构不变。</p>
+<p>Java9 模块的重要特征是在其工件（artifact）的根目录中包含了一个描述模块的 module-info.class 文件。工件的格式可以是传统的 JAR 文件或是 Java9 新增的 JMOD 文件。这个文件由根目录中的源代码文件 module-info.java 编译而来。该模块声明文件可以描述模块的不同特征。模块声明文件中可以包含的内容如下：</p>
+<ul>
+<li><p>模块导出的包：使用<code>exports</code>可以声明模块对其他模块所导出的包。包中的 public 和 protected 类型，以及这些类型的 public 和 protected 成员可以被其他模块所访问。没有声明为导出的包相当于模块中的私有成员，不能被其他模块使用。</p>
+</li>
+<li><p>模块的依赖关系：使用<code>requires</code>可以声明模块对其他模块的依赖关系。使用<code>requires transitive</code>可以把一个模块依赖声明为传递的。传递的模块依赖可以被依赖当前模块的其他模块所读取。如果一个模块所导出的类型的型构中包含了来自它所依赖的模块的类型，那么对该模块的依赖应该声明为传递的。</p>
+</li>
+<li><p>服务的提供和使用：如果一个模块中包含了可以被 ServiceLocator 发现的服务接口的实现，需要使用<code>provides with</code>语句来声明具体的实现类；如果一个模块需要使用服务接口，可以使用<code>uses</code>语句来声明。</p>
+</li>
+</ul>
+<p>代码清单 1 中给出了一个模块声明文件的示例。在该声明文件中，模块 com.mycompany.sample 导出了 Java 包 com.mycompany.sample。该模块依赖于模块 com.mycompany.sample。该模块也提供了服务接口 com.mycompany.common.DemoService 的实现类 com.mycompany.sample.DemoServiceImpl。</p>
+<p>清单 1.模块声明示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> com.mycompany.sample &#123; </span><br><span class="line">    <span class="keyword">exports</span> com.mycompany.sample; </span><br><span class="line">    <span class="keyword">requires</span> com.mycompany.common; </span><br><span class="line">    provides com.mycompany.common.DemoService with</span><br><span class="line">        com.mycompany.sample.DemoServiceImpl; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>模块系统中增加了模块路径的概念。模块系统在解析模块时，会从模块路径中进行查找。为了保持与之前 Java 版本的兼容性，CLASSPATH 依然被保留。所有的类型在运行时都属于某个特定的模块。对于从 CLASSPATH 中加载的类型，它们属于加载它们的类加载器对应的未命名模块。可以通过 Class 的 getModule() 方法来获取到表示其所在模块的 Module 对象。</p>
+<p>在 JVM 启动时，会从应用的根模块开始，根据依赖关系递归的进行解析，直到得到一个表示依赖关系的图。如果解析过程中出现找不到模块的情况，或是在模块路径的同一个地方找到了名称相同的模块，模块解析过程会终止，JVM 也会退出。Java 也提供了相应的 API 与模块系统进行交互。</p>
+<h2 id="Jshell"><a href="#Jshell" class="headerlink" title="Jshell"></a>Jshell</h2><p>jshell 是 Java9 新增的一个实用工具。jshell 为 Java 增加了类似 NodeJS 和 Python 中的读取-求值-打印循环（ Read-Evaluation-Print Loop ）。在 jshell 中可以直接输入表达式并查看其执行结果。当需要测试一个方法的运行效果，或是快速的对表达式进行求值时，jshell 都非常实用。只需要通过 jshell 命令启动 jshell，然后直接输入表达式即可。每个表达式的结果会被自动保存下来，以数字编号作为引用，类似$1 和$2 这样的名称。可以在后续的表达式中引用之前语句的运行结果。在 jshell 中，除了表达式之外，还可以创建 Java 类和方法。jshell 也有基本的代码完成功能。</p>
+<p>在代码清单 2 中，我们直接创建了一个方法 add。</p>
+<p>清单 2.在 jshell 中添加方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jshell&gt; <span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123; </span><br><span class="line">    ...&gt; <span class="keyword">return</span> x + y; </span><br><span class="line">    ...&gt; &#125; </span><br><span class="line"> | <span class="function">created method <span class="title">add</span><span class="params">(<span class="keyword">int</span>,<span class="keyword">int</span>)</span></span></span><br></pre></td></tr></table></figure></p>
+<p>接着就可以在 jshell 中直接使用这个方法，如代码清单 3 所示。</p>
+<p>清单 3.在 jshell 中使用创建的方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jshell&gt; add(<span class="number">1</span>, <span class="number">2</span>) </span><br><span class="line">$<span class="number">19</span> ==&gt; <span class="number">3</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="集合、Stream-和-Optional"><a href="#集合、Stream-和-Optional" class="headerlink" title="集合、Stream 和 Optional"></a>集合、Stream 和 Optional</h2><p>在集合上，Java9 增加了 List.of()、Set.of()、Map.of() 和 Map.ofEntries() 等工厂方法来创建不可变集合，如代码清单 4 所示。</p>
+<p>清单 4.创建不可变集合：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">List.of(); </span><br><span class="line">List.of(<span class="string">"Hello"</span>, <span class="string">"World"</span>); </span><br><span class="line">List.of(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">Set.of(); </span><br><span class="line">Set.of(<span class="string">"Hello"</span>, <span class="string">"World"</span>); </span><br><span class="line">Set.of(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">Map.of();</span><br><span class="line">Map.of(<span class="string">"Hello"</span>, <span class="number">1</span>, <span class="string">"World"</span>, <span class="number">2</span>);</span><br></pre></td></tr></table></figure></p>
+<p>Stream 中增加了新的方法 ofNullable、dropWhile、takeWhile 和 iterate。在代码清单 5 中，流中包含了从 1 到 5 的元素。断言检查元素是否为奇数。第一个元素 1 被删除，结果流中包含 4 个元素。</p>
+<p>清单 5.Stream 中的 dropWhile 方法示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testDropWhile</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">long</span> count = Stream.of(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>) </span><br><span class="line">        .dropWhile(i -&gt; i % <span class="number">2</span> != <span class="number">0</span>) </span><br><span class="line">        .count(); </span><br><span class="line">    assertEquals(<span class="number">4</span>, count); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Collectors 中增加了新的方法 filtering 和 flatMapping。在代码清单 6 中，对于输入的 String 流，先通过 flatMapping 把 String 映射成 Integer 流，再把所有的 Integer 收集到一个集合中。</p>
+<p>清单 6.Collectors 的 flatMapping 方法示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testFlatMapping</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">    <span class="keyword">final</span> Set&lt;Integer&gt; result = Stream.of(<span class="string">"a"</span>, <span class="string">"ab"</span>, <span class="string">"abc"</span>) </span><br><span class="line">        .collect(Collectors.flatMapping(v -&gt; v.chars().boxed(), </span><br><span class="line">            Collectors.toSet())); </span><br><span class="line">    assertEquals(<span class="number">3</span>, result.size()); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Optional 类中新增了 ifPresentOrElse、or 和 stream 等方法。在代码清单 7 中，Optional 流中包含 3 个元素，其中只有 2 个有值。在使用 flatMap 之后，结果流中包含了 2 个值。</p>
+<p>清单 7.Optional 的 stream 方法示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Test</span> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testStream</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">long</span> count = Stream.of( </span><br><span class="line">        Optional.of(<span class="number">1</span>), </span><br><span class="line">        Optional.empty(), </span><br><span class="line">        Optional.of(<span class="number">2</span>) </span><br><span class="line">    ).flatMap(Optional::stream) </span><br><span class="line">        .count(); </span><br><span class="line">    assertEquals(<span class="number">2</span>, count); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="进程-API"><a href="#进程-API" class="headerlink" title="进程 API"></a>进程 API</h2><p>Java9 增加了 ProcessHandle 接口，可以对原生进程进行管理，尤其适合于管理长时间运行的进程。在使用 P rocessBuilder 来启动一个进程之后，可以通过 Process.toHandle() 方法来得到一个 ProcessHandle 对象的实例。通过 ProcessHandle 可以获取到由 ProcessHandle.Info 表示的进程的基本信息，如命令行参数、可执行文件路径和启动时间等。ProcessHandle 的 onExit() 方法返回一个 CompletableFuture<processhandle> 对象，可以在进程结束时执行自定义的动作。代码清单 8 中给出了进程 API 的使用示例。</processhandle></p>
+<p>清单 8.进程 API 示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> ProcessBuilder processBuilder = <span class="keyword">new</span> ProcessBuilder(<span class="string">"top"</span>).inheritIO(); </span><br><span class="line"><span class="keyword">final</span> ProcessHandle processHandle = processBuilder.start().toHandle(); </span><br><span class="line">processHandle.onExit().whenCompleteAsync((handle, throwable) -&gt; &#123; </span><br><span class="line">    <span class="keyword">if</span> (throwable == <span class="keyword">null</span>) &#123; </span><br><span class="line">        System.out.println(handle.pid()); </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; </span><br><span class="line">        throwable.printStackTrace(); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h2 id="平台日志-API-和服务"><a href="#平台日志-API-和服务" class="headerlink" title="平台日志 API 和服务"></a>平台日志 API 和服务</h2><p>Java9 允许为 JDK 和应用配置同样的日志实现。新增的 System.LoggerFinder 用来管理 JDK 使用的日志记录器实现。JVM 在运行时只有一个系统范围的 LoggerFinder 实例。LoggerFinder 通过服务查找机制来加载日志记录器实现。默认情况下，JDK 使用 java.logging 模块中的 java.util.logging 实现。通过 LoggerFinder 的 getLogger() 方法就可以获取到表示日志记录器的 System.Logger 实现。应用同样可以使用 System.Logger 来记录日志。这样就保证了 JDK 和应用使用同样的日志实现。我们也可以通过添加自己的 System.LoggerFinder 实现来让 JDK 和应用使用 SLF4J 等其他日志记录框架。代码清单 9 中给出了平台日志 API 的使用示例。</p>
+<p>清单 9.使用平台日志 API：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> System.Logger LOGGER = System.getLogger(<span class="string">"Main"</span>); </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> </span>&#123; </span><br><span class="line">        LOGGER.log(Level.INFO, <span class="string">"Run!"</span>);</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="反应式流（Reactive-Streams）"><a href="#反应式流（Reactive-Streams）" class="headerlink" title="反应式流（Reactive Streams）"></a>反应式流（Reactive Streams）</h2><p>反应式编程的思想最近得到了广泛的流行。在 Java 平台上有流行的反应式库 RxJava 和 Reactor。反应式流规范的出发点是提供一个带非阻塞负压（non-blocking backpressure）的异步流处理规范。反应式流规范的核心接口已经添加到了 Java9 中的 java.util.concurrent.Flow 类中。</p>
+<p>Flow 中包含了 Flow.Publisher、Flow.Subscriber、Flow.Subscription 和 Flow.Processor 等 4 个核心接口。Java9 还提供了 SubmissionPublisher 作为 Flow.Publisher 的一个实现。RxJava2 和 Reactor 都可以很方便的与 Flow 类的核心接口进行互操作。</p>
+<h2 id="变量句柄"><a href="#变量句柄" class="headerlink" title="变量句柄"></a>变量句柄</h2><p>变量句柄是一个变量或一组变量的引用，包括静态域，非静态域，数组元素和堆外数据结构中的组成部分等。变量句柄的含义类似于已有的方法句柄。变量句柄由 Java 类 java.lang.invoke.VarHandle 来表示。可以使用类 java.lang.invoke.MethodHandles.Lookup 中的静态工厂方法来创建 VarHandle 对象。通过变量句柄，可以在变量上进行各种操作。这些操作称为访问模式。不同的访问模式尤其在内存排序上的不同语义。目前一共有 31 种访问模式，而每种访问模式都在 VarHandle 中有对应的方法。这些方法可以对变量进行读取、写入、原子更新、数值原子更新和比特位原子操作等。VarHandle 还可以用来访问数组中的单个元素，以及把 byte[] 数组和 ByteBuffer 当成是不同原始类型的数组来访问。</p>
+<p>在代码清单 10 中，我们创建了访问 HandleTarget 类中的域 count 的变量句柄，并在其上进行读取操作。</p>
+<p>清单 10.变量句柄使用示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HandleTarget</span> </span>&#123; </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> count = <span class="number">1</span>; </span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VarHandleTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> HandleTarget handleTarget = <span class="keyword">new</span> HandleTarget(); </span><br><span class="line">    <span class="keyword">private</span> VarHandle varHandle; </span><br><span class="line">    <span class="meta">@Before</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUp</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.handleTarget = <span class="keyword">new</span> HandleTarget(); </span><br><span class="line">        <span class="keyword">this</span>.varHandle = MethodHandles </span><br><span class="line">            .lookup() </span><br><span class="line">            .findVarHandle(HandleTarget.class, <span class="string">"count"</span>, <span class="keyword">int</span>.class); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="meta">@Test</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testGet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        assertEquals(<span class="number">1</span>, <span class="keyword">this</span>.varHandle.get(<span class="keyword">this</span>.handleTarget)); </span><br><span class="line">        assertEquals(<span class="number">1</span>, <span class="keyword">this</span>.varHandle.getVolatile(<span class="keyword">this</span>.handleTarget)); </span><br><span class="line">        assertEquals(<span class="number">1</span>, <span class="keyword">this</span>.varHandle.getOpaque(<span class="keyword">this</span>.handleTarget)); </span><br><span class="line">        assertEquals(<span class="number">1</span>, <span class="keyword">this</span>.varHandle.getAcquire(<span class="keyword">this</span>.handleTarget)); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="改进方法句柄（Method-Handle）"><a href="#改进方法句柄（Method-Handle）" class="headerlink" title="改进方法句柄（Method Handle）"></a>改进方法句柄（Method Handle）</h2><p>类 java.lang.invoke.MethodHandles 增加了更多的静态方法来创建不同类型的方法句柄。</p>
+<ul>
+<li>arrayConstructor：创建指定类型的数组。</li>
+<li>arrayLength：获取指定类型的数组的大小。</li>
+<li>varHandleInvoker 和 varHandleExactInvoker：调用 VarHandle 中的访问模式方法。</li>
+<li>zero：返回一个类型的默认值。</li>
+<li>empty：返回 MethodType 的返回值类型的默认值。</li>
+<li>loop、countedLoop、iteratedLoop、whileLoop 和 doWhileLoop：创建不同类型的循环，包括 for 循环、while 循环和 do-while 循环。</li>
+<li>tryFinally：把对方法句柄的调用封装在 try-finally 语句中。<br>在代码清单 11 中，我们使用 iteratedLoop 来创建一个遍历 String 类型迭代器的方法句柄，并计算所有字符串的长度的总和。</li>
+</ul>
+<p>清单 11. 循环方法句柄使用示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IteratedLoopTest</span> </span>&#123; </span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">body</span><span class="params">(<span class="keyword">final</span> <span class="keyword">int</span> sum, <span class="keyword">final</span> String value)</span> </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> sum + value.length(); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="meta">@Test</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testIteratedLoop</span><span class="params">()</span> <span class="keyword">throws</span> Throwable </span>&#123; </span><br><span class="line">        <span class="keyword">final</span> MethodHandle iterator = MethodHandles.constant( </span><br><span class="line">            Iterator.class, </span><br><span class="line">            List.of(<span class="string">"a"</span>, <span class="string">"bc"</span>, <span class="string">"def"</span>).iterator()); </span><br><span class="line">        <span class="keyword">final</span> MethodHandle init = MethodHandles.zero(<span class="keyword">int</span>.class); </span><br><span class="line">        <span class="keyword">final</span> MethodHandle body = MethodHandles </span><br><span class="line">            .lookup() </span><br><span class="line">            .findStatic( </span><br><span class="line">                IteratedLoopTest.class, </span><br><span class="line">                <span class="string">"body"</span>, </span><br><span class="line">                MethodType.methodType( </span><br><span class="line">                    <span class="keyword">int</span>.class, </span><br><span class="line">                    <span class="keyword">int</span>.class, </span><br><span class="line">                    String.class)); </span><br><span class="line">        <span class="keyword">final</span> MethodHandle iteratedLoop = MethodHandles </span><br><span class="line">            .iteratedLoop(iterator, init, body); </span><br><span class="line">        assertEquals(<span class="number">6</span>, iteratedLoop.invoke()); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h2><p>在并发方面，类 CompletableFuture 中增加了几个新的方法。completeAsync 使用一个异步任务来获取结果并完成该 CompletableFuture。orTimeout 在 CompletableFuture 没有在给定的超时时间之前完成，使用 TimeoutException 异常来完成 CompletableFuture。completeOnTimeout 与 orTimeout 类似，只不过它在超时时使用给定的值来完成 CompletableFuture。新的 Thread.onSpinWait 方法在当前线程需要使用忙循环来等待时，可以提高等待的效率。</p>
+<h2 id="Nashorn"><a href="#Nashorn" class="headerlink" title="Nashorn"></a>Nashorn</h2><p>Nashorn 是 Java8 中引入的新的 JavaScript 引擎。Java9 中的 Nashorn 已经实现了一些 ECMAScript6 规范中的新特性，包括模板字符串、二进制和八进制字面量、迭代器和 for..of 循环和箭头函数等。Nashorn 还提供了 API 把 ECMAScript 源代码解析成抽象语法树（Abstract Syntax Tree，AST），可以用来对 ECMAScript 源代码进行分析。</p>
+<h2 id="I-O-流新特性"><a href="#I-O-流新特性" class="headerlink" title="I/O 流新特性"></a>I/O 流新特性</h2><p>类 java.io.InputStream 中增加了新的方法来读取和复制 InputStream 中包含的数据。</p>
+<p>readAllBytes：读取 InputStream 中的所有剩余字节。<br>readNBytes：从 InputStream 中读取指定数量的字节到数组中。<br>transferTo：读取 InputStream 中的全部字节并写入到指定的 OutputStream 中。<br>代码清单 12 中给出了这些新方法的使用示例。</p>
+<p>清单 12.InputStream 中的新方法使用示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestInputStream</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> InputStream inputStream; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CONTENT = <span class="string">"Hello World"</span>; </span><br><span class="line">    <span class="meta">@Before</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUp</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        <span class="keyword">this</span>.inputStream = </span><br><span class="line">            TestInputStream.class.getResourceAsStream(<span class="string">"/input.txt"</span>); </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Test</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testReadAllBytes</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        <span class="keyword">final</span> String content = <span class="keyword">new</span> String(<span class="keyword">this</span>.inputStream.readAllBytes()); </span><br><span class="line">        assertEquals(CONTENT, content); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="meta">@Test</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testReadNBytes</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">byte</span>[] data = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">5</span>]; </span><br><span class="line">        <span class="keyword">this</span>.inputStream.readNBytes(data, <span class="number">0</span>, <span class="number">5</span>); </span><br><span class="line">        assertEquals(<span class="string">"Hello"</span>, <span class="keyword">new</span> String(data)); </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="meta">@Test</span> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testTransferTo</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123; </span><br><span class="line">        <span class="keyword">final</span> ByteArrayOutputStream outputStream = <span class="keyword">new</span> ByteArrayOutputStream(); </span><br><span class="line">        <span class="keyword">this</span>.inputStream.transferTo(outputStream); </span><br><span class="line">        assertEquals(CONTENT, outputStream.toString()); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ObjectInputFilter 可以对 ObjectInputStream 中包含的内容进行检查，来确保其中包含的数据是合法的。可以使用 ObjectInputStream 的方法 setObjectInputFilter 来设置。ObjectInputFilter 在进行检查时，可以检查如对象图的最大深度、对象引用的最大数量、输入流中的最大字节数和数组的最大长度等限制，也可以对包含的类的名称进行限制。</p>
+<h2 id="改进应用安全性能"><a href="#改进应用安全性能" class="headerlink" title="改进应用安全性能"></a>改进应用安全性能</h2><p>Java9 新增了 4 个 SHA-3 哈希算法，SHA3-224、SHA3-256、SHA3-384 和 SHA3-512。另外也增加了通过 java.security.SecureRandom 生成使用 DRBG 算法的强随机数。代码清单 13 中给出了 SHA-3 哈希算法的使用示例。</p>
+<p>清单 13.SHA-3 哈希算法使用示例：<br>import org.apache.commons.codec.binary.Hex;<br>public class SHA3 {<br>    public static void main(final String[] args) throws NoSuchAlgorithmException {<br>        final MessageDigest instance = MessageDigest.getInstance(“SHA3-224”);<br>        final byte[] digest = instance.digest(“”.getBytes());<br>        System.out.println(Hex.encodeHexString(digest));<br>    }<br>}</p>
+<h2 id="用户界面"><a href="#用户界面" class="headerlink" title="用户界面"></a>用户界面</h2><p>类 java.awt.Desktop 增加了新的与桌面进行互动的能力。可以使用 addAppEventListener 方法来添加不同应用事件的监听器，包括应用变为前台应用、应用隐藏或显示、屏幕和系统进入休眠与唤醒、以及用户会话的开始和终止等。还可以在显示关于窗口和配置窗口时，添加自定义的逻辑。在用户要求退出应用时，可以通过自定义处理器来接受或拒绝退出请求。在 AWT 图像支持方面，可以在应用中使用多分辨率图像。</p>
+<h2 id="统一-JVM-日志"><a href="#统一-JVM-日志" class="headerlink" title="统一 JVM 日志"></a>统一 JVM 日志</h2><p>Java9 中，JVM 有了统一的日志记录系统，可以使用新的命令行选项-Xlog 来控制 JVM 上所有组件的日志记录。该日志记录系统可以设置输出的日志消息的标签、级别、修饰符和输出目标等。Java9 移除了在 Java8 中被废弃的垃圾回收器配置组合，同时把 G1 设为默认的垃圾回收器实现。另外，CMS 垃圾回收器已经被声明为废弃。Java9 也增加了很多可以通过 jcmd 调用的诊断命令。</p>
+<h2 id="其他改动方面"><a href="#其他改动方面" class="headerlink" title="其他改动方面"></a>其他改动方面</h2><p>在 Java 语言本身，Java9 允许在接口中使用私有方法。在 try-with-resources 语句中可以使用 effectively-final 变量。类 java.lang.StackWalker 可以对线程的堆栈进行遍历，并且支持过滤和延迟访问。Java9 把对 Unicode 的支持升级到了 8.0。ResourceBundle 加载属性文件的默认编码从 ISO-8859-1 改成了 UTF-8，不再需要使用 native2ascii 命令来对属性文件进行额外处理。注解@Deprecated 也得到了增强，增加了 since 和 forRemoval 两个属性，可以分别指定一个程序元素被废弃的版本，以及是否会在今后的版本中被删除。</p>
+<p>在代码清单 14 中，buildMessage 是接口 SayHi 中的私有方法，在默认方法 sayHi 中被使用。</p>
+<p>清单 14.接口中私有方法的示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">SayHi</span> </span>&#123; </span><br><span class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">buildMessage</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        <span class="keyword">return</span> <span class="string">"Hello"</span>; </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHi</span><span class="params">(<span class="keyword">final</span> String message)</span></span>; </span><br><span class="line">    <span class="function"><span class="keyword">default</span> <span class="keyword">void</span> <span class="title">sayHi</span><span class="params">()</span> </span>&#123; </span><br><span class="line">        sayHi(buildMessage()); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>作为 Java 平台最新的一个重大更新，Java9 中的很多新特性，尤其模块系统，对于 Java 应用的开发会产生深远的影响。本文对 Java9 中的新特性做了概括的介绍，可以作为了解 Java9 的基础。这些新特性的相关内容，可以通过官方文档来进一步的了解。</p>
+<h2 id="参考资源-resources"><a href="#参考资源-resources" class="headerlink" title="参考资源 (resources)"></a>参考资源 (resources)</h2><ul>
+<li>参考<a href="https://docs.oracle.com/javase/9/" target="_blank" rel="noopener">Java9 官方文档 </a>，了解 Java9 的更多内容。</li>
+<li>参考<a href="https://docs.oracle.com/javase/9/docs/api/overview-summary.html" target="_blank" rel="noopener">Java9 官方 Java 文档 </a>，了解 Java API 的细节。</li>
+<li>了解<a href="http://www.reactive-streams.org/" target="_blank" rel="noopener">反应式流规范 </a> 的更多内容。</li>
+</ul>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2018/04/11/Java9 新特性概述/" title="Java9 新特性概述" target="_blank" rel="external">http://yoursite.com/2018/04/11/Java9 新特性概述/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2018/05/08/idea 常用快捷键备忘/" title="idea 常用快捷键备忘"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2018/03/30/Centos7 下使用 systemd 管理服务/" title="Centos7 下使用 systemd 管理服务"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!--
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+-->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

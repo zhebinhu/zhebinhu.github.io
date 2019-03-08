@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        InnoDB 中的锁和 MVCC |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+<meta name="keywords" content="MySQL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB 中的锁和 MVCC">
+<meta property="og:url" content="http://yoursite.com/2019/01/27/InnoDB 中的锁和 MVCC/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/undo%20log.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合一.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合二.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合三.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合四.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合七.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/组合八.jpg">
+<meta property="og:updated_time" content="2019-03-08T14:07:16.288Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="InnoDB 中的锁和 MVCC">
+<meta name="twitter:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/27/InnoDB%20中的锁和%20MVCC/undo%20log.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/01/27/InnoDB 中的锁和 MVCC/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+    
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/04/Spring 源码浅析——创建单例 bean 对象/" class="title">Spring 源码浅析——创建单例 bean 对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/03/Spring 源码浅析——容器刷新流程概览/" class="title">Spring 源码浅析——容器刷新流程概览</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished">2019-03-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/23/Redis 高可用和分布式/" class="title">Redis 高可用和分布式</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/21/CMS-G1 和 ZGC/" class="title">CMS,G1 和 ZGC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/12/Redis 事件、事务和 pipeline/" class="title">Redis 事件、事务和 pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#锁"><span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、表锁"><span class="toc-text">1、表锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、行级锁"><span class="toc-text">2、行级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、意向锁"><span class="toc-text">3、意向锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC"><span class="toc-text">MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#read-view"><span class="toc-text">read view</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next-key-解决幻读问题"><span class="toc-text">next-key 解决幻读问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#innodb-加锁处理分析"><span class="toc-text">innodb 加锁处理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条简单-SQL-的加锁实现分析"><span class="toc-text">一条简单 SQL 的加锁实现分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-1：id-列是主键，RC-隔离级别"><span class="toc-text">组合 1：id 列是主键，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-2：id-列是二级唯一索引，RC-隔离级别"><span class="toc-text">组合 2：id 列是二级唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-3：id-列是二级非唯一索引，RC-隔离级别"><span class="toc-text">组合 3：id 列是二级非唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-4：id-列上没有索引，RC-隔离级别"><span class="toc-text">组合 4：id 列上没有索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-5：id-列是主键，RR-隔离级别"><span class="toc-text">组合 5：id 列是主键，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-6：id-列是二级唯一索引，RR-隔离级别"><span class="toc-text">组合 6：id 列是二级唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-7：id-列是二级非唯一索引，RR-隔离级别"><span class="toc-text">组合 7：id 列是二级非唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-8：id-列上没有索引，RR-隔离级别"><span class="toc-text">组合 8：id 列上没有索引，RR 隔离级别</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-InnoDB 中的锁和 MVCC" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      InnoDB 中的锁和 MVCC
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/01/27/InnoDB 中的锁和 MVCC/" class="article-date">
+	  <time datetime="2019-01-27T13:20:11.000Z" itemprop="datePublished">2019-01-27</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/MySQL/">MySQL</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/01/27/InnoDB 中的锁和 MVCC/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。</p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
+<h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>顾名思义，行级锁锁定的是某一行数据。InnoDB 中的所有数据项都保存在聚簇索引中，所以行级锁实质上锁住的是索引项。如果表中有多个索引存在，一行数据会对应到多个索引项，此时行级锁会锁住所有索引上的相应索引项。</p>
+<p>行级锁分为共享锁（S 锁）和排他锁（X 锁）。S 锁和 S 锁可以兼容；S 锁和 X 锁，X 锁和 X 锁不能兼容。（InnoDB 存储引擎默认采用行级锁，所以下文如无指明，S 锁和 X 锁均指行锁）</p>
+<h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>在没有引入意向锁之前，行级锁和表锁之间的兼容有点麻烦：如果要对一张表加 X 表锁，那么首先要判断这张表是否加了 X 表锁和 S 表锁，其次要判断每一行是否加了 X 锁和 S 锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此 InnoDB 引入了意向锁。</p>
+<p>和行锁一样，意向锁也分为意向共享锁（IS 锁）和意向排他锁（IX 锁）。事务在申请 S 或 X 锁之前，必须先申请到 IS 或 IX 锁。InnoDB 中的意向锁是一种特殊的表锁：意向锁之间互不冲突，意向锁和表锁之间会冲突，此时意向锁相当于同类型的表锁。</p>
+<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC 是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。InnoDB 利用 undo log 实现了 MVCC。undo log 的数据结构如图所示：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/undo log.png"></p>
+<p>前四行是数据列，后三列是隐藏列。隐藏列的含义如下：</p>
+<ul>
+<li>DB_ROW_ID：行 ID。占 7 字节，他就项自增主键一样随着插入新数据自增。如果表中不存主键或者唯一索引，那么数据库就会采用 DB_ROW_ID 生成聚簇索引。否则 DB_ROW_ID 不会出现在索引中。</li>
+<li>DB_TRX_ID：事务 ID。占 6 字节，表示这一行数据最后插入或修改的事务 id。此外删除在内部也被当作一次更新，在行的特殊位置添加一个删除标记（记录头信息有一个字节存储是否删除的标记）。</li>
+<li>DB_ROLL_PTR：回滚指针。占 7 字节，每次对数据进行更新操作时，都会 copy 当前数据，保存到 undo log 中。并修改当前行的回滚指针指向 undo log 中的旧数据行。</li>
+</ul>
+<p>MVCC 只有在隔离级别是 READ COMMITED 和 REPEATABLE READ 两个隔离级别下工作。MVCC 可以通过比较数据行的事务 ID 和当前事务 ID 来判断该记录是否对当前事务可见。但仅有 undo log 还不够。试想这样一种情况：事务 599 开始——事务 600 开始——事务 600 查询了表 A——事务 599 更新了表 A——事务 599 提交——事务 600 再次查询表 A。可知事务 600 的两次查询会得到不同的结果，无法满足 RR 隔离级别的要求。这是因为事务 599 的事务 ID 虽然比事务 600 小，但事务 599 还未结束，仍有可能改变数据项的值。</p>
+<h3 id="read-view"><a href="#read-view" class="headerlink" title="read view"></a>read view</h3><p>InnoDB 使用了 read view 解决了这个问题。read view 是一张表，记录了当前活跃的事务 ID。InnoDB 在查询时会先对比数据行的事务 ID 和 read view 中的事务 ID。具体如下：</p>
+<ul>
+<li>如果数据行事务 ID 大于 read view 中最大的 ID，表示数据行一定是在当前事务之后修改的，对当前事务不可见；</li>
+<li>如果数据行事务 ID 小于 read view 中最小的 ID，表示数据行一定是在当前事务开始之前修改并且已提交，所以对当前事务可见。</li>
+<li>如果数据行事务 ID 落在 read view 最大最小 ID 的区间中，则要判断数据行事务 ID 和当前事务 ID 的关系：<ul>
+<li>如果数据行事务 ID 不在活跃事务数组中，表示该事务已提交，此时和当前事务 ID 比较，若小于则可见，大于则不可见；</li>
+<li>如果数据行事务 ID 在活跃事务数组中，表示该事务未提交，这里要判断一下数据行事务 ID 是否为当前事务 ID，若是，虽然未提交但同一事务内的修改可见，若不是，则不可见。</li>
+</ul>
+</li>
+</ul>
+<p>当前数据行若是不可见，InnoDB 会沿着 DB_ROLL_PTR 往下查找，直到找到第一个可见的数据行或者 null。</p>
+<p>可见与否只是第一步，实际返回的数据还要经过判断。因为删除和更新共用一个字段，区别只是删除有一个字节的删除标记，那么在返回的时候 InnoDB 就要判断当前的数据行是否被标记为删除。如果标记了删除，就不会返回。</p>
+<p>MVCC 在 READ COMMITED 和 REPEATABLE READ 两个隔离级别下共用一套逻辑，区别只是在于<strong>RC 隔离级别是在读操作开始时刻创建 read view 的，而 RR 隔离级别是在事务开始时刻，确切地说是第一个读操作创建 read view 的。</strong>由于这一点上的不同，使得 MVCC 在 RC 隔离级别下读取的是最新提交的数据，而 RR 隔离级别下读取的是事务开始前提交的数据。</p>
+<h2 id="next-key-解决幻读问题"><a href="#next-key-解决幻读问题" class="headerlink" title="next-key 解决幻读问题"></a>next-key 解决幻读问题</h2><p>幻读是指一个事务内连续进行两次相同的 SQL 语句可能导致不同的结果，第二次的 SQL 语句可能会返回之前不存在的行。发生这种现象的原因是事务 A 两次查找的间隔中事务 B 插入了一条或多条数据并提交，导致事务 A 的第二次查询查到了新插入的数据。</p>
+<p>InnoDB 中有三种锁算法：</p>
+<ul>
+<li>Record Lock：单个行记录上的锁</li>
+<li>Gap Lock：间隙锁，锁住一个范围，但不包含记录本身</li>
+<li>Next-Key Lock：Record Lock+Gap Lock，锁定一个范围，并且锁定记录本身</li>
+</ul>
+<p>幻读现象问题的根本原因是 Record Lock 只锁住记录本身而不锁范围，导致其它事务可以在记录间插入数据。InnoDB 使用了 Next-Key Lock 来解决这个问题。Next-Key Lock 会锁住一个范围，例如一个索引有 10,11,13,20 这四个值，那么该索引可能被 Next-Key Locking 的区间为：<br>(-∞,10]<br>(10,11]<br>(11,13]<br>(13,20]<br>(20,+∞)</p>
+<p>当然，如果查询的索引是唯一索引的话，就不用担心被插入的问题，InnoDB 会对 Next-Key Lock 进行优化，将其降级为 Record Lock。</p>
+<h2 id="innodb-加锁处理分析"><a href="#innodb-加锁处理分析" class="headerlink" title="innodb 加锁处理分析"></a>innodb 加锁处理分析</h2><p>以上是理论部分，那么实际 innodb 怎么加锁呢？我们结合 SQL 语句来分析。</p>
+<p>在支持 MVCC 并发控制的系统中，读操作可以分成两类：快照读 (snapshot read) 与当前读 (current read)。快照读，读取的是记录的可见版本 (有可能是历史版本)，不用加锁。当前读，读取的是记录的最新版本，并且，当前读返回的记录，都会加上锁，保证其他事务不会再并发修改这条记录。</p>
+<ul>
+<li>快照读：<ul>
+<li>select * from table where ?;</li>
+</ul>
+</li>
+<li>当前读：<ul>
+<li>select * from table where ? lock in share mode;</li>
+<li>select * from table where ? for update;</li>
+<li>insert into table values (…);</li>
+<li>update table set ? where ?;</li>
+<li>delete from table where ?;</li>
+</ul>
+</li>
+</ul>
+<p>简而言之，所有的插入/更新/删除操作都是当前读，且都加了 X 锁；读取操作默认是快照读，但可以声明加 X 锁或者 S 锁。</p>
+<h3 id="一条简单-SQL-的加锁实现分析"><a href="#一条简单-SQL-的加锁实现分析" class="headerlink" title="一条简单 SQL 的加锁实现分析"></a>一条简单 SQL 的加锁实现分析</h3><p>我们拿一条 SQL 语句：delete from t1 where id = 10; 来分析 innodb 的加锁情况。但光有这一条 SQL 是不够的，我们还需要知道一些前提：</p>
+<ul>
+<li>前提 1：id 列是不是主键？</li>
+<li>前提 2：当前系统的隔离级别是什么？</li>
+<li>前提 3：如果 id 列不是主键，那么 id 列上有索引吗？</li>
+<li>前提 4：如果 id 列上有二级索引，那么这个索引是唯一索引吗？</li>
+</ul>
+<p>基于这些前提的不同，我们可以组合出以下几种情况（隔离级别只考虑 RC 和 RR 的情况）：</p>
+<ul>
+<li>组合 1：id 列是主键，RC 隔离级别</li>
+<li>组合 2：id 列是二级唯一索引，RC 隔离级别</li>
+<li>组合 3：id 列是二级非唯一索引，RC 隔离级别</li>
+<li>组合 4：id 列上没有索引，RC 隔离级别</li>
+<li>组合 5：id 列是主键，RR 隔离级别</li>
+<li>组合 6：id 列是二级唯一索引，RR 隔离级别</li>
+<li>组合 7：id 列是二级非唯一索引，RR 隔离级别</li>
+<li>组合 8：id 列上没有索引，RR 隔离级别</li>
+</ul>
+<h3 id="组合-1：id-列是主键，RC-隔离级别"><a href="#组合-1：id-列是主键，RC-隔离级别" class="headerlink" title="组合 1：id 列是主键，RC 隔离级别"></a>组合 1：id 列是主键，RC 隔离级别</h3><p>这个组合，是最简单，最容易分析的组合。id 是主键，Read Committed 隔离级别，给定 SQL：delete from t1 where id = 10; 只需要将主键上，id = 10 的记录加上 X 锁即可。如下图所示：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合一.jpg"></p>
+<p>id 是主键时，此 SQL 只需要在 id=10 这条记录上加 X 锁即可。</p>
+<h3 id="组合-2：id-列是二级唯一索引，RC-隔离级别"><a href="#组合-2：id-列是二级唯一索引，RC-隔离级别" class="headerlink" title="组合 2：id 列是二级唯一索引，RC 隔离级别"></a>组合 2：id 列是二级唯一索引，RC 隔离级别</h3><p>这个组合，id 不是主键，而是一个 unique 的二级索引键值。那么在 RC 隔离级别下，delete from t1 where id = 10; 需要加什么锁呢？见下图：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合二.jpg"></p>
+<p>此组合中，id 是 unique 索引，而主键是 name 列。此时，加锁的情况由于组合一有所不同。由于 id 是 unique 索引，因此 delete 语句会选择走 id 列的索引进行 where 条件的过滤，在找到 id=10 的记录后，首先会将 unique 索引上的 id=10 索引记录加上 X 锁，同时，会根据读取到的 name 列，回主键索引 (聚簇索引)，然后将聚簇索引上的 name = ‘d’ 对应的主键索引项加 X 锁。为什么聚簇索引上的记录也要加锁？试想一下，如果并发的一个 SQL，是通过主键索引来更新：update t1 set id = 100 where name = ‘d’; 此时，如果 delete 语句没有将主键索引上的记录加锁，那么并发的 update 就会感知不到 delete 语句的存在，违背了同一记录上的更新/删除需要串行执行的约束。</p>
+<h3 id="组合-3：id-列是二级非唯一索引，RC-隔离级别"><a href="#组合-3：id-列是二级非唯一索引，RC-隔离级别" class="headerlink" title="组合 3：id 列是二级非唯一索引，RC 隔离级别"></a>组合 3：id 列是二级非唯一索引，RC 隔离级别</h3><p>相对于组合一、二，组合三又发生了变化，隔离级别仍旧是 RC 不变，但是 id 列上的约束又降低了，id 列不再唯一，只有一个普通的索引。假设 delete from t1 where id = 10; 语句，仍旧选择 id 列上的索引进行过滤 where 条件，那么此时会持有哪些锁？同样见下图：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合三.jpg"></p>
+<p>可以看到，首先，id 列索引上，满足 id = 10 查询条件的记录，均已加锁。同时，这些记录对应的主键索引上的记录也都加上了锁。与组合二唯一的区别在于，组合二最多只有一个满足等值查询的记录，而组合三会将所有满足查询条件的记录都加锁。</p>
+<h3 id="组合-4：id-列上没有索引，RC-隔离级别"><a href="#组合-4：id-列上没有索引，RC-隔离级别" class="headerlink" title="组合 4：id 列上没有索引，RC 隔离级别"></a>组合 4：id 列上没有索引，RC 隔离级别</h3><p>相对于前面三个组合，这是一个比较特殊的情况。id 列上没有索引，where id = 10;这个过滤条件，没法通过索引进行过滤，那么只能走全表扫描做过滤。对应于这个组合，SQL 会加什么锁？或者是换句话说，全表扫描时，会加什么锁？这个答案也有很多：有人说会在表上加 X 锁；有人说会将聚簇索引上，选择出来的 id = 10;的记录加上 X 锁。那么实际情况呢？请看下图：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合四.jpg"></p>
+<p>由于 id 列上没有索引，因此只能走聚簇索引，进行全部扫描。从图中可以看到，满足删除条件的记录有两条，但是，聚簇索引上所有的记录，都被加上了 X 锁。无论记录是否满足条件，全部被加上 X 锁。既不是加表锁，也不是在满足条件的记录上加行锁。</p>
+<p>有人可能会问？为什么不是只在满足条件的记录上加锁呢？这是由于 MySQL 的实现决定的。如果一个条件无法通过索引快速过滤，那么存储引擎层面就会将所有记录加锁后返回，然后由 MySQL Server 层进行过滤。因此也就把所有的记录，都锁上了。</p>
+<h3 id="组合-5：id-列是主键，RR-隔离级别"><a href="#组合-5：id-列是主键，RR-隔离级别" class="headerlink" title="组合 5：id 列是主键，RR 隔离级别"></a>组合 5：id 列是主键，RR 隔离级别</h3><p>上面的四个组合，都是在 Read Committed 隔离级别下的加锁行为，接下来的四个组合，是在 Repeatable Read 隔离级别下的加锁行为。</p>
+<p>组合五，id 列是主键列，Repeatable Read 隔离级别，针对 delete from t1 where id = 10; 这条 SQL，加锁与组合一：[id 主键，Read Committed] 一致。</p>
+<h3 id="组合-6：id-列是二级唯一索引，RR-隔离级别"><a href="#组合-6：id-列是二级唯一索引，RR-隔离级别" class="headerlink" title="组合 6：id 列是二级唯一索引，RR 隔离级别"></a>组合 6：id 列是二级唯一索引，RR 隔离级别</h3><p>与组合五类似，组合六的加锁，与组合二：[id 唯一索引，Read Committed] 一致。两个 X 锁，id 唯一索引满足条件的记录上一个，对应的聚簇索引上的记录一个。</p>
+<h3 id="组合-7：id-列是二级非唯一索引，RR-隔离级别"><a href="#组合-7：id-列是二级非唯一索引，RR-隔离级别" class="headerlink" title="组合 7：id 列是二级非唯一索引，RR 隔离级别"></a>组合 7：id 列是二级非唯一索引，RR 隔离级别</h3><p>组合七，Repeatable Read 隔离级别，id 上有一个非唯一索引，执行 delete from t1 where id = 10; 假设选择 id 列上的索引进行条件过滤，最后的加锁行为，是怎么样的呢？同样看下面这幅图：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合七.jpg"></p>
+<p>此图，相对于组合三多了一个 GAP 锁，这是因为 RR 级别区别于 RC 级别的一点是 RR 级别要防止幻读。我们在前一节讲过 innodb 基于 Next-Lock 防止幻读，而 Next-Lock 就是 GAP Lock+Record Lock。加在索引上的是 Record Lock，而在中间的就是 GAP Lock。</p>
+<p>那么为什么组合五、组合六，也是 RR 隔离级别，却不需要加 GAP 锁呢？这是因为组合五，id 是主键；组合六，id 是 unique 键，都能够保证唯一性。一个等值查询，最多只能返回一条记录，而且新的相同取值的记录，一定不会再新插入进来，因此也就避免了 GAP 锁的使用。</p>
+<h3 id="组合-8：id-列上没有索引，RR-隔离级别"><a href="#组合-8：id-列上没有索引，RR-隔离级别" class="headerlink" title="组合 8：id 列上没有索引，RR 隔离级别"></a>组合 8：id 列上没有索引，RR 隔离级别</h3><p>组合八，Repeatable Read 隔离级别下的最后一种情况，id 列上没有索引。此时 SQL：delete from t1 where id = 10; 没有其他的路径可以选择，只能进行全表扫描。最终的加锁情况，如下图所示：</p>
+<p><img src="/2019/01/27/InnoDB 中的锁和 MVCC/组合八.jpg"></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/01/27/InnoDB 中的锁和 MVCC/" title="InnoDB 中的锁和 MVCC" target="_blank" rel="external">http://yoursite.com/2019/01/27/InnoDB 中的锁和 MVCC/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/02/01/HTTP2-0 和 QUIC/" title="HTTP2.0 和 QUIC"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/01/23/TCP 协议回顾/" title="TCP 协议回顾"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!--
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+-->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

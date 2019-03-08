@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Redis 高可用和分布式 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
+<meta name="keywords" content="Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 高可用和分布式">
+<meta property="og:url" content="http://yoursite.com/2019/02/23/Redis 高可用和分布式/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/02/23/Redis%20高可用和分布式/哨兵%201.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/23/Redis%20高可用和分布式/哨兵%202.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/23/Redis%20高可用和分布式/集群-握手.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/23/Redis%20高可用和分布式/集群-主从.png">
+<meta property="og:updated_time" content="2019-03-08T14:13:37.716Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis 高可用和分布式">
+<meta name="twitter:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/23/Redis%20高可用和分布式/哨兵%201.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/02/23/Redis 高可用和分布式/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.css">
+    
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/04/Spring 源码浅析——创建单例 bean 对象/" class="title">Spring 源码浅析——创建单例 bean 对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/03/Spring 源码浅析——容器刷新流程概览/" class="title">Spring 源码浅析——容器刷新流程概览</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished">2019-03-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/23/Redis 高可用和分布式/" class="title">Redis 高可用和分布式</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/21/CMS-G1 和 ZGC/" class="title">CMS,G1 和 ZGC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/12/Redis 事件、事务和 pipeline/" class="title">Redis 事件、事务和 pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、主从复制"><span class="toc-text">一、主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步"><span class="toc-text">同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步"><span class="toc-text">部分重同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令传播"><span class="toc-text">命令传播</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Sentinel（哨兵）"><span class="toc-text">二、Sentinel（哨兵）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、集群"><span class="toc-text">三、集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#故障转移"><span class="toc-text">故障转移</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Redis 高可用和分布式" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Redis 高可用和分布式
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/02/23/Redis 高可用和分布式/" class="article-date">
+	  <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Redis/">Redis</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/02/23/Redis 高可用和分布式/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。</p>
+<h2 id="一、主从复制"><a href="#一、主从复制" class="headerlink" title="一、主从复制"></a>一、主从复制</h2><p>主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。</p>
+<p>Redis 的复制功能分为同步和命令传播两个操作，同步操作用于将从服务器的状态更新至主服务器当前的状态；命令传播操作用于在主服务状态被修改时，让主从状态重新保持一致。</p>
+<h3 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h3><p>可以通过使用<code>SLAVEOF &lt;host&gt; &lt;port&gt;</code>命令来让一个服务器成为另一个服务器的从服务器。此时从服务器会自动向主服务器发送 SYNC 的命令进行同步操作，步骤如下：</p>
+<ul>
+<li>1）主服务器收到 SYNC 命令后执行 BGSAVE 命令，在后台生成一个 RDB 快照文件，并用一个缓冲区记录从现在开始执行的所有写命令。</li>
+<li>2）从服务器从主服务器接收到 RDB 文件后，丢弃所有旧数据，载入主服务器发来的快照文件。</li>
+<li>3）主服务器把记录在缓冲区的命令发送给从服务器，从服务器执行这些命令，同步完成。</li>
+</ul>
+<p>但是这种同步方式会带来一个断线后重复值效率低的问题：如果从服务器短暂掉线后重连主服务器，主从之间不得不重新同步所有数据，这是没有必要的，因为从服务器仍然保留了大部分数据。Redis 2.8 推出了部分重同步的方式解决了这个问题。</p>
+<h3 id="部分重同步"><a href="#部分重同步" class="headerlink" title="部分重同步"></a>部分重同步</h3><p>部分重同步用于处理断线后复制的情况。Redis 部分重同步的实现由以下三个部分构成：</p>
+<ul>
+<li>主服务器和从服务器的复制偏移量：复制偏移量表示当前从服务器从主服务器中接收了多少字节的数据。</li>
+<li>主服务器的复制积压缓冲区：复制积压缓冲区以 FIFO 的形式保存了最近的写命令。</li>
+<li>服务器运行 id：用于标识服务器</li>
+</ul>
+<p>当从服务器断线重连之后，会向主服务器发送一个<code>PSYNC &lt;runid&gt; &lt;offset&gt;</code>的命令，offset 即当前从服务器的复制偏移量，runid 是从服务器记录的掉线之前的主服务器 id。主服务器在收到 PSYNC 后，会首先对比自己的 runid 和传过来的 runid 是否一致，如果一致，说明这台从服务器之前和自己同步过数据，然后根据 offset 的差值把复制积压缓冲区的数据同步给从服务器。这样就实现了增量更新。</p>
+<h3 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h3><p>在同步完成之后，主从服务器就进入了命令传播阶段。在这个阶段，主服务器发生写操作后，会把相应的命令发送给从服务器执行，这样主从之间就保持了数据一致性。</p>
+<p>从服务器也会向主服务器发送命令<code>REPLCONF ACK &lt;replication_offset&gt;</code>，这是一个心跳检测命令，每隔 1 秒就会发一次，它有以下两个作用：</p>
+<ul>
+<li>检测主从服务器的网络连接状态：主服务器会记录从服务器上次心跳检测的时间，如果超过 1 秒，就说明连接出了故障。如果主服务器和大量从服务器之间的连接出了故障，比如有 3 台以上的从服务器超过 10 秒没有心跳检测，则会拒绝执行写命令。</li>
+<li>检测命令丢失：和部分重同步类似，心跳检测也会发送从服务器的当前复制偏移量（replication_offset），主服务器在接收到心跳检测后会检查这个偏移量是否和自己的一致，如果不一致会补发缺失的数据。</li>
+</ul>
+<h2 id="二、Sentinel（哨兵）"><a href="#二、Sentinel（哨兵）" class="headerlink" title="二、Sentinel（哨兵）"></a>二、Sentinel（哨兵）</h2><p>Sentinel（哨兵）是 Redis 高可用的解决方案：由一个或多个 Sentinel 实例组成的 Sentinel 系统可以监视任意多个主服务器以及这些服务器下的所有从服务器。在主服务器进入下线状态时，自动将下线服务器下的某个从服务器升级成主服务器。</p>
+<p><img src="/2019/02/23/Redis 高可用和分布式/哨兵 1.png"></p>
+<p>Sentinel 系统是由 Sentinel 实例组成的，彼此间通过命令连接相互通信：</p>
+<p><img src="/2019/02/23/Redis 高可用和分布式/哨兵 2.png"></p>
+<p>Sentinel 实例会以每秒一次的频率向自己监控的主服务器发送 PING 命令，主服务器会回复该命令，以此来监控主服务器的在线状态。当 Sentinel 实例发送 PING 命令之后等待超过配置指定时间之后，Sentinel 实例会判定该主服务器处于主观下线状态。</p>
+<p>当一个 Sentinel 实例判定自己监控的某个主服务器为主观下线之后，它会询问其它监控该服务器的 Sentinel 实例，当超过配置指定数量的 Sentinel 实例也认为该服务器已下线时，Sentinel 实例会判定该服务器为客观下线。</p>
+<p>当有超过配置指定数量的 Sentinel 实例认为该服务器客观下线之后，监视该服务器的各个 Sentinel 会进行协商，通过 Raft 算法选举出一个领头 Sentinel 对下线主服务器执行故障转移操作。</p>
+<p>故障转移操作包括三个部分：</p>
+<ul>
+<li>1）在已下线主服务器属下的所有从服务器中挑选一个从服务器，将其转换为主服务器。</li>
+<li>2）让其它从服务器改为复制新的主服务器（发送 SLAVEOF 命令）。</li>
+<li>3）将原来的主服务器设置为从服务器。</li>
+</ul>
+<h2 id="三、集群"><a href="#三、集群" class="headerlink" title="三、集群"></a>三、集群</h2><p>Redis 集群是 Redis 提供的分布式数据库方案，集群通过分片的方式进行数据共享，并提供复制和转移功能。</p>
+<p>集群中的节点可以通过向其它节点发送<code>CLUSTER MEET &lt;ip&gt; &lt;port&gt;</code>命令邀请其它节点加入集群。</p>
+<p><img src="/2019/02/23/Redis 高可用和分布式/集群-握手.png"></p>
+<p>集群的整个数据库被分为 16384 个槽，数据库中的每一个键都属于这 16384 个槽中的一个，只有当集群中的每个槽都有节点在处理时，集群才处于上线状态。</p>
+<p>我们可以通过<code>CLUSTER ADDSLOTS [slot...]</code>命令将一个或多个槽指派给节点。每个节点会记录自己和集群中其它节点被指派的槽。</p>
+<p>节点在接到一个命令请求时，会先检查这个命令请求要处理的键所在的槽是否由自己负责，如果不是的话，节点将向客户端返回一个 MOVED 错误，MOVED 错误携带的信息可以指引客户端转向正确的节点。</p>
+<p>除了可以指派槽以外，我们还可以通过 redis-trib 这个软件将槽重新分片。重新分片的关键是将属于某个槽的所有键值对从一个节点转移至另一个节点。</p>
+<p>在重新分片期间，如果客户端向原来的节点请求键 k，而 k 已经被转移到另一个节点时，节点会返回一个 ASK 错误，指引客户端到新的节点。</p>
+<p>MOVED 错误表示槽的负责权已经永远转移了，而 ASK 错误只是两个节点在槽迁移时的临时措施。</p>
+<h3 id="故障转移"><a href="#故障转移" class="headerlink" title="故障转移"></a>故障转移</h3><p>为了集群的高可用，集群中的节点也分主节点和从节点，从节点复制主节点的数据。</p>
+<p><img src="/2019/02/23/Redis 高可用和分布式/集群-主从.png"></p>
+<p>主节点之间通过 PING 消息来互相确认对方的在线状态，如果没有在规定时间内收到对方的 PONG，则会把对方标记为疑似下线状态，并将这个消息告知给集群中的其它主节点。当某个主节点发现集群中有超过半数主节点认为某个主节点疑似下线，它就会把这个主节点标记为下线，并广播给集群中其它的节点（主节点+从节点）。</p>
+<p>当从节点发现自己正在复制的主节点已下线时，会通过 raft 算法选举出新的主节点。选举的候选节点是已下线主节点的所有从节点，投票节点是其它所有主节点。最后一个从节点会被推选为新的主节点，接管由已下线节点负责处理的槽。</p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/02/23/Redis 高可用和分布式/" title="Redis 高可用和分布式" target="_blank" rel="external">http://yoursite.com/2019/02/23/Redis 高可用和分布式/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/03/03/Spring 源码浅析——容器刷新流程概览/" title="Spring 源码浅析——容器刷新流程概览"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/02/21/CMS-G1 和 ZGC/" title="CMS,G1 和 ZGC"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!--
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/zhebinhu" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+-->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
