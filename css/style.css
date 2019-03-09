@@ -5542,7 +5542,7 @@ pre,
 }
 
 code {
-  text-shadow: 0 1px #fff;
+  /*text-shadow: 0 1px #fff;*/
   padding: 0.2em 0.4em;
   margin: 0 0.3em;
   color: #555;
@@ -6079,10 +6079,6 @@ body.no-sidebar .sidebar {
 
 .sidebar-toc.collapse {
   display: none !important;
-}
-
-.sidebar-toc.in {
-  display: block !important;
 }
 
 .tagcloud a {
@@ -7348,6 +7344,9 @@ body.okayNav-loaded {
 
   .donate-box .donate-footer {
     margin: 0 -15px -16px -15px;
+  }
+  .sidebar-toc.in {
+    display: block !important;
   }
 }
 
