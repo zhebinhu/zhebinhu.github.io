@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        TCP 协议回顾 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="本科的时候面向考试学习计算机网络，TCP 是重点中的重点，可惜当时不知道 TCP 在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到 TCP 这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP 协议非常复杂，标准也非常多，但核心内容就以下几个部分：  三次握手 四次挥手 可靠性传输 流量控制 拥塞控制  TCP 协议头要想了解 TCP 协议首先就必须了解 TCP">
+<meta name="keywords" content="计算机网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP 协议回顾">
+<meta property="og:url" content="http://yoursite.com/2019/01/23/TCP协议回顾/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="本科的时候面向考试学习计算机网络，TCP 是重点中的重点，可惜当时不知道 TCP 在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到 TCP 这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP 协议非常复杂，标准也非常多，但核心内容就以下几个部分：  三次握手 四次挥手 可靠性传输 流量控制 拥塞控制  TCP 协议头要想了解 TCP 协议首先就必须了解 TCP">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP%20协议头.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/三次握手.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/四次挥手.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/发送端滑动窗口.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/接收端滑动窗口.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%201.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%202.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%203.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%204.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%205.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%206.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%207.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png">
+<meta property="og:updated_time" content="2019-03-08T14:16:21.899Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TCP 协议回顾">
+<meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP 是重点中的重点，可惜当时不知道 TCP 在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到 TCP 这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP 协议非常复杂，标准也非常多，但核心内容就以下几个部分：  三次握手 四次挥手 可靠性传输 流量控制 拥塞控制  TCP 协议头要想了解 TCP 协议首先就必须了解 TCP">
+<meta name="twitter:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/TCP%20协议头.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/01/23/TCP协议回顾/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/04/Spring源码浅析——创建单例bean对象/" class="title">Spring 源码浅析——创建单例 bean 对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/03/Spring源码浅析——容器刷新流程概览/" class="title">Spring 源码浅析——容器刷新流程概览</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-03T09:08:49.000Z" itemprop="datePublished">2019-03-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 高可用和分布式</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/21/CMS-G1和ZGC/" class="title">CMS,G1 和 ZGC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/12/Redis事件、事务和pipeline/" class="title">Redis 事件、事务和 pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-协议头"><span class="toc-text">TCP 协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-text">拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-TCP协议回顾" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      TCP 协议回顾
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/01/23/TCP协议回顾/" class="article-date">
+	  <time datetime="2019-01-23T13:28:32.000Z" itemprop="datePublished">2019-01-23</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/计算机网络/">计算机网络</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/01/23/TCP协议回顾/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>本科的时候面向考试学习计算机网络，TCP 是重点中的重点，可惜当时不知道 TCP 在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到 TCP 这章，就像看到了一个老朋友。就想把它记录下来，便于复习。</p>
+<p>TCP 协议非常复杂，标准也非常多，但核心内容就以下几个部分：</p>
+<ul>
+<li>三次握手</li>
+<li>四次挥手</li>
+<li>可靠性传输</li>
+<li>流量控制</li>
+<li>拥塞控制</li>
+</ul>
+<h2 id="TCP-协议头"><a href="#TCP-协议头" class="headerlink" title="TCP 协议头"></a>TCP 协议头</h2><p>要想了解 TCP 协议首先就必须了解 TCP 的协议头：<br><img src="/2019/01/23/TCP协议回顾/TCP 协议头.png"></p>
+<p>首先，源端口号和目标端口号是不可少的，这一点和 UDP 是一样的。如果没有这两个端口号。 数据就不知道应该发给哪个应用。</p>
+<p>接下来是包的序号和确认序号。为了保证消息的顺序性到达，TCP 给每个包编了一个序号。初始序号在建立连接时指定，此后每个包的序号为上一个包的序号+上一个包的字节数。服务器会返回一个确认号，表示这个序号之前的包都收到了。</p>
+<p>然后是一些状态位。例如 SYN 是发起一个连接，ACK 是回复，RST 是重新连接，FIN 是结束连接。TCP 是面向连接的，这些带状态位的包可以改变双方的状态。</p>
+<p>窗口大小是跟流量控制有关。TCP 是全双工的协议，通信双方都会维护一个缓存空间。这个窗口大小就是告诉对方我还有多少剩余的缓存空间。</p>
+<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><p>TCP 是面向连接的协议，所以在建立连接前有一系列的动作，被称为三次握手：<br><img src="/2019/01/23/TCP协议回顾/三次握手.png"></p>
+<p>一开始，客户端和服务端都处于 CLOSED 状态。先是服务端主动监听某个端口，处于 LISTEN 状态。然后客户端主动发起连接 SYN，之后处于 SYN-SENT 状态。服务端收到发起的连接，返回 SYN，并且 ACK 客户端的 SYN，之后处于 SYN-RCVD 状态。客户端收到服务端发送的 SYN 和 ACK 之后，发送 ACK 的 ACK，之后处于 ESTABLISHED 状态，因为它一发一收成功了。服务端收到 ACK 的 ACK 之后，处于 ESTABLISHED 状态，因为它也一发一收了。</p>
+<p>三次握手除了双方建立连接外，还要沟通一件事情，就是 TCP 包的序号的问题。</p>
+<p>双方在发送 SYN 包的时候，各自需要指定一个针对这次连接的序号 seq。这个 seq 实质上可以看出一个 32 位的计时器，每 4ms 加一。为什么要这么做呢？主要是为了防止在网络中被延迟的分组在以后被重复传输，而导致某个连接的一端对它作错误的判断。如果序号不按这种方式分配，而是从 1 开始，则会出现这样的情况：AB 建立连接之后，A 发送了 1,2,3 三个包，然后掉线了。由于网络的原因三个包没有到达 B，在网络中游荡。然后 A 重连了，序号重新从 1 开始，他又发送了 1,2 两个包，但没有发送 3 号包。此时上一次连接发送的 3 号包却到达了 B，B 以为是 A 这次发送的，就产生了误判。为了避免这种情况的发生，TCP 协议规定了这种方式生成初始 seq。以这种方式生成的初始 seq，需要 4 个多小时才会重复，此时早已过了 3 号包的生存时间（TTL）。</p>
+<p><strong>为什么要三次握手而不是两次？</strong></p>
+<blockquote>
+<p>原因一：服务器会收到客户端很早以前发送的，但因为延迟导致现在才到达的 SYN 报文。如果不采用三次握手，则服务器会认为新的连接已经建立，会白白浪费缓存等资源。<br>原因二：三次握手需要交流双方的初始序号 seq，服务器发送的第二次握手是针对客户端在第一次握手中约定的客户端初始 seq 的确认，客户端的第三次握手是针对服务器在第二次握手中约定的服务器初始 seq 的确认。如果没有第三次握手，万一服务器的 SYN 包丢了，那么客户端无法得知服务器的初始序号，此时客户端就没法接收服务器的包，因为客户端没法辨别这个包是本次连接中发送的，还是上一次连接中发送的。</p>
+</blockquote>
+<p><strong>SYN 洪泛攻击</strong></p>
+<blockquote>
+<p>因为服务器在收到一个 SYN 报文后，会初始化连接变量和缓存，如果攻击方会发送大量 SYN 报文，而不完成第三次握手，那么就会导致服务器的连接资源被消耗殆尽。<br>针对 SYN 洪泛攻击有一种有效的防御手段，称为<strong>SYN cookie</strong>：当服务器接收到一个 SYN 报文时，它不知道这是来自一个合法的请求还是 SYN 洪泛攻击的一部分。所以它不会为其分配资源，而是将该报文中的源、目的 IP 地址和端口和服务器自己的秘密数做哈希，将（秒级时间（5 位）+最长分段大小（3 位）+哈希（24 位））作为初始 seq 返回给客户端。<br>如果是一个合法用户，会返回一个 ACK 包，服务器可以通过将 ACK 包中的源、目的 IP 地址和端口，和 ACK-1 对比，得知这是否是一个合法的 SYN 确认包。然后可以通过秒级时间确定这是否是一个新的包。如果是新的包且合法，服务器才会分配资源。这样就有效防止了 SYN 洪泛攻击的发生。</p>
+</blockquote>
+<h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><p>有建立连接，必然也有断开连接。断开连接的动作被称为四次挥手：<br><img src="/2019/01/23/TCP协议回顾/四次挥手.png"></p>
+<p>区别于三次握手，四次挥手的发起方可以是客户端也可以是服务端。因此不区分客户端和服务端而是用 AB 代替。</p>
+<p>一开始，A 和 B 都处于 ESTABLISHED 的状态。然后 A 发送 FIN 表示请求断开连接，之后 B 处于 FIN-WAIT-1 的状态。</p>
+<p>B 在接收到 FIN 请求后，会发送一个 ACK 包表示收到了 FIN 请求，之后 B 处于 CLOSED-WAIT 状态。需要注意的是此时 B 发送的是 ACK 包而不是 FIN 包，之所以不像三次握手一样直接回应一个 FIN 包，是因为此时 B 可能还有些事情没有做完，还可能发送数据，所以称为半关闭状态。</p>
+<p>这个时候 A 可以选择不再接收数据，也可以选择最后再接收一段数据，等待 B 也主动关闭。不论如何，A 在收到 ACK 包后都进入了 FIN-WAIT2 阶段。此时如果 B 下线，A 将永远在这个状态。TCP 协议里没有对这个状态的处理，但 Linux 有，可以调整 tcp_fin_timeout 这个参数，设置一个超时时间。</p>
+<p>B 处理完了所有的事情，终于也准备关闭，此时会发送一个 FIN 包。之后 B 进入 LAST-ACK 状态，等待 A 的 ACK 包。</p>
+<p>A 在收到服务器的 FIN 包后会发送一个 ACK 包表示收到了 B 的 FIN 包。按理说此时 A 就可以关闭了，但由于 A 最后的 ACK 存在丢包的可能，B 没有收到最后的 ACK 包的话，就会重发一个 FIN 包，如果这时候 A 关闭了，B 就再也收不到 ACK 了。因而 TCP 协议要求 A 最后等待一段时间 TIME_WAIT，这个时间要足够长，长到 B 没收到 ACK 的话，重发的 FIN 包还能到达 A。</p>
+<p>A 直接关闭还有一个问题是，A 的端口就直接空出来了，但是 B 不知道，B 原来发过的很多包很可能还在路上，如果 A 的端口被一个新的应用占用了，这个新的应用会收到上个连接中 B 发过来的包，虽然序列号是重新生成的，但是这里要上一个双保险，防止产生混乱，因而也需要等足够长的时间，等到原来 B 发送的所有的包都过期了，再空出端口来。</p>
+<p>等待的时间设为 2MSL，MSL 是 Maximum Segment Lifetime（报文最大生存时间），它是任何报文在网络上存在的最长时间，超过这个时间报文将被丢弃。因为 TCP 报文基于是 IP 协议的， 而 IP 头中有一个 TTL 域，是 IP 数据报可以经过的最大路由数，每经过一个处理他的路由器此值就减 1，当此值为 0 则数据报将被丢弃，同时发送 ICMP 报文通知源主机。协议规定 MSL 为 2 分钟，实际应用中常用的是 30 秒，1 分钟和 2 分钟等。</p>
+<p><strong>服务器大量 CLOSE_WAIT\TIME_WAIT 状态的原因</strong></p>
+<blockquote>
+<p>如果服务器出现异常，百分之八九十都是下面两种情况：<br>1、服务器保持了大量 CLOSE_WAIT 状态。产生的原因在于：TCP Server 已经 ACK 了过来的 FIN 数据包，但是上层应用程序迟迟没有发命令关闭 Server 到 client 端的连接。所以 TCP 一直在那等啊等…..所以说如果发现自己的服务器保持了大量的 CLOSE_WAIT，问题的根源十有八九是自己的 server 端程序代码的问题。<br>2、服务器保持了大量 TIME_WAIT 状态。产生的原因在于：服务器处理大量高并发短连接并主动关闭连接时容易出现 TIME_WAIT 积压。这是因为关闭的发起方在 TIME_WAIT 阶段需要等待 1-4 分钟才能回收资源。如果连接过多将导致资源来不及回收。解决方案是修改 Linux 内核，允许将 TIME-WAIT sockets 重新用于新的 TCP 连接，并开启 TCP 连接中 TIME-WAIT sockets 的快速回收，这些默认都是关闭的。</p>
+</blockquote>
+<h2 id="可靠性传输"><a href="#可靠性传输" class="headerlink" title="可靠性传输"></a>可靠性传输</h2><p>TCP 协议为了保证顺序性，每一个包都有一个 ID。在建立连接的时候，会商定起始的 ID 是什么，然后按照 ID 一个个发送。为了保证不丢包，对于发送的包都要进行应答，但是这个应答也不是一个一个来的，而是会应答某个之前的 ID，表示都收到了，这种模式称为累计确认或者累计应答（cumulative acknowledgment）。</p>
+<p>为了记录所有发送的包和接收的包，TCP 也需要发送端和接收端分别都有缓存来保存这些记录。发送端的缓存里是按照包的 ID 一个个排列，根据处理的情况分成四个部分。</p>
+<ul>
+<li>第一部分：发送了并且已经确认的。</li>
+<li>第二部分：发送了并且尚未确认的。</li>
+<li>第三部分：没有发送，但是已经等待发送的。</li>
+<li>第四部分：没有发送，并且暂时还不会发送的。</li>
+</ul>
+<p>为什么会有三、四部分的区分呢？这是因为接受端有个处理极限，就是剩余缓冲区的大小，如果给接收端发送的包的大小超过了剩余缓冲区的大小，那么有一部分包就会被丢弃，这是不合适的。所以超出剩余缓冲区大小的包，发送端暂时不会发。</p>
+<p>于是，发送端需要保持下面的数据结构：<br><img src="/2019/01/23/TCP协议回顾/发送端滑动窗口.png"></p>
+<p>对于接收端来讲，它的缓存里记录的内容要简单一些：</p>
+<ul>
+<li>第一部分：接收并且确认过的。</li>
+<li>第二部分：还没接收，但尚在接收能力范围之内的。</li>
+<li>第三部分：还没接收，超过能力范围的。</li>
+</ul>
+<p>对应的数据结构像这样：<br><img src="/2019/01/23/TCP协议回顾/接收端滑动窗口.png"></p>
+<h3 id="顺序与丢包问题"><a href="#顺序与丢包问题" class="headerlink" title="顺序与丢包问题"></a>顺序与丢包问题</h3><p>还是刚才的图，在发送端来看，1、2、3 已经发送并确认；4、5、6、7、8、9 都是发送了还没确认；10、11、12 是还没发出的；13、14、15 是接收方没有空间，不准备发的。</p>
+<p>在接收端来看，1、2、3、4、5 是已经完成 ACK，但是没读取的；6、7 是等待接收的；8、9 是已经接收，但是没有 ACK 的。</p>
+<p>发送端和接收端当前的状态如下：</p>
+<ul>
+<li>1、2、3 没有问题，双方达成了一致。</li>
+<li>4、5 接收方说 ACK 了，但是发送方还没收到，有可能丢了，有可能在路上。</li>
+<li>6、7、8、9 肯定都发了，但是 8、9 已经到了，但是 6、7 没到，出现了乱序，缓存着但是没办法 ACK。</li>
+</ul>
+<p>根据这个例子，我们可以知道，顺序问题和丢包问题都有可能发生，所以我们先来看确认与重发的机制。</p>
+<p>假设 4 的确认到了，不幸的是，5 的 ACK 丢了，6、7 的数据包丢了，这该怎么办呢？</p>
+<p>一种方法就是超时重试，TCP 会为当前最小未应答的包绑定一个定时器，当收到 ACK 时会重启定时器，并绑定到现在最小未应答的包上。若当前无未应答包，则关闭定时器。等下一个包发出去后再启动并绑定到新的包上。</p>
+<p>如何设置往返时间 RTT 呢？TCP 采用了加权的自适应重传算法：EstimatedRTT=0.875<em>EstimatedRTT+0.125</em>SampleRTT 其中 EstimatedRTT 为平均往返时间，SampleRTT 为某次采样的往返时间。</p>
+<p>如果过一段时间，5、6、7 都超时了，就会重新发送。接收方发现 5 原来接收过，于是丢弃 5；6 收到了，发送 ACK，要求下一个是 7，7 不幸又丢了。当 7 再次超时的时候，有需要重传的时候，TCP 的策略是超时间隔加倍。每当遇到一次超时重传的时候，都会将下一次超时时间间隔设为先前值的两倍。两次超时，就说明网络环境差，不宜频繁反复发送。</p>
+<p>超时触发重传存在的问题是，超时周期可能相对较长。那是不是可以有更快的方式呢？</p>
+<p>有一个叫<strong>快速重传</strong>的机制：当接收方收到一个序号大于下一个所期望的报文段时，就检测到了数据流中的一个间格，于是发送三个冗余的 ACK，客户端收到后，就在定时器过期之前，重传丢失的报文段。</p>
+<p>例如，接收方发现 6、8、9 都已经接收了，就是 7 没来，那肯定是丢了，于是发送三个 6 的 ACK，要求下一个是 7。客户端收到 3 个，就会发现 7 的确又丢了，不等超时，马上重发。</p>
+<p>还有一种方式称为<strong>Selective Acknowledgment （SACK）</strong>。这种方式需要在 TCP 头里加一个 SACK 的东西，可以将缓存的地图发送给发送方。例如可以发送 ACK6、SACK8、SACK9，有了地图，发送方一下子就能看出来是 7 丢了。</p>
+<h2 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h2><p>流量控制是为了平衡发送端与接收端的速度，避免出现包处理不过来的情况。在协议头里面，有一个窗口大小字段，这个就是用来进行流量控制的。</p>
+<p>我们先假设窗口不变的情况，窗口始终为 9。4 的确认来的时候，会右移一个，这个时候第 13 个包也可以发送了。<br><img src="/2019/01/23/TCP协议回顾/流量控制 1.png"></p>
+<p>这个时候，假设发送端发送过猛，会将第三部分的 10、11、12、13 全部发送完毕，之后就停止发送了，未发送可发送部分 0。<br><img src="/2019/01/23/TCP协议回顾/流量控制 2.png"></p>
+<p>当对于包 5 的确认到达的时候，在客户端相当于窗口再滑动了一格，这个时候，才可以有更多的包可以发送了，例如第 14 个包才可以发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制 3.png"></p>
+<p>如果接收方实在处理的太慢，导致缓存中没有空间了，可以通过确认信息修改窗口的大小，甚至可以设置为 0，则发送方将暂时停止发送。</p>
+<p>我们假设一个极端情况，接收端的应用一直不读取缓存中的数据，当数据包 6 确认后，窗口大小就不能再是 9 了，就要缩小一个变为 8。<br><img src="/2019/01/23/TCP协议回顾/流量控制 4.png"></p>
+<p>这个新的窗口 8 通过 6 的确认消息到达发送端的时候，你会发现窗口没有平行右移，而是仅仅左面的边右移了，窗口的大小从 9 改成了 8。<br><img src="/2019/01/23/TCP协议回顾/流量控制 5.png"></p>
+<p>如果接收端还是一直不处理数据，则随着确认的包越来越多，窗口越来越小，直到为 0。<br><img src="/2019/01/23/TCP协议回顾/流量控制 6.png"></p>
+<p>当这个窗口通过包 14 的确认到达发送端的时候，发送端的窗口也调整为 0，停止发送。<br><img src="/2019/01/23/TCP协议回顾/流量控制 7.png"></p>
+<p>如果这样的话，发送方会定时发送窗口探测数据包，看是否有机会调整窗口的大小。当接收方比较慢的时候，要防止低能窗口综合征，别空出一个字节来就赶快告诉发送方，然后马上又填满 了，可以当窗口太小的时候，不更新窗口，直到达到一定大小，或者缓冲区一半为空，才更新窗口。</p>
+<h2 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h2><p>拥塞控制是为了避免网络中传输着太多的包导致网络拥挤。这里有一个公式，即：发送但还未确认的包要小于等于滑动窗口（rwnd）和拥塞窗口（cwnd）的最小值。前者在流量控制中已经讲过，剩下的就是后者。</p>
+<p>拥塞控制有三个时期：<strong>慢启动、拥塞避免和快速恢复。</strong></p>
+<p>当开始时，cwnd 设置为一个报文段，一次只能发送一个；当收到这一个确认的时候，cwnd 加一，于是一次能发送两个；当这两个确认到来的时候，每个确认 cwnd 加一，两个确认 cwnd 加二，于是一次能发送四个。当这四个的确认到来的时候，每个确认 cwnd 加一，四个确认 cwnd 加四，于是一次能够发送八个。依次类推，此时，cwnd 的增长速度是指数型的增长。</p>
+<p>涨到什么时候是个头呢？有一个值 ssthresh 初始为 65535 个字节，当超过这个值的时候，就进入了拥塞避免状态。此时不再是一个确认对应一个 cwnd 的增长，而是一个确认对应 1/cwnd 的增长。我们接着上面的过程来，一次发送八个，当八个确认到来的时候，每个确认增加 1/8，八个确认一共 cwnd 增加 1，于是一次能够发送九个，变成了线性增长。</p>
+<p>但 cwnd 不可能无限增长，总有一个时候网络会拥挤，拥挤的表现形式是丢包。发送端有两种方式感知到丢包：超时和收到三个相同 ACK（快速重传）。针对这两种情况的丢包，发送端的处理方式也不一样。</p>
+<p>第一种是超时丢包，这种情况下，发送端会认为当前网络非常拥挤，因此会采取激进的限制措施：将 sshresh 设为 cwnd/2，将 cwnd 设为 1，重新开始慢启动。</p>
+<p>第二种是三个相同 ACK 丢包，发送端会认为这个丢包是个偶然事件，因此网络并不非常拥挤，采取的措施也会温和一些：sshresh 设为 cwnd/2，cwnd 设为 cwnd/2，又因为返回了三个确认包，cwnd 再加 3。之后进入快速恢复阶段，因为当前 cwnd 仍在比较高的值，这个阶段中 cwnd 也是线性增长。</p>
+<p>两种方式的比较如下：<br><img src="/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>TCP 协议的核心部分在于：三次握手、四次挥手、可靠性传输、流量控制、拥塞控制，掌握好这些知识点对网络编程很有帮助。</p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/01/23/TCP协议回顾/" title="TCP 协议回顾" target="_blank" rel="external">http://yoursite.com/2019/01/23/TCP协议回顾/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/01/27/InnoDB中的锁和MVCC/" title="InnoDB 中的锁和 MVCC"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/01/14/插入缓冲、两次写和自适应哈希索引/" title="插入缓冲、两次写和自适应哈希索引"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
