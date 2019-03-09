@@ -33,7 +33,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext%20继承关系.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/03/Spring源码浅析——容器刷新流程概览/BeanFactory%20继承关系.png">
-<meta property="og:updated_time" content="2019-03-08T15:51:34.117Z">
+<meta property="og:updated_time" content="2019-03-09T07:42:02.857Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring 源码浅析——容器刷新流程概览">
 <meta name="twitter:description" content="本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。 众所周知，Spring 以容器管理所有的 bean 对象，容器的实体是一个 BeanFactory 对象。但我们常用的容器是另一个 ApplicationContext ，它在内部持有了 BeanFactor">
@@ -357,10 +357,10 @@
 <p>本文是 Spring 源码浅析系列的第一篇。Spring 版本是 Spring Boot 2.1.2.RELEASE （即 Spring 5.1.4），以默认配置启动，分析框架工作的原理。</p>
 <p>众所周知，Spring 以容器管理所有的 bean 对象，容器的实体是一个 BeanFactory 对象。但我们常用的容器是另一个 ApplicationContext ，它在内部持有了 BeanFactory，所有和 BeanFactory 相关的操作都会委托给内部的 BeanFactory 来完成。</p>
 <p>ApplicationContext 的继承关系如下图所示：</p>
-<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext 继承关系.png"></p>
+<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/ApplicationContext 继承关系.png" width="50%" length="50%"></p>
 <p>ApplicationContext 是一个接口，<strong>ClassPathXmlApplicationContext</strong>和<strong>AnnotationConfigApplicationContext</strong>是两个比较常用的实现类，前者基于 xml 使用，后者基于注解使用。SpringBoot 中默认后面一种。</p>
 <p>ApplicationContext 也继承了 BeanFactory 接口，BeanFactory 的继承关系如下图所示：</p>
-<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/BeanFactory 继承关系.png"></p>
+<p><img src="/2019/03/03/Spring源码浅析——容器刷新流程概览/BeanFactory 继承关系.png" width="50%" length="50%"></p>
 <p>从继承关系我们可以获得以下信息：</p>
 <ul>
 <li>ApplicationContext 继承了 ListableBeanFactory，这个 Listable 的意思就是，通过这个接口，我们可以获取多个 Bean，最顶层 BeanFactory 接口的方法都是获取单个 Bean 的。</li>

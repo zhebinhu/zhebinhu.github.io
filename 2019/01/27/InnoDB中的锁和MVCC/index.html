@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg">
-<meta property="og:updated_time" content="2019-03-08T14:07:16.288Z">
+<meta property="og:updated_time" content="2019-03-09T07:39:05.484Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB 中的锁和 MVCC">
 <meta name="twitter:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
@@ -432,27 +432,27 @@
 <li>组合 8：id 列上没有索引，RR 隔离级别</li>
 </ul>
 <h3 id="组合-1：id-列是主键，RC-隔离级别"><a href="#组合-1：id-列是主键，RC-隔离级别" class="headerlink" title="组合 1：id 列是主键，RC 隔离级别"></a>组合 1：id 列是主键，RC 隔离级别</h3><p>这个组合，是最简单，最容易分析的组合。id 是主键，Read Committed 隔离级别，给定 SQL：delete from t1 where id = 10; 只需要将主键上，id = 10 的记录加上 X 锁即可。如下图所示：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合一.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合一.jpg" width="40%" length="40%"></p>
 <p>id 是主键时，此 SQL 只需要在 id=10 这条记录上加 X 锁即可。</p>
 <h3 id="组合-2：id-列是二级唯一索引，RC-隔离级别"><a href="#组合-2：id-列是二级唯一索引，RC-隔离级别" class="headerlink" title="组合 2：id 列是二级唯一索引，RC 隔离级别"></a>组合 2：id 列是二级唯一索引，RC 隔离级别</h3><p>这个组合，id 不是主键，而是一个 unique 的二级索引键值。那么在 RC 隔离级别下，delete from t1 where id = 10; 需要加什么锁呢？见下图：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合二.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合二.jpg" width="40%" length="40%"></p>
 <p>此组合中，id 是 unique 索引，而主键是 name 列。此时，加锁的情况由于组合一有所不同。由于 id 是 unique 索引，因此 delete 语句会选择走 id 列的索引进行 where 条件的过滤，在找到 id=10 的记录后，首先会将 unique 索引上的 id=10 索引记录加上 X 锁，同时，会根据读取到的 name 列，回主键索引 (聚簇索引)，然后将聚簇索引上的 name = ‘d’ 对应的主键索引项加 X 锁。为什么聚簇索引上的记录也要加锁？试想一下，如果并发的一个 SQL，是通过主键索引来更新：update t1 set id = 100 where name = ‘d’; 此时，如果 delete 语句没有将主键索引上的记录加锁，那么并发的 update 就会感知不到 delete 语句的存在，违背了同一记录上的更新/删除需要串行执行的约束。</p>
 <h3 id="组合-3：id-列是二级非唯一索引，RC-隔离级别"><a href="#组合-3：id-列是二级非唯一索引，RC-隔离级别" class="headerlink" title="组合 3：id 列是二级非唯一索引，RC 隔离级别"></a>组合 3：id 列是二级非唯一索引，RC 隔离级别</h3><p>相对于组合一、二，组合三又发生了变化，隔离级别仍旧是 RC 不变，但是 id 列上的约束又降低了，id 列不再唯一，只有一个普通的索引。假设 delete from t1 where id = 10; 语句，仍旧选择 id 列上的索引进行过滤 where 条件，那么此时会持有哪些锁？同样见下图：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合三.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合三.jpg" width="40%" length="40%"></p>
 <p>可以看到，首先，id 列索引上，满足 id = 10 查询条件的记录，均已加锁。同时，这些记录对应的主键索引上的记录也都加上了锁。与组合二唯一的区别在于，组合二最多只有一个满足等值查询的记录，而组合三会将所有满足查询条件的记录都加锁。</p>
 <h3 id="组合-4：id-列上没有索引，RC-隔离级别"><a href="#组合-4：id-列上没有索引，RC-隔离级别" class="headerlink" title="组合 4：id 列上没有索引，RC 隔离级别"></a>组合 4：id 列上没有索引，RC 隔离级别</h3><p>相对于前面三个组合，这是一个比较特殊的情况。id 列上没有索引，where id = 10;这个过滤条件，没法通过索引进行过滤，那么只能走全表扫描做过滤。对应于这个组合，SQL 会加什么锁？或者是换句话说，全表扫描时，会加什么锁？这个答案也有很多：有人说会在表上加 X 锁；有人说会将聚簇索引上，选择出来的 id = 10;的记录加上 X 锁。那么实际情况呢？请看下图：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg" width="40%" length="40%"></p>
 <p>由于 id 列上没有索引，因此只能走聚簇索引，进行全部扫描。从图中可以看到，满足删除条件的记录有两条，但是，聚簇索引上所有的记录，都被加上了 X 锁。无论记录是否满足条件，全部被加上 X 锁。既不是加表锁，也不是在满足条件的记录上加行锁。</p>
 <p>有人可能会问？为什么不是只在满足条件的记录上加锁呢？这是由于 MySQL 的实现决定的。如果一个条件无法通过索引快速过滤，那么存储引擎层面就会将所有记录加锁后返回，然后由 MySQL Server 层进行过滤。因此也就把所有的记录，都锁上了。</p>
 <h3 id="组合-5：id-列是主键，RR-隔离级别"><a href="#组合-5：id-列是主键，RR-隔离级别" class="headerlink" title="组合 5：id 列是主键，RR 隔离级别"></a>组合 5：id 列是主键，RR 隔离级别</h3><p>上面的四个组合，都是在 Read Committed 隔离级别下的加锁行为，接下来的四个组合，是在 Repeatable Read 隔离级别下的加锁行为。</p>
 <p>组合五，id 列是主键列，Repeatable Read 隔离级别，针对 delete from t1 where id = 10; 这条 SQL，加锁与组合一：[id 主键，Read Committed] 一致。</p>
 <h3 id="组合-6：id-列是二级唯一索引，RR-隔离级别"><a href="#组合-6：id-列是二级唯一索引，RR-隔离级别" class="headerlink" title="组合 6：id 列是二级唯一索引，RR 隔离级别"></a>组合 6：id 列是二级唯一索引，RR 隔离级别</h3><p>与组合五类似，组合六的加锁，与组合二：[id 唯一索引，Read Committed] 一致。两个 X 锁，id 唯一索引满足条件的记录上一个，对应的聚簇索引上的记录一个。</p>
 <h3 id="组合-7：id-列是二级非唯一索引，RR-隔离级别"><a href="#组合-7：id-列是二级非唯一索引，RR-隔离级别" class="headerlink" title="组合 7：id 列是二级非唯一索引，RR 隔离级别"></a>组合 7：id 列是二级非唯一索引，RR 隔离级别</h3><p>组合七，Repeatable Read 隔离级别，id 上有一个非唯一索引，执行 delete from t1 where id = 10; 假设选择 id 列上的索引进行条件过滤，最后的加锁行为，是怎么样的呢？同样看下面这幅图：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg" width="40%" length="40%"></p>
 <p>此图，相对于组合三多了一个 GAP 锁，这是因为 RR 级别区别于 RC 级别的一点是 RR 级别要防止幻读。我们在前一节讲过 innodb 基于 Next-Lock 防止幻读，而 Next-Lock 就是 GAP Lock+Record Lock。加在索引上的是 Record Lock，而在中间的就是 GAP Lock。</p>
 <p>那么为什么组合五、组合六，也是 RR 隔离级别，却不需要加 GAP 锁呢？这是因为组合五，id 是主键；组合六，id 是 unique 键，都能够保证唯一性。一个等值查询，最多只能返回一条记录，而且新的相同取值的记录，一定不会再新插入进来，因此也就避免了 GAP 锁的使用。</p>
 <h3 id="组合-8：id-列上没有索引，RR-隔离级别"><a href="#组合-8：id-列上没有索引，RR-隔离级别" class="headerlink" title="组合 8：id 列上没有索引，RR 隔离级别"></a>组合 8：id 列上没有索引，RR 隔离级别</h3><p>组合八，Repeatable Read 隔离级别下的最后一种情况，id 列上没有索引。此时 SQL：delete from t1 where id = 10; 没有其他的路径可以选择，只能进行全表扫描。最终的加锁情况，如下图所示：</p>
-<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg"></p>
+<p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg" width="40%" length="40%"></p>
 
       
     </div>

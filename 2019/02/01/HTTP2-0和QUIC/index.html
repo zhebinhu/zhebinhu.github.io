@@ -33,7 +33,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义流量控制.png">
-<meta property="og:updated_time" content="2019-03-08T14:05:38.541Z">
+<meta property="og:updated_time" content="2019-03-09T07:40:24.255Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP2.0 和 QUIC">
 <meta name="twitter:description" content="HTTP1.1 在应用层以纯文本的形式进行通信。每次通信都要带完整的 HTTP 的头，而且不考虑 pipeline 模式的话，每次都是一去一回。这样在实时性、并发性上都存在问题。http2.0 通过首部压缩、多路复用、二进制分帧、服务端推送等方式获得了更高的并发和更低的延迟。 首部压缩HTTP 2.0 将原来每次都要携带的大量请求头中的 key value 保存在服务器和客户端两端，对相同的头只">
@@ -371,7 +371,7 @@
 <h3 id="机制二：自定义重传机制"><a href="#机制二：自定义重传机制" class="headerlink" title="机制二：自定义重传机制"></a>机制二：自定义重传机制</h3><p>TCP 为了保证可靠性，通过使用序号和应答机制，来解决顺序问题和丢包问题。</p>
 <p>任何一个序号的包发过去，都要在一定的时间内得到应答，否则一旦超时，就会重发。超时时间是通过采样往返时间 RTT 不断调整的。这就会带来一个采样不准确的问题。例如：发送一个包，序号为 100，发现没有返回，于是再发送一个 100，过一阵返回一个 ACK101。这个时候客户端知道这个包肯定收到了，但往返时间是多少呢？是 ACK 达到的时间减去后一个 100 发送的时间，还是减去前一个 100 发送的时间呢？</p>
 <p>QUIC 也有个序列号，是递增的。任何一个序列号的包只发送一次，下次就要加一了。例如，发送一个包，序号是 100，发现没有返回；再次发送的时候，序号就是 101 了；如果返回的 ACK100，就是对第一个包的响应，如果返回 ACK101 就是对第二个包的响应，RTT 计算相对准确。</p>
-<p>但是这里有一个问题，就是这么知道包 100 和包 101 发送的是同样的内容呢？QUIC 定义了一个 stream offset 的概念。QUIC 既然面向连接，也就像 TCP 一样，是一个数据流，发送的数据在这个数据流里面有个偏移量 stream offset，可以通过 stream offset 查看数据发送到了哪里，这样只要这个 stream offset 的包没有来，就要重发；如果来了，按照 stream offset 拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png"></p>
+<p>但是这里有一个问题，就是这么知道包 100 和包 101 发送的是同样的内容呢？QUIC 定义了一个 stream offset 的概念。QUIC 既然面向连接，也就像 TCP 一样，是一个数据流，发送的数据在这个数据流里面有个偏移量 stream offset，可以通过 stream offset 查看数据发送到了哪里，这样只要这个 stream offset 的包没有来，就要重发；如果来了，按照 stream offset 拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png" width="70%" length="70%"></p>
 <h3 id="无阻塞的多路复用"><a href="#无阻塞的多路复用" class="headerlink" title="无阻塞的多路复用"></a>无阻塞的多路复用</h3><p>有了自定义的连接和重传机制，我们可以解决上面 HTTP2.0 的多路复用问题。</p>
 <p>同 HTTP2.0 一样，同一条 QUIC 连接上可以创建多个 stream，来发送多个 HTTP 请求。但是，QUIC 是基于 UDP 的，一个连接上的多个 stream 之间没有依赖。这样，假如 stream2 丢了一个 UDP 包，后面跟着 stream3 的一个 UDP 包，虽然 stream2 的那个包需要重传，但是 stream3 的包无需等待，就可以发给用户。</p>
 <h3 id="自定义流量控制"><a href="#自定义流量控制" class="headerlink" title="自定义流量控制"></a>自定义流量控制</h3><p>TCP 的流量控制是通过滑动窗口协议。QUIC 的流量控制也是通过 window_update，来告诉对端它可以接受的字节数。但是 QUIC 的窗口是适应自己的多路复用机制的，不但在一个连接上控制窗口，还在一个连接中的每个 stream 控制窗口。</p>
