@@ -20,25 +20,25 @@
     
     <title>
         
-        Spring 源码浅析——创建单例 bean 对象 |
+        Spring 源码浅析——创建单例 bean 的过程 |
         
         huzb的小书斋</title>
     <meta name="description" content="上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。 bean 生命周期在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：  接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：  扫描得到 beanDefinition">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring 源码浅析——创建单例 bean 对象">
-<meta property="og:url" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/index.html">
+<meta property="og:title" content="Spring 源码浅析——创建单例 bean 的过程">
+<meta property="og:url" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。 bean 生命周期在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：  接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：  扫描得到 beanDefinition">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/bean生命周期.png">
-<meta property="og:updated_time" content="2019-03-11T13:14:13.101Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/bean生命周期.png">
+<meta property="og:updated_time" content="2019-03-11T13:25:10.774Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring 源码浅析——创建单例 bean 对象">
+<meta name="twitter:title" content="Spring 源码浅析——创建单例 bean 的过程">
 <meta name="twitter:description" content="上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。 bean 生命周期在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：  接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：  扫描得到 beanDefinition">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/bean生命周期.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/bean生命周期.png">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -182,7 +182,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/标签/">标签</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -192,7 +192,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/标签/" style="font-size: 13px;">标签</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -201,7 +201,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -220,22 +220,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/11/Spring源码浅析——doCreateBean/" class="title">Spring源码浅析——doCreateBean</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-03-11T13:16:50.000Z" itemprop="datePublished">2019-03-11</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/03/04/Spring源码浅析——创建单例bean/" class="title">Spring 源码浅析——创建单例 bean 对象</a>
+                <a href="/2019/03/04/Spring源码浅析——创建单例bean的过程/" class="title">Spring 源码浅析——创建单例 bean 的过程</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
@@ -288,6 +273,21 @@
             </div>
           </li>
           
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/12/Redis事件、事务和pipeline/" class="title">Redis 事件、事务和 pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
+              </p>
+            </div>
+          </li>
+          
       </ul>
     </div>
   </div>
@@ -310,14 +310,14 @@
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Spring源码浅析——创建单例bean" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Spring源码浅析——创建单例bean的过程" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      Spring 源码浅析——创建单例 bean 对象
+      Spring 源码浅析——创建单例 bean 的过程
     </h1>
   
 
@@ -325,7 +325,7 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/03/04/Spring源码浅析——创建单例bean/" class="article-date">
+	<a href="/2019/03/04/Spring源码浅析——创建单例bean的过程/" class="article-date">
 	  <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
 	</a>
 </span>
@@ -346,7 +346,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/04/Spring源码浅析——创建单例bean/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/04/Spring源码浅析——创建单例bean的过程/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -355,7 +355,7 @@
         <a id="more"></a>
 <p>上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。</p>
 <h2 id="bean-生命周期"><a href="#bean-生命周期" class="headerlink" title="bean 生命周期"></a>bean 生命周期</h2><p>在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：</p>
-<p><img src="/2019/03/04/Spring源码浅析——创建单例bean/bean生命周期.png"></p>
+<p><img src="/2019/03/04/Spring源码浅析——创建单例bean的过程/bean生命周期.png"></p>
 <p>接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：</p>
 <ol>
 <li>扫描得到 beanDefinition，里面包含了 bean 创建的全部信息。</li>
@@ -385,7 +385,7 @@
 <p>我们可以看到 getSingleton 内部也是调用 createBean 方法，只是在调用之前会先去缓存中找，调用之后会把创建好的 bean 存入缓存中。下面就到了重头戏 <code>createBean</code> 方法了。</p>
 <h3 id="5、createBean"><a href="#5、createBean" class="headerlink" title="5、createBean"></a>5、createBean</h3><p>// AbstractAutowireCapableBeanFactory 447<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">createBean</span><span class="params">(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> BeanCreationException </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">        logger.trace(<span class="string">"Creating instance of bean '"</span> + beanName + <span class="string">"'"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    RootBeanDefinition mbdToUse = mbd;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 确保 BeanDefinition 中的 Class 被加载</span></span><br><span class="line">    Class&lt;?&gt; resolvedClass = resolveBeanClass(mbd, beanName);</span><br><span class="line">    <span class="keyword">if</span> (resolvedClass != <span class="keyword">null</span> &amp;&amp; !mbd.hasBeanClass() &amp;&amp; mbd.getBeanClassName() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        mbdToUse = <span class="keyword">new</span> RootBeanDefinition(mbd);</span><br><span class="line">        mbdToUse.setBeanClass(resolvedClass);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 涉及到一个概念：方法覆写。具体涉及到 lookup-method 和 replace-method 两个标签，附录中会有介绍   </span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mbdToUse.prepareMethodOverrides();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (BeanDefinitionValidationException ex) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(mbdToUse.getResourceDescription(),</span><br><span class="line">                beanName, <span class="string">"Validation of method overrides failed"</span>, ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="comment">// 让 InstantiationAwareBeanPostProcessor 在这一步有机会返回代理，在 AOP 相关文章会有解释，这里先跳过</span></span><br><span class="line">        Object bean = resolveBeforeInstantiation(beanName, mbdToUse);</span><br><span class="line">        <span class="keyword">if</span> (bean != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> bean;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(mbdToUse.getResourceDescription(), beanName,</span><br><span class="line">                <span class="string">"BeanPostProcessor before instantiation of bean failed"</span>, ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 重头戏，创建 bean</span></span><br><span class="line">        Object beanInstance = doCreateBean(beanName, mbdToUse, args);</span><br><span class="line">        <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">            logger.trace(<span class="string">"Finished creating instance of bean '"</span> + beanName + <span class="string">"'"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> beanInstance;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (BeanCreationException | ImplicitlyAppearedSingletonException ex) &#123;</span><br><span class="line">        <span class="keyword">throw</span> ex;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> BeanCreationException(</span><br><span class="line">                mbdToUse.getResourceDescription(), beanName, <span class="string">"Unexpected exception during bean creation"</span>, ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p><code>createBean</code> 并不是真正初始化 bean 的方法，而是对 <code>doCreateBean</code> 的预处理。它主要做了两件事情：确保 BeanDefinition 中的 Class 被加载和准备方法覆写。真正创建 bean 对象的逻辑在 <code>doCreateBean</code> 方法里面，这个方法我们将用一篇文章的篇幅来阐述。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里我们稍微总结一下。目前为止，我们大致明白了一个单例 bean 创建的流程：</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里我们稍微总结一下。目前为止，我们已经到了真正创建 bean 对象的 <code>doCreateBean</code> 这个方法。而在这之前，从容器创建到开始执行真正的创建，我们也经历了相当多的步骤。主要有：</p>
 <ol>
 <li>触发初始化操作</li>
 <li>合并父 beanDefinition 与子 beanDefinition</li>
@@ -424,7 +424,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/" title="Spring 源码浅析——创建单例 bean 对象" target="_blank" rel="external">http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean/</a>
+      <a href="http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/" title="Spring 源码浅析——创建单例 bean 的过程" target="_blank" rel="external">http://yoursite.com/2019/03/04/Spring源码浅析——创建单例bean的过程/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -469,10 +469,6 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/2019/03/11/Spring源码浅析——doCreateBean/" title="Spring源码浅析——doCreateBean"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
     
     
     <li class="next">
