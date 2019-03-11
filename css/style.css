@@ -644,7 +644,7 @@ a.bg-danger:focus {
 
 ul,
 ol {
-  margin-top: 0;
+  margin-top: 0px;
   margin-bottom: 10.5px;
 }
 
@@ -5461,7 +5461,7 @@ table table {
 }
 
 pre .comment {
-  color: #8e908c;
+  color: #c50;
 }
 
 pre .variable,
@@ -5479,14 +5479,14 @@ pre .css .pseudo {
   color: #c82829;
 }
 
-pre .number,
+/* pre .number,
 pre .preprocessor,
 pre .built_in,
 pre .literal,
 pre .params,
 pre .constant {
   color: #f5871f;
-}
+} */
 
 pre .ruby .class .title,
 pre .css .rules .attribute {
@@ -5499,12 +5499,12 @@ pre .inheritance,
 pre .header,
 pre .ruby .symbol,
 pre .xml .cdata {
-  color: #718c00;
+  color: #4d4d4d;
 }
 
 pre .title,
 pre .css .hexcolor {
-  color: #3e999f;
+  color: #4d4d4c;
 }
 
 pre .function,
@@ -5516,13 +5516,14 @@ pre .perl .sub,
 pre .javascript .title,
 pre .js .title,
 pre .coffeescript .title {
-  color: #4271ae;
+  color: #4d4d4c;
 }
 
 pre .keyword,
 pre .javascript .function,
 pre .js .function {
   color: #8959a8;
+  font-weight:bold;
 }
 
 pre,
@@ -9206,4 +9207,11 @@ body.okayNav-loaded {
   .navbar-fixed-bottom .navbar-collapse {
     max-height: 200px;
   }
+}
+
+.article ol{
+  margin-top: -10px;
+}
+.article ul{
+  margin-top: -10px;
 }
