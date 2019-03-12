@@ -20,13 +20,13 @@
     
     <title>
         
-        Redis 高可用和分布式 |
+        Redis 复制、哨兵和集群 |
         
         huzb的小书斋</title>
     <meta name="description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
 <meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis 高可用和分布式">
+<meta property="og:title" content="Redis 复制、哨兵和集群">
 <meta property="og:url" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
@@ -35,9 +35,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/哨兵%202.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/集群-握手.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/集群-主从.png">
-<meta property="og:updated_time" content="2019-03-08T14:13:37.716Z">
+<meta property="og:updated_time" content="2019-03-11T13:28:18.259Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis 高可用和分布式">
+<meta name="twitter:title" content="Redis 复制、哨兵和集群">
 <meta name="twitter:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
 <meta name="twitter:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/哨兵%201.png">
     <!-- Canonical links -->
@@ -185,7 +185,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -195,7 +195,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.4px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -204,7 +204,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -216,6 +216,21 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/11/Spring源码浅析——创建bean实例/" class="title">Spring 源码浅析——创建 bean 实例</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-11T13:34:50.000Z" itemprop="datePublished">2019-03-11</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -253,7 +268,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 高可用和分布式</a>
+                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 复制、哨兵和集群</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
@@ -272,21 +287,6 @@
               </p>
               <p class="item-date">
                 <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/02/12/Redis事件、事务和pipeline/" class="title">Redis 事件、事务和 pipeline</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
               </p>
             </div>
           </li>
@@ -320,7 +320,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Redis 高可用和分布式
+      Redis 复制、哨兵和集群
     </h1>
   
 
@@ -414,7 +414,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/02/23/Redis高可用和分布式/" title="Redis 高可用和分布式" target="_blank" rel="external">http://yoursite.com/2019/02/23/Redis高可用和分布式/</a>
+      <a href="http://yoursite.com/2019/02/23/Redis高可用和分布式/" title="Redis 复制、哨兵和集群" target="_blank" rel="external">http://yoursite.com/2019/02/23/Redis高可用和分布式/</a>
     </li>
     
     <li class="post-copyright-license">
