@@ -20,34 +20,23 @@
     
     <title>
         
-        Redis 数据结构和对象 |
+        Spring 源码浅析——解决循环依赖 |
         
         huzb的小书斋</title>
-    <meta name="description" content="本文主要介绍了 Redis 的 6 种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和 5 种对象：字符串、列表、哈希、集合、有序集合。 一、数据结构SDSSDS 是对 C 字符串的封装，用于表示字符串  SDS 使用预分配的方式为字符串分配空间，free 字段表示当前未使用的空间，当字符串增长时，会优先使用未使用的空间，如果未使用的空间不足，Redis 会为 SDS 分配额外的空间">
-<meta name="keywords" content="Redis">
+    <meta name="description" content="一枚前行的小码农">
+<meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis 数据结构和对象">
-<meta property="og:url" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/index.html">
+<meta property="og:title" content="Spring 源码浅析——解决循环依赖">
+<meta property="og:url" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="本文主要介绍了 Redis 的 6 种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和 5 种对象：字符串、列表、哈希、集合、有序集合。 一、数据结构SDSSDS 是对 C 字符串的封装，用于表示字符串  SDS 使用预分配的方式为字符串分配空间，free 字段表示当前未使用的空间，当字符串增长时，会优先使用未使用的空间，如果未使用的空间不足，Redis 会为 SDS 分配额外的空间">
+<meta property="og:description" content="一枚前行的小码农">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/SDS.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/链表.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/字典.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/跳跃表%201.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/跳跃表%202.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/整数集合.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/压缩列表%201.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/压缩列表%202.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/集合对象.png">
-<meta property="og:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/有序集合.png">
-<meta property="og:updated_time" content="2019-03-08T14:14:49.420Z">
+<meta property="og:updated_time" content="2019-03-13T04:40:39.261Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis 数据结构和对象">
-<meta name="twitter:description" content="本文主要介绍了 Redis 的 6 种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和 5 种对象：字符串、列表、哈希、集合、有序集合。 一、数据结构SDSSDS 是对 C 字符串的封装，用于表示字符串  SDS 使用预分配的方式为字符串分配空间，free 字段表示当前未使用的空间，当字符串增长时，会优先使用未使用的空间，如果未使用的空间不足，Redis 会为 SDS 分配额外的空间">
-<meta name="twitter:image" content="http://yoursite.com/2019/02/05/Redis数据结构和对象/SDS.png">
+<meta name="twitter:title" content="Spring 源码浅析——解决循环依赖">
+<meta name="twitter:description" content="一枚前行的小码农">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/02/05/Redis数据结构和对象/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -312,21 +301,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、数据结构"><span class="toc-text">一、数据结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SDS"><span class="toc-text">SDS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#链表"><span class="toc-text">链表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-text">字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#跳跃表"><span class="toc-text">跳跃表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整数集合"><span class="toc-text">整数集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#压缩列表"><span class="toc-text">压缩列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、对象"><span class="toc-text">二、对象</span></a></li></ol>
+      
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Redis数据结构和对象" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Spring源码浅析——解决循环依赖" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      Redis 数据结构和对象
+      Spring 源码浅析——解决循环依赖
     </h1>
   
 
@@ -334,15 +323,15 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/02/05/Redis数据结构和对象/" class="article-date">
-	  <time datetime="2019-02-05T05:45:44.000Z" itemprop="datePublished">2019-02-05</time>
+	<a href="/2019/03/13/Spring源码浅析——解决循环依赖/" class="article-date">
+	  <time datetime="2019-03-13T04:40:01.000Z" itemprop="datePublished">2019-03-13</time>
 	</a>
 </span>
         
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Redis/">Redis</a>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
   </span>
 
 
@@ -355,111 +344,13 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/02/05/Redis数据结构和对象/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/13/Spring源码浅析——解决循环依赖/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <a id="more"></a>
-<p>本文主要介绍了 Redis 的 6 种数据结构：SDS、链表、字典、跳跃表、整数集合、压缩列表，和 5 种对象：字符串、列表、哈希、集合、有序集合。</p>
-<h2 id="一、数据结构"><a href="#一、数据结构" class="headerlink" title="一、数据结构"></a>一、数据结构</h2><h3 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h3><p>SDS 是对 C 字符串的封装，用于表示字符串</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/SDS.png"></p>
-<p>SDS 使用预分配的方式为字符串分配空间，free 字段表示当前未使用的空间，当字符串增长时，会优先使用未使用的空间，如果未使用的空间不足，Redis 会为 SDS 分配额外的空间。分配算法具体为：1）如果增长后的字符串长度小于 1MB，Redis 将额外分配等同于增长后的字符串长度的空间，此时 free 和 len 的大小相等；2）如果增长后的字符串长度大于 1MB，Redis 将额外分配 1MB 大小的空间。</p>
-<p>分配后的空间不会被回收，如果字符串缩短，缩短的空间会被加入到 free 空间中。</p>
-<h3 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h3><p><img src="/2019/02/05/Redis数据结构和对象/链表.png"></p>
-<p>Redis 的链表是一个双向链表，它的特性如下：</p>
-<ul>
-<li>双端：链表节点带有 prev 和 next 指针，获取某个节点的前置和后置节点的复杂度都是 O(1)。</li>
-<li>无环：表头节点的 prev 和表尾节点的 next 指针都指向 NULL。</li>
-<li>带表头指针和表尾指针：通过 head 和 tail 指针获取表头和表尾节点的复杂度为 O(1)。</li>
-<li>计数器：获取节点个数复杂度为 O(1)</li>
-<li>多态：利用 dup（复制节点保存的值）、free(释放节点保存的值) 和 match（比较节点的值和输入的值是否相等），来实现保存不同的值。</li>
-</ul>
-<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><p>字典是一个散列表结构，使用 MurmurHash2 算法计算哈希值，使用拉链法保存哈希冲突。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/字典.png"></p>
-<p>Redis 的字典 dict 中包含两个哈希表 dictht，这是为了方便进行 rehash 操作。在扩容时，将其中一个 dictht 上的键值对 rehash 到另一个 dictht 上面，完成之后释放空间并交换两个 dictht 的角色。</p>
-<p>渐进式 rehash 通过记录 dict 的 rehashidx 完成，它从 0 开始，然后每执行一次 rehash 都会递增。例如在一次 rehash 中，要把 dict[0] rehash 到 dict[1]，这一次会把 dict[0] 上 table[rehashidx] 的键值对 rehash 到 dict[1] 上，dict[0] 的 table[rehashidx] 指向 null，并令 rehashidx++。</p>
-<p>在 rehash 期间，每次对字典执行添加、删除、查找或者更新操作时，都会执行一次渐进式 rehash。</p>
-<p>采用渐进式 rehash 会导致字典中的数据分散在两个 dictht 上，因此对字典的查找操作也需要到对应的 dictht 去执行。</p>
-<h3 id="跳跃表"><a href="#跳跃表" class="headerlink" title="跳跃表"></a>跳跃表</h3><p>跳跃表是有序集合的底层实现之一。</p>
-<p>跳跃表是基于多指针有序链表实现的，可以看成多个有序链表。每个跳跃表节点的层高都是 1-32 之间的随机数。</p>
-<p>跳跃表中的节点按照分数大小排列，当分值相同时，节点按照成员对象的大小进行排序。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/跳跃表 1.png"></p>
-<p>在查找时，从上层指针开始查找，找到对应的区间之后再到下一层去查找。下图演示了查找 22 的过程。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/跳跃表 2.png"></p>
-<p>与红黑树等平衡树相比，跳跃表具有以下优点：</p>
-<ul>
-<li>插入速度非常快速，因为不需要进行旋转等操作来维护平衡性；</li>
-<li>并发插入时只需锁住少数节点</li>
-<li>支持范围查找</li>
-<li>更容易实现</li>
-</ul>
-<p>跳跃表的缺点：</p>
-<ul>
-<li>重复存储分层节点，消耗内存</li>
-</ul>
-<h3 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h3><p>整数集合是集合键的底层实现之一，它的底层是一个数组，这个数组以有序、无重复的方式保存集合元素。元素的类型可以为 int16_t,int32_t 或者 int64_t。程序会根据新添加元素的类型，改变数组中元素的类型。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/整数集合.png"></p>
-<p>encoding 表示元素的类型，数组中所有元素的类型是一样的。当有更大的数加入进来的时候，数组会进行升级操作，比如从 int16_t 升级到 int32_t。</p>
-<p>整数集合只能升级，不能降级。</p>
-<h3 id="压缩列表"><a href="#压缩列表" class="headerlink" title="压缩列表"></a>压缩列表</h3><p>压缩列表被用作列表和哈希的底层实现之一，是一种为节约内存而开发的，由任意多个节点组成的顺序数据结构。每个节点可以保存一个字节数组或一个整数值。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/压缩列表 1.png"></p>
-<p>entry1、entry2…是实际存储数据的节点，除此之外还有些字段记录列表的信息：zlbytes 记录整个压缩列表占用的内存字节数，zltail 指向压缩列表表尾节点，zllen 记录包含的节点数量，zlend 是个特殊值字段（0xFF）用于标记末端。</p>
-<p>每个节点由 previous_entry_length、encoding、content 三部分组成。previous_entry_length 保存了前一个节点的长度，由此可以实现从表尾向表头的遍历。encoding 是个复用字段，记录了 content 的编码和长度。下图的 encoding 最高两位 00 表示节点保存的是一个字节数组，后六位 001011 记录了字节数组长度 11。content 保存着节点的值”hello world”。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/压缩列表 2.png"></p>
-<h2 id="二、对象"><a href="#二、对象" class="headerlink" title="二、对象"></a>二、对象</h2><p>Redis 并没有使用以上的数据结构来实现键值对数据库，而是基于这些数据结构创建了一个对象系统。</p>
-<table>
-<thead>
-<tr>
-<th>对象类型</th>
-<th>底层实现</th>
-<th>可以存储的值</th>
-<th>操作</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>STRING</td>
-<td>int，sds</td>
-<td>字符串、整数或者浮点数</td>
-<td>对整个字符串或者字符串的其中一部分执行操作 <br> 对整数和浮点数执行自增或者自减操作</td>
-</tr>
-<tr>
-<td>LIST</td>
-<td>链表，压缩列表</td>
-<td>列表</td>
-<td>从两端压入或者弹出元素 <br> 对单个或者多个元素 <br> 进行修剪，只保留一个范围内的元素</td>
-</tr>
-<tr>
-<td>HASH</td>
-<td>字典，压缩列表</td>
-<td>包含键值对的无序散列表</td>
-<td>添加、获取、移除单个键值对 <br> 获取所有键值对 <br> 检查某个键是否存在</td>
-</tr>
-<tr>
-<td>SET</td>
-<td>整数集合，字典</td>
-<td>无序集合</td>
-<td>添加、获取、移除单个元素 <br> 检查一个元素是否存在于集合中 <br> 计算交集、并集、差集 <br> 从集合里面随机获取元素</td>
-</tr>
-<tr>
-<td>ZSET</td>
-<td>（字典+跳跃表），压缩列表</td>
-<td>有序集合</td>
-<td>添加、获取、删除元素 <br> 根据分值范围或者成员来获取元素 <br> 计算一个键的排名</td>
-</tr>
-</tbody>
-</table>
-<p>SET 对象使用整数集合保存只包含整数的集合，使用字典保存含有字符串的集合。使用字典保存集合时，字典的键是一个元素的成员，字典的值为 NULL。</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/集合对象.png"></p>
-<p>ZSET 对象同时使用字典和跳跃表保存有序集合，使用字典保存有序集合时，字典的键保存了元素的成员，字典的值保存了元素的分值。ZSET 集合元素会同时共享在字典和跳跃表中（保存的是指针，不会造成数据的重复）</p>
-<p><img src="/2019/02/05/Redis数据结构和对象/有序集合.png"></p>
-<p><strong>为什么有序集合需要同时使用字典和跳跃表来实现？</strong></p>
-<blockquote>
-<p>在理论上，有序集合可以单独使用字典或者跳跃表来实现。但两者都有不可替代的地方：字典可以在 O(1) 时间复杂度查找成员的分值，跳跃表可以执行范围型操作。因此为了同时获得这两个特性，Redis 使用了字典和跳跃表来实现有序集合。</p>
-</blockquote>
-
+        
       
     </div>
     <!--<div class="article-footer">-->
@@ -468,7 +359,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/02/05/Redis数据结构和对象/" title="Redis 数据结构和对象" target="_blank" rel="external">http://yoursite.com/2019/02/05/Redis数据结构和对象/</a>
+      <a href="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/" title="Spring 源码浅析——解决循环依赖" target="_blank" rel="external">http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -514,13 +405,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2019/02/08/Redis持久化和过期机制/" title="Redis 持久化和过期机制"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2019/02/01/HTTP2-0和QUIC/" title="HTTP2.0 和 QUIC"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/03/11/Spring源码浅析——创建bean实例/" title="Spring 源码浅析——创建 bean 实例"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
