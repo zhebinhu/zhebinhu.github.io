@@ -23,20 +23,20 @@
         Spring 源码浅析——解决循环依赖 |
         
         huzb的小书斋</title>
-    <meta name="description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还遗留了一些点没有讲清。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B">
+    <meta name="description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring 源码浅析——解决循环依赖">
 <meta property="og:url" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还遗留了一些点没有讲清。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B">
+<meta property="og:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png">
 <meta property="og:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/bean创建流程.png">
-<meta property="og:updated_time" content="2019-03-14T08:01:11.034Z">
+<meta property="og:updated_time" content="2019-03-14T08:29:41.187Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring 源码浅析——解决循环依赖">
-<meta name="twitter:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还遗留了一些点没有讲清。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B">
+<meta name="twitter:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖">
 <meta name="twitter:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png">
     <!-- Canonical links -->
     <link rel="canonical" href="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
@@ -353,7 +353,7 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p>本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还遗留了一些点没有讲清。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。</p>
+        <p>本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。</p>
 <h2 id="1、背景知识"><a href="#1、背景知识" class="headerlink" title="1、背景知识"></a>1、背景知识</h2><h3 id="1、什么是循环依赖"><a href="#1、什么是循环依赖" class="headerlink" title="1、什么是循环依赖"></a>1、什么是循环依赖</h3><p>循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖于A。在 Spring 中这样的场景有很多，比如构造器参数中的循环依赖，属性注入时的循环依赖。而其中，只有<code>单例对象的属性注入循环依赖</code>是可以被解决的。</p>
 <p><img src="/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png"></p>
 <p>IOC 容器在实例化上左图两个 bean 时，会按照顺序，先去实例化 beanA，然后发现 beanA 依赖于 beanB，又去实例化 beanB；实例化 beanB 时，发现 beanB 又依赖于 beanA…如果容器不处理循环依赖的话，容器会无限执行上面的流程，直到内存溢出，程序崩溃。当然，Spring 是不会让这种情况发生的。在容器发现 beanB 依赖于 beanA 时，容器会获取 beanA 对象的一个早期的引用（early reference），并把这个早期引用注入到 beanB 中，让 beanB先完成实例化，beanA 就可以获取到 beanB 的引用，然后 beanA 完成实例化。</p>
