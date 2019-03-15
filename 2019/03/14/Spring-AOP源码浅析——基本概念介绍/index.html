@@ -20,21 +20,23 @@
     
     <title>
         
-        标签: Linux |
+        Spring AOP源码分析——基本概念介绍 |
         
         huzb的小书斋</title>
     <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/tags/Linux/index.html">
+<meta name="keywords" content="标签">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP源码分析——基本概念介绍">
+<meta property="og:url" content="http://yoursite.com/2019/03/14/Spring-AOP源码浅析——基本概念介绍/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="一枚前行的小码农">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-14T12:41:41.790Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
+<meta name="twitter:title" content="Spring AOP源码分析——基本概念介绍">
 <meta name="twitter:description" content="一枚前行的小码农">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/tags/Linux/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/14/Spring-AOP源码浅析——基本概念介绍/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -294,72 +296,133 @@
 </aside>
 
   
-  <main class="main" role="main">
-  <article class="content article article-tags post-type-list" itemscope="">
-    <header class="article-header">
-      <h1 itemprop="name" class="hidden-xs">标签: Linux</h1>
-      <p class="text-muted hidden-xs">共 1 篇文章</p>
-      <nav role="navigation" id="nav-main" class="okayNav">
-        <ul>
-          <li><a href="/tags">All</a></li>
-          
-          <li><a href="/tags/Java/">Java</a></li>
-          
-          <li><a href="/tags/Linux/">Linux</a></li>
-          
-          <li><a href="/tags/计算机网络/">计算机网络</a></li>
-          
-          <li><a href="/tags/MySQL/">MySQL</a></li>
-          
-          <li><a href="/tags/收藏/">收藏</a></li>
-          
-          <li><a href="/tags/Redis/">Redis</a></li>
-          
-          <li><a href="/tags/标签/">标签</a></li>
-          
-          <li><a href="/tags/Spring/">Spring</a></li>
-          
-          <li><a href="/tags/备忘录/">备忘录</a></li>
-          
-          <li><a href="/tags/读书笔记/">读书笔记</a></li>
-          
-          <li><a href="/tags/密码学/">密码学</a></li>
-          
-        </ul>
-      </nav>
-    </header>
-    <!-- /header -->
-    <div class="article-body">
-      <div class="row">
-        
-<div class="col-md-6">
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Spring-AOP源码浅析——基本概念介绍" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
-<article class="panel panel-default hover-shadow hover-grow" itemscope itemtype="http://schema.org/BlogPosting">
-  <div class="panel-body">
-     <div class="article-meta">
-       <time datetime="2018-03-30T13:09:37.000Z" itemprop="datePublished">2018-03-30</time>
-     </div>
-     <h3 class="article-title" itemprop="name">
-       <a class="article-link" href="/2018/03/30/Centos7下使用systemd管理服务/">Centos7 下使用 systemd 管理服务</a>
-     </h3>
-   </div>
-   
-   <div class="panel-footer">
-     
-      <a href="/tags/Linux/" class="label label-default mb">Linux</a>
-     
-     
-   </div>
-   
-</article>
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring AOP源码分析——基本概念介绍
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" class="article-date">
+	  <time datetime="2019-03-14T12:41:41.000Z" itemprop="datePublished">2019-03-14</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/标签/">标签</a>
+  </span>
 
 
-</div>
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
 
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/#comments" class="article-comment-link">评论</a></span>
+        
       </div>
     </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" title="Spring AOP源码分析——基本概念介绍" target="_blank" rel="external">http://yoursite.com/2019/03/14/Spring-AOP源码浅析——基本概念介绍/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
   </article>
-   
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/03/13/Spring源码浅析——解决循环依赖/" title="Spring 源码浅析——解决循环依赖"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
 </main>
 
   <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
@@ -399,6 +462,33 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
 
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
 
 
 
