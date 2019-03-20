@@ -31,7 +31,7 @@
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="上篇我们讲过了 AOP 的概念和使用方式。这篇就开始进行源码分析。 1、AOP 入口分析上篇我们提到过，AOP 在 Spring 中是通过后置处理器的方式织入到对应的 bean 中的。负责这部分逻辑的是后置处理器 AnnotationAwareAspectJAutoProxyCreator ，但由于 AnnotationAwareAspectJAutoProxyCreator 中没有覆写父类的 p">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-19T15:59:45.571Z">
+<meta property="og:updated_time" content="2019-03-20T11:50:55.665Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring AOP源码浅析——筛选合适的通知器">
 <meta name="twitter:description" content="上篇我们讲过了 AOP 的概念和使用方式。这篇就开始进行源码分析。 1、AOP 入口分析上篇我们提到过，AOP 在 Spring 中是通过后置处理器的方式织入到对应的 bean 中的。负责这部分逻辑的是后置处理器 AnnotationAwareAspectJAutoProxyCreator ，但由于 AnnotationAwareAspectJAutoProxyCreator 中没有覆写父类的 p">
@@ -180,7 +180,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -211,6 +211,51 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring源码浅析——IOC/" class="title">Spring 源码浅析——IOC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T11:53:18.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——拦截器链的执行过程/" class="title">Spring AOP源码浅析——拦截器链的执行过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T06:02:24.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" class="title">Spring AOP源码浅析——生成代理对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T04:13:32.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -237,51 +282,6 @@
               </p>
               <p class="item-date">
                 <time datetime="2019-03-14T12:41:41.000Z" itemprop="datePublished">2019-03-14</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/03/13/Spring源码浅析——解决循环依赖/" class="title">Spring 源码浅析——解决循环依赖</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-03-13T04:40:01.000Z" itemprop="datePublished">2019-03-13</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/03/11/Spring源码浅析——创建bean实例/" class="title">Spring 源码浅析——创建 bean 实例</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-03-11T13:34:50.000Z" itemprop="datePublished">2019-03-11</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/03/04/Spring源码浅析——创建单例bean的过程/" class="title">Spring 源码浅析——创建单例 bean 的过程</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-03-04T09:52:47.000Z" itemprop="datePublished">2019-03-04</time>
               </p>
             </div>
           </li>
@@ -404,7 +404,7 @@
 <p>以上是通知器筛选的过程，筛选的工作主要由 ClassFilter 和 MethodMatcher 完成。ClassFilter 和 MethodMatcher 两个接口，都有一个 matches 的抽象方法。以 AspectJExpressionPointcut 类型的切点为例。该类型切点实现了ClassFilter 和 MethodMatcher 接口，匹配的工作则是由 AspectJ 表达式解析器负责。除了使用 AspectJ 表达式进行匹配，Spring 还提供了基于正则表达式的切点类，以及更简单的根据方法名进行匹配的切点类。这块内容很多，这里就不展开了。</p>
 <p>在完成通知器的查找和筛选过程后，还需要进行最后一步处理 – 对通知器列表进行拓展。怎么拓展呢？我们一起到下一节中一探究竟吧。</p>
 <h3 id="2-3-拓展筛选出通知器列表"><a href="#2-3-拓展筛选出通知器列表" class="headerlink" title="2.3 拓展筛选出通知器列表"></a>2.3 拓展筛选出通知器列表</h3><p>拓展方法 extendAdvisors 做的事情并不多，逻辑也比较简单。我们一起来看一下，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">extendAdvisors</span><span class="params">(List&lt;Advisor&gt; candidateAdvisors)</span> </span>&#123;</span><br><span class="line">    AspectJProxyUtils.makeAdvisorChainAspectJCapableIfNecessary(candidateAdvisors);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">makeAdvisorChainAspectJCapableIfNecessary</span><span class="params">(List&lt;Advisor&gt; advisors)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 如果通知器列表是一个空列表，则啥都不做</span></span><br><span class="line">    <span class="keyword">if</span> (!advisors.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">boolean</span> foundAspectJAdvice = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 下面的 for 循环用于检测 advisors 列表中是否存在 </span></span><br><span class="line"><span class="comment">         * AspectJ 类型的 Advisor 或 Advice</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">for</span> (Advisor advisor : advisors) &#123;</span><br><span class="line">            <span class="keyword">if</span> (isAspectJAdvice(advisor)) &#123;</span><br><span class="line">                foundAspectJAdvice = <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 向 advisors 列表的首部添加 DefaultPointcutAdvisor，</span></span><br><span class="line"><span class="comment">         * 至于为什么这样做，我会在后续的文章中进行说明</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (foundAspectJAdvice &amp;&amp; !advisors.contains(ExposeInvocationInterceptor.ADVISOR)) &#123;</span><br><span class="line">            advisors.add(<span class="number">0</span>, ExposeInvocationInterceptor.ADVISOR);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isAspectJAdvice</span><span class="params">(Advisor advisor)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (advisor <span class="keyword">instanceof</span> InstantiationModelAwarePointcutAdvisor ||</span><br><span class="line">            advisor.getAdvice() <span class="keyword">instanceof</span> AbstractAspectJAdvice ||</span><br><span class="line">            (advisor <span class="keyword">instanceof</span> PointcutAdvisor &amp;&amp;</span><br><span class="line">                     ((PointcutAdvisor) advisor).getPointcut() <span class="keyword">instanceof</span> AspectJExpressionPointcut));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>如上，上面的代码比较少，也不复杂。由源码可以看出 extendAdvisors 是一个空壳方法，除了调用makeAdvisorChainAspectJCapableIfNecessary，该方法没有其他更多的逻辑了。至于 makeAdvisorChainAspectJCapableIfNecessary 这个方法，该方法主要的目的是向通知器列表首部添加 DefaultPointcutAdvisor 类型的通知器，也就是 ExposeInvocationInterceptor.ADVISOR。至于添加此种类型通知器的意图，我们会在后面文章会看到，这里不便展开。</p>
+<p>如上，上面的代码比较少，也不复杂。由源码可以看出 extendAdvisors 是一个空壳方法，除了调用makeAdvisorChainAspectJCapableIfNecessary，该方法没有其他更多的逻辑了。至于 makeAdvisorChainAspectJCapableIfNecessary 这个方法，该方法主要的目的是向通知器列表首部添加 DefaultPointcutAdvisor 类型的通知器，也就是 ExposeInvocationInterceptor.ADVISOR。这种通知器用到的地方不多，了解一下就好。</p>
 <h2 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h2><p>本篇文章我们从 AOP 的入口代码出发，看到 AOP 主要分两步：筛选合适的通知器和生成代理对象。筛选合适的通知器是个复杂的工作，因为要考虑两种情况：xml 和注解。对于 xml 形式的通知器，会声明为 Advisor 类型，所以我们的工作是找出所有 Advisor 类型的 beanName 并通过 getBean 的方式获取或创建它；对于注解形式的通知器，我们要找到所有标记了 @Aspect 的 bean，然后把它的每一个标记了 @Before、@After 等表示通知的方法封装成一个通知器。封装的过程分为两步：解析注解里的切点表达式，将其封装成一个 AspectJExpressionPointcut 对象和按照注解类型生成相应的 Advice 实现类。最后封装好的 Advisor 和原有的 Advisor 类型对象会被一起返回。接下来就是筛选工作，筛选是为了找出能和当前 bean 匹配上的 Advisor，这个工作会由 Advisor 中的 Pointcut 对象完成。以 AspectJExpressionPointcut 为例，它实现了 ClassFilter 和 MethodMatcher 两个接口的 matches 方法，内部有一个 AspectJ 表达式解析器，可以判断当前 bean 和 Advisor 是否匹配。然后我们就得到了一组匹配当前 bean 的 Advisor。</p>
 
       
@@ -460,6 +460,10 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" title="Spring AOP源码浅析——生成代理对象"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
     
     
     <li class="next">
