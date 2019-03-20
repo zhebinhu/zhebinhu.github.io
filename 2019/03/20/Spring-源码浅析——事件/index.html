@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Spring 源码浅析——事件 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring 源码浅析——事件">
+<meta property="og:url" content="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-20T15:23:41.291Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring 源码浅析——事件">
+<meta name="twitter:description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.4px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-源码浅析——事件/" class="title">Spring 源码浅析——事件</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring源码浅析——AOP/" class="title">Spring 源码浅析——AOP</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring源码浅析——IOC/" class="title">Spring 源码浅析——IOC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T11:53:18.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 复制、哨兵和集群</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/02/21/CMS-G1和ZGC/" class="title">CMS,G1 和 ZGC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、背景知识"><span class="toc-text">1、背景知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-观察者模式"><span class="toc-text">1.1 观察者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Spring-事件体系"><span class="toc-text">1.2 Spring 事件体系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Spring-事件实例"><span class="toc-text">1.3 Spring 事件实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、Spring-事件原理"><span class="toc-text">2、Spring 事件原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-初始化事件广播"><span class="toc-text">2.1 初始化事件广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-注册事件监听器"><span class="toc-text">2.2 注册事件监听器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-发布事件"><span class="toc-text">2.3 发布事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-异步事件"><span class="toc-text">2.4 异步事件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、基于注解的事件与异步事件"><span class="toc-text">3、基于注解的事件与异步事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-EventListener-原理"><span class="toc-text">3.1 @EventListener 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Async-原理"><span class="toc-text">3.2 @Async 原理</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Spring-源码浅析——事件" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring 源码浅析——事件
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/03/20/Spring-源码浅析——事件/" class="article-date">
+	  <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/20/Spring-源码浅析——事件/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="1、背景知识"><a href="#1、背景知识" class="headerlink" title="1、背景知识"></a>1、背景知识</h2><h3 id="1-1-观察者模式"><a href="#1-1-观察者模式" class="headerlink" title="1.1 观察者模式"></a>1.1 观察者模式</h3><p>Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。</p>
+<h3 id="1-2-Spring-事件体系"><a href="#1-2-Spring-事件体系" class="headerlink" title="1.2 Spring 事件体系"></a>1.2 Spring 事件体系</h3><p>Spring事件体系包含三个部件：</p>
+<ul>
+<li>事件：ApplicationEvent</li>
+<li>事件监听器：ApplicationListener，对监听到的事件进行处理。</li>
+<li>事件广播器：ApplicationEventMulticaster，将 publish 的事件广播给所有的监听器。通常情况下无需自行实现，Spring 默认提供了 SimpleApplicationEventMulticaster。</li>
+</ul>
+<h3 id="1-3-Spring-事件实例"><a href="#1-3-Spring-事件实例" class="headerlink" title="1.3 Spring 事件实例"></a>1.3 Spring 事件实例</h3><p>这里我们模拟一个交通信号灯状态改变的事件，而相应的监听者应当根据交通信号灯的状态做出不同的反应：红灯停，黄灯等，绿灯行。首先定义一个 LightEvent 继承 ApplicationEvent 来描述交通信号灯状态改变的事件。其中 lightColor 描述信号灯状态，1：红灯 2：黄灯 3：绿灯。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LightEvent</span> <span class="keyword">extends</span> <span class="title">ApplicationEvent</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> lightColor;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LightEvent</span><span class="params">(<span class="keyword">int</span> lightColor)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.lightColor = lightColor;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getLightColor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> lightColor;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>事件监听器实现 ApplicationListener 接口的 onApplicationEvent 方法，<lightevent>表明该监听器只关心 LightEvent 事件，不关心其他类型的事件。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LightEventListener</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">LightEvent</span>&gt;</span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(LightEvent lightEvent)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span>(lightEvent.getLightColor())&#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                System.out.println(<span class="string">"红灯停"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                System.out.println(<span class="string">"黄灯等"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">                System.out.println(<span class="string">"绿灯行"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></lightevent></p>
+<p>最后是测试函数，调用了 ApplicationContext 的 publishEvent 方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ApplicationContext applicationContext = SpringApplication.run(DemoApplication.class, args);</span><br><span class="line">        LightEvent lightEvent = <span class="keyword">new</span> LightEvent(<span class="number">1</span>);</span><br><span class="line">        applicationContext.publishEvent(lightEvent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出结果为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">红灯停</span><br></pre></td></tr></table></figure></p>
+<h2 id="2、Spring-事件原理"><a href="#2、Spring-事件原理" class="headerlink" title="2、Spring 事件原理"></a>2、Spring 事件原理</h2><p>Spring 事件体系基于 ApplicationContext 实现，其构建过程主要包含在 ApplicationContext 接口的抽象实现类 AbstractApplicationContext 中。AbstractApplicationContext 中持有了 applicationEventMulticaster 成员变量，其初始化（initApplicationEventMulticaster）以及事件监听器的注册（registerListeners）过程可以在 refresh 函数中看到：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refresh</span><span class="params">()</span> <span class="keyword">throws</span> BeansException, IllegalStateException </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>.startupShutdownMonitor) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="comment">// 初始化当前 ApplicationContext 的事件广播器</span></span><br><span class="line">        initApplicationEventMulticaster();</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        <span class="comment">// 注册事件监听器，监听器需要实现 ApplicationListener 接口</span></span><br><span class="line">        registerListeners();</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="2-1-初始化事件广播"><a href="#2-1-初始化事件广播" class="headerlink" title="2.1 初始化事件广播"></a>2.1 初始化事件广播</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = <span class="string">"applicationEventMulticaster"</span>;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initApplicationEventMulticaster</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ConfigurableListableBeanFactory beanFactory = getBeanFactory();</span><br><span class="line">    <span class="keyword">if</span> (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) &#123;</span><br><span class="line">        <span class="keyword">this</span>.applicationEventMulticaster =</span><br><span class="line">                beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);</span><br><span class="line">        <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">            logger.debug(<span class="string">"Using ApplicationEventMulticaster ["</span> + <span class="keyword">this</span>.applicationEventMulticaster + <span class="string">"]"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.applicationEventMulticaster = <span class="keyword">new</span> SimpleApplicationEventMulticaster(beanFactory);</span><br><span class="line">        beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, <span class="keyword">this</span>.applicationEventMulticaster);</span><br><span class="line">        <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">            logger.debug(<span class="string">"Unable to locate ApplicationEventMulticaster with name '"</span> +</span><br><span class="line">                    APPLICATION_EVENT_MULTICASTER_BEAN_NAME +</span><br><span class="line">                    <span class="string">"': using default ["</span> + <span class="keyword">this</span>.applicationEventMulticaster + <span class="string">"]"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在初始化事件广播器的过程中，Spring 会首先检查是否存在用户自定义的名称为“applicationEventMulticaster”且实现了 ApplicationEventMulticaster 接口的 Bean。若存在则使用用户自定义的 ApplicationEventMulticaster 作为事件广播器，否则使用默认的 SimpleApplicationEventMulticaster。</p>
+<h3 id="2-2-注册事件监听器"><a href="#2-2-注册事件监听器" class="headerlink" title="2.2 注册事件监听器"></a>2.2 注册事件监听器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">registerListeners</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">for</span> (String listenerBeanName : listenerBeanNames) &#123;</span><br><span class="line">        getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最主要的步骤为通过反射获取所有实现了 ApplicationListener 接口的 Bean 的BeanName，并调用 addApplicationListenerBean 方法将其注册到 applicationEventMulticaster 中。addApplicationListenerBean 方法的实现在 AbstractApplicationEventMulticaster 中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addApplicationListenerBean</span><span class="params">(String listenerBeanName)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>.retrievalMutex) &#123;</span><br><span class="line">        <span class="keyword">this</span>.defaultRetriever.applicationListenerBeans.add(listenerBeanName);</span><br><span class="line">        <span class="keyword">this</span>.retrieverCache.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中 ListenerRetriever 的数据结构如下，可以看到 applicationListenerBeans 中存放的是监听器的名字：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ListenerRetriever</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> Set&lt;ApplicationListener&lt;?&gt;&gt; applicationListeners;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> Set&lt;String&gt; applicationListenerBeans;</span><br><span class="line">    <span class="comment">//..</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这些注册在 applicationListenerBeans 的监听器的名字会在广播器获取监听器的时候通过 getBean 的方式加入到 applicationListeners。</p>
+<h3 id="2-3-发布事件"><a href="#2-3-发布事件" class="headerlink" title="2.3 发布事件"></a>2.3 发布事件</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publishEvent</span><span class="params">(Object event)</span> </span>&#123;</span><br><span class="line">    publishEvent(event, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">publishEvent</span><span class="params">(Object event, ResolvableType eventType)</span> </span>&#123;</span><br><span class="line">    Assert.notNull(event, <span class="string">"Event must not be null"</span>);</span><br><span class="line">    <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">        logger.trace(<span class="string">"Publishing event in "</span> + getDisplayName() + <span class="string">": "</span> + event);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.earlyApplicationEvents != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.earlyApplicationEvents.add(applicationEvent);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>publishEvent(Object event) 最终调用了 publishEvent(Object event, ResolvableType eventType)，其中最关键的部分即调用了 applicationEventMulticaster的multicastEvent 方法，我们可以看一下 SimpleApplicationEventMulticaster 中 multicastEvent 方法的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">multicastEvent</span><span class="params">(<span class="keyword">final</span> ApplicationEvent event, ResolvableType eventType)</span> </span>&#123;</span><br><span class="line">    ResolvableType type = (eventType != <span class="keyword">null</span> ? eventType : resolveDefaultEventType(event));</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">final</span> ApplicationListener&lt;?&gt; listener : getApplicationListeners(event, type)) &#123;</span><br><span class="line">        Executor executor = getTaskExecutor();</span><br><span class="line">        <span class="keyword">if</span> (executor != <span class="keyword">null</span>) &#123;</span><br><span class="line">            executor.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    invokeListener(listener, event);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            invokeListener(listener, event);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"unchecked"</span>, <span class="string">"rawtypes"</span>&#125;)</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">invokeListener</span><span class="params">(ApplicationListener listener, ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">    ErrorHandler errorHandler = getErrorHandler();</span><br><span class="line">    <span class="keyword">if</span> (errorHandler != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            listener.onApplicationEvent(event);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Throwable err) &#123;</span><br><span class="line">            errorHandler.handleError(err);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        listener.onApplicationEvent(event);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该方法获取所有注册了给定事件的监听器，默认情况下 executor 为null，因此会直接调用 invokeListener 方法，在该方法中调用了 listener 的 onApplicationEvent 方法，实现对事件监听器的通知，完成事件发布。这样默认的调用方式是同步的，主流程需要等待所有 listener 的 onApplictionEvent 方法执行完毕才能继续执行。</p>
+<h3 id="2-4-异步事件"><a href="#2-4-异步事件" class="headerlink" title="2.4 异步事件"></a>2.4 异步事件</h3><p>通过源码我们可以知道事件广播器在广播前会检查是否传入了 executor，所以我们只需要在广播器中设置 Executor 属性就可以实现异步事件：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SimpleApplicationEventMulticaster applicationEventMulticaster = applicationContext.getBean(SimpleApplicationEventMulticaster.class);</span><br><span class="line">applicationEventMulticaster.setTaskExecutor(Executors.newCachedThreadPool());</span><br></pre></td></tr></table></figure></p>
+<h2 id="3、基于注解的事件与异步事件"><a href="#3、基于注解的事件与异步事件" class="headerlink" title="3、基于注解的事件与异步事件"></a>3、基于注解的事件与异步事件</h2><p>Spring 4.2 开始提供了@EventListener 注解，使得监听器不再需要实现 ApplicationListener 接口，只需要在监听方法上加上该注解即可，方法不一定叫 onApplicationEvent，但有且只能有一个参数，指定监听的事件类型。如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handler</span><span class="params">(LightEvent lightEvent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于异步事件，Spring 3.0 开始提供了@Async 注解，可以方便快速地实现异步事件：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EventListener</span></span><br><span class="line"><span class="meta">@Async</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handler</span><span class="params">(LightEvent lightEvent)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//..</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="3-1-EventListener-原理"><a href="#3-1-EventListener-原理" class="headerlink" title="3.1 @EventListener 原理"></a>3.1 @EventListener 原理</h3><p>对于@EventListener 注解，实现的逻辑在这里：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preInstantiateSingletons</span><span class="params">()</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">     <span class="comment">// ... </span></span><br><span class="line">     <span class="comment">// 到这里说明所有的非懒加载的 singleton beans 已经完成了初始化</span></span><br><span class="line">     <span class="comment">// 如果我们定义的 bean 是实现了 SmartInitializingSingleton 接口的，那么在这里回调它的 afterSingletonsInstantiated 方法</span></span><br><span class="line">     <span class="comment">// 通过名字可以知道它表示单例对象初始化后需要做的操作</span></span><br><span class="line">    <span class="keyword">for</span> (String beanName : beanNames) &#123;</span><br><span class="line">        Object singletonInstance = getSingleton(beanName);</span><br><span class="line">        <span class="keyword">if</span> (singletonInstance <span class="keyword">instanceof</span> SmartInitializingSingleton) &#123;</span><br><span class="line">            <span class="keyword">final</span> SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;</span><br><span class="line">            <span class="keyword">if</span> (System.getSecurityManager() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                AccessController.doPrivileged((PrivilegedAction&lt;Object&gt;) () -&gt; &#123;</span><br><span class="line">                    smartSingleton.afterSingletonsInstantiated();</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">                &#125;, getAccessControlContext());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                smartSingleton.afterSingletonsInstantiated();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里有个实现了 SmartInitializingSingleton 接口的 EventListenerMethodProcessor 会被调用，它的 afterSingletonsInstantiated 方法如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterSingletonsInstantiated</span><span class="params">()</span> </span>&#123;</span><br><span class="line">   <span class="comment">// 从 BeanFactory 中获取 EventListenerFactory 的 bean，默认是 DefaultEventListenerFactory</span></span><br><span class="line">   List&lt;EventListenerFactory&gt; factories = getEventListenerFactories();</span><br><span class="line">   ConfigurableApplicationContext context = getApplicationContext();</span><br><span class="line">   String[] beanNames = context.getBeanNamesForType(Object.class);</span><br><span class="line">   <span class="keyword">for</span> (String beanName : beanNames) &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="comment">// 对所有 bean 进行处理</span></span><br><span class="line">           processBean(factories, beanName, type);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> BeanInitializationException(<span class="string">"Failed to process @EventListener "</span> +</span><br><span class="line">                                                 <span class="string">"annotation on bean with name '"</span> + beanName + <span class="string">"'"</span>, ex);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>两个逻辑：</p>
+<ol>
+<li>从 BeanFactory 中获取 EventListenerFactory 的 bean，默认两种情况：<ol>
+<li>DefaultEventListenerFactory  — applicationContext 自己注入的</li>
+<li>TransactionalEventListenerFactory – 使用配置进去的</li>
+</ol>
+</li>
+<li>调用 processBean 对所有的 bean 进行处理</li>
+</ol>
+<p>processBean 的逻辑如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">processBean</span><span class="params">(<span class="keyword">final</span> List&lt;EventListenerFactory&gt; factories, <span class="keyword">final</span> String beanName, <span class="keyword">final</span> Class&lt;?&gt; targetType)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    Map&lt;Method, EventListener&gt; annotatedMethods = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 查找当前 bean 标注了@EventListener 的方法</span></span><br><span class="line">    annotatedMethods = MethodIntrospector.selectMethods(targetType,</span><br><span class="line">            (MethodIntrospector.MetadataLookup&lt;EventListener&gt;) method -&gt;</span><br><span class="line">                AnnotatedElementUtils.findMergedAnnotation(method, EventListener.class));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">for</span> (Method method : annotatedMethods.keySet()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (EventListenerFactory factory : factories) &#123;</span><br><span class="line">            <span class="keyword">if</span> (factory.supportsMethod(method)) &#123;</span><br><span class="line">                Method methodToUse = AopUtils.selectInvocableMethod(method, context.getType(beanName));</span><br><span class="line">                <span class="comment">// 使用监听器工厂创建事件监听器</span></span><br><span class="line">                ApplicationListener&lt;?&gt; applicationListener = factory.createApplicationListener(beanName, targetType, methodToUse);</span><br><span class="line">                <span class="keyword">if</span> (applicationListener <span class="keyword">instanceof</span> ApplicationListenerMethodAdapter) &#123;</span><br><span class="line">                    ((ApplicationListenerMethodAdapter) applicationListener).init(context, <span class="keyword">this</span>.evaluator);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 注册事件到容器中</span></span><br><span class="line">                context.addApplicationListener(applicationListener);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>三个逻辑：</p>
+<ol>
+<li>查找当前 bean 标注了@EventListener 的方法</li>
+<li>使用监听器工厂创建事件监听器</li>
+<li>注册事件到容器中</li>
+</ol>
+<p>监听器工厂创建事件监听器的逻辑如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ApplicationListener&lt;?&gt; createApplicationListener(String beanName, Class&lt;?&gt; type, Method method) &#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> ApplicationListenerMethodAdapter(beanName, type, method);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>返回的是一个 <code>ApplicationListenerMethodAdapter</code> 对象，这个 ApplicationListenerMethodAdapter 对象内部持有了 Method 且实现了 ApplicationListener 接口，它的 onApplicationEvent 方法就是调用相应 Method：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">    processEvent(event);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">    Object[] args = resolveArguments(event);</span><br><span class="line">    <span class="keyword">if</span> (shouldHandle(event, args)) &#123;</span><br><span class="line">        Object result = doInvoke(args);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">            handleResult(result);</span><br><span class="line">        &#125;</span><br><span class="line">     <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doInvoke</span><span class="params">(Object... args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="comment">// 调用 method 的方法</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.method.invoke(bean, args);</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终，我们注释了@EventListener 的方法会被封装成 ApplicationListenerMethodAdapter 对象，它也是一个 ApplicationListener 对象，跟通过实现 ApplicationListener 接口的监听器一样被注册进容器，被广播器调用。调用的时候执行的就是原方法。</p>
+<h3 id="3-2-Async-原理"><a href="#3-2-Async-原理" class="headerlink" title="3.2 @Async 原理"></a>3.2 @Async 原理</h3>
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/" title="Spring 源码浅析——事件" target="_blank" rel="external">http://yoursite.com/2019/03/20/Spring-源码浅析——事件/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/03/20/Spring源码浅析——AOP/" title="Spring 源码浅析——AOP"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

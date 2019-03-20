@@ -20,20 +20,20 @@
     
     <title>
         
-        Spring源码浅析——AOP |
+        Spring 源码浅析——AOP |
         
         huzb的小书斋</title>
     <meta name="description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring源码浅析——AOP">
+<meta property="og:title" content="Spring 源码浅析——AOP">
 <meta property="og:url" content="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-20T12:04:37.316Z">
+<meta property="og:updated_time" content="2019-03-20T12:43:57.824Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring源码浅析——AOP">
+<meta name="twitter:title" content="Spring 源码浅析——AOP">
 <meta name="twitter:description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
     <!-- Canonical links -->
     <link rel="canonical" href="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/index.html">
@@ -180,7 +180,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -190,7 +190,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.2px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.4px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -218,7 +218,22 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring源码浅析——AOP/" class="title">Spring源码浅析——AOP</a>
+                <a href="/2019/03/20/Spring-源码浅析——事件/" class="title">Spring 源码浅析——事件</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring源码浅析——AOP/" class="title">Spring 源码浅析——AOP</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
@@ -271,21 +286,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/02/12/Redis事件、事务和pipeline/" class="title">Redis 事件、事务和 pipeline</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-02-12T11:34:57.000Z" itemprop="datePublished">2019-02-12</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -301,7 +301,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      
+      <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-AOP源码分析——基本概念介绍"><span class="toc-text">Spring AOP源码分析——基本概念介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-AOP源码浅析——筛选合适的通知器"><span class="toc-text">Spring AOP源码浅析——筛选合适的通知器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-AOP源码浅析——生成代理对象"><span class="toc-text">Spring AOP源码浅析——生成代理对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Spring-AOP源码浅析——拦截器链的执行过程"><span class="toc-text">Spring AOP源码浅析——拦截器链的执行过程</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -315,7 +315,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Spring源码浅析——AOP
+      Spring 源码浅析——AOP
     </h1>
   
 
@@ -350,8 +350,7 @@
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <p><a href="http://huzb.me/2019/03/14/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">Spring AOP源码分析——基本概念介绍</a><br><a href="http://huzb.me/2019/03/19/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%AD%9B%E9%80%89%E5%90%88%E9%80%82%E7%9A%84%E9%80%9A%E7%9F%A5%E5%99%A8/" target="_blank" rel="noopener">Spring AOP源码浅析——筛选合适的通知器</a><br><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%94%9F%E6%88%90%E4%BB%A3%E7%90%86%E5%AF%B9%E8%B1%A1/" target="_blank" rel="noopener">Spring AOP源码浅析——生成代理对象</a><br><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">Spring AOP源码浅析——拦截器链的执行过程</a></p>
-
+        <h4 id="Spring-AOP源码分析——基本概念介绍"><a href="#Spring-AOP源码分析——基本概念介绍" class="headerlink" title="Spring AOP源码分析——基本概念介绍"></a><a href="http://huzb.me/2019/03/14/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">Spring AOP源码分析——基本概念介绍</a></h4><h4 id="Spring-AOP源码浅析——筛选合适的通知器"><a href="#Spring-AOP源码浅析——筛选合适的通知器" class="headerlink" title="Spring AOP源码浅析——筛选合适的通知器"></a><a href="http://huzb.me/2019/03/19/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%AD%9B%E9%80%89%E5%90%88%E9%80%82%E7%9A%84%E9%80%9A%E7%9F%A5%E5%99%A8/" target="_blank" rel="noopener">Spring AOP源码浅析——筛选合适的通知器</a></h4><h4 id="Spring-AOP源码浅析——生成代理对象"><a href="#Spring-AOP源码浅析——生成代理对象" class="headerlink" title="Spring AOP源码浅析——生成代理对象"></a><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%94%9F%E6%88%90%E4%BB%A3%E7%90%86%E5%AF%B9%E8%B1%A1/" target="_blank" rel="noopener">Spring AOP源码浅析——生成代理对象</a></h4><h4 id="Spring-AOP源码浅析——拦截器链的执行过程"><a href="#Spring-AOP源码浅析——拦截器链的执行过程" class="headerlink" title="Spring AOP源码浅析——拦截器链的执行过程"></a><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">Spring AOP源码浅析——拦截器链的执行过程</a></h4>
       
     </div>
     <!--<div class="article-footer">-->
@@ -360,7 +359,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/" title="Spring源码浅析——AOP" target="_blank" rel="external">http://yoursite.com/2019/03/20/Spring源码浅析——AOP/</a>
+      <a href="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/" title="Spring 源码浅析——AOP" target="_blank" rel="external">http://yoursite.com/2019/03/20/Spring源码浅析——AOP/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -405,6 +404,10 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/03/20/Spring-源码浅析——事件/" title="Spring 源码浅析——事件"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
     
     
     <li class="next">
