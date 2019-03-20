@@ -20,21 +20,23 @@
     
     <title>
         
-        归档: 2019/3 |
+        Spring源码浅析——AOP |
         
         huzb的小书斋</title>
-    <meta name="description" content="一枚前行的小码农">
-<meta property="og:type" content="website">
-<meta property="og:title" content="huzb的小书斋">
-<meta property="og:url" content="http://yoursite.com/archives/2019/03/index.html">
+    <meta name="description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring源码浅析——AOP">
+<meta property="og:url" content="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="一枚前行的小码农">
+<meta property="og:description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-20T12:04:37.316Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="huzb的小书斋">
-<meta name="twitter:description" content="一枚前行的小码农">
+<meta name="twitter:title" content="Spring源码浅析——AOP">
+<meta name="twitter:description" content="Spring AOP源码分析——基本概念介绍Spring AOP源码浅析——筛选合适的通知器Spring AOP源码浅析——生成代理对象Spring AOP源码浅析——拦截器链的执行过程">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/archives/2019/03/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -295,59 +297,133 @@
 
   
   
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      
+    </nav>
+  </div>
+</aside>
+
 <main class="main" role="main">
-  	<article class="content article article-archives article-type-list" itemscope="">
-	    <header class="article-header">
-	      <h1 itemprop="title">归档: 2019/3</h1>
-	      <p class="text-muted">共 2 篇文章</p>
-	    </header>
-	    <div class="article-body">
-	      
-  
-  
+  <div class="content">
+  <article id="post-Spring源码浅析——AOP" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
-    
+    <div class="article-header">
       
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring源码浅析——AOP
+    </h1>
+  
+
       
-      <section class="panel panel-default b-no">
-        <div class="panel-heading" role="tab">
-          <h3 class="panel-title">
-            <a data-toggle="collapse" href="#collapse2019" aria-expanded="true">
-              <i class="icon icon-calendar-plus text-active"></i><i class="icon icon-calendar-minus text"></i>
-              2019
-            </a>
-            <!-- <a href="/archives/2019" class="archive-year">2019</a> -->
-          </h3>
-        </div>
-        <div id="collapse2019" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading2019">
-        <div class="panel-body">
-          <div class="collection">
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/03/20/Spring源码浅析——AOP/" class="article-date">
+	  <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/20/Spring源码浅析——AOP/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p><a href="http://huzb.me/2019/03/14/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">Spring AOP源码分析——基本概念介绍</a><br><a href="http://huzb.me/2019/03/19/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%AD%9B%E9%80%89%E5%90%88%E9%80%82%E7%9A%84%E9%80%9A%E7%9F%A5%E5%99%A8/" target="_blank" rel="noopener">Spring AOP源码浅析——筛选合适的通知器</a><br><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E7%94%9F%E6%88%90%E4%BB%A3%E7%90%86%E5%AF%B9%E8%B1%A1/" target="_blank" rel="noopener">Spring AOP源码浅析——生成代理对象</a><br><a href="http://huzb.me/2019/03/20/Spring-AOP%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90%E2%80%94%E2%80%94%E6%8B%A6%E6%88%AA%E5%99%A8%E9%93%BE%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">Spring AOP源码浅析——拦截器链的执行过程</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
     
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/03/20/Spring源码浅析——AOP/" title="Spring源码浅析——AOP" target="_blank" rel="external">http://yoursite.com/2019/03/20/Spring源码浅析——AOP/</a>
+    </li>
     
-<a href="/2019/03/20/Spring源码浅析——AOP/" class="collection-item" target="_blank" itemprop="url">
-  <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
-  <span>&nbsp;&nbsp;&nbsp;</span> Spring源码浅析——AOP
-</a>
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
 
 
   
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
     
     
+    <li class="next">
+      <a href="/2019/03/20/Spring源码浅析——IOC/" title="Spring 源码浅析——IOC"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
     
-<a href="/2019/03/20/Spring源码浅析——IOC/" class="collection-item" target="_blank" itemprop="url">
-  <time datetime="2019-03-20T11:53:18.000Z" itemprop="datePublished">2019-03-20</time>
-  <span>&nbsp;&nbsp;&nbsp;</span> Spring 源码浅析——IOC
-</a>
-
-
+    
+  </ul>
   
   
-    </div></div></div></section>
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
   
 
-	    </div>
-  	</article>
-  	 	
+
 </main>
 
   <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
@@ -387,6 +463,33 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
 
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
 
 
 
