@@ -20,23 +20,23 @@
     
     <title>
         
-        Spring 源码浅析——事件 |
+        Spring 源码浅析——事件和异步事件 |
         
         huzb的小书斋</title>
     <meta name="description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring 源码浅析——事件">
-<meta property="og:url" content="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/index.html">
+<meta property="og:title" content="Spring 源码浅析——事件和异步事件">
+<meta property="og:url" content="http://yoursite.com/2019/03/13/Spring源码浅析——事件和异步事件/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-03-20T15:23:41.291Z">
+<meta property="og:updated_time" content="2019-03-22T15:16:28.281Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring 源码浅析——事件">
+<meta name="twitter:title" content="Spring 源码浅析——事件和异步事件">
 <meta name="twitter:description" content="1、背景知识1.1 观察者模式Spring事件体系是观察者模式的典型应用。观察者模式简单来说即所有观察者继承一个包含触发方法的父类并重写该方法，然后注册到被观察者的一个列表中。当被观察者发生变化时通过调用列表中所有已注册观察者的触发方法，使观察者得到通知，从而作进一步处理。关于观察者模式的具体描述网上有很多，这里不再赘述。 1.2 Spring 事件体系Spring事件体系包含三个部件：  事件：">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/13/Spring源码浅析——事件和异步事件/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -180,7 +180,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -190,7 +190,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.4px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -199,7 +199,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -218,10 +218,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring-源码浅析——事件/" class="title">Spring 源码浅析——事件</a>
+                <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" class="title">Spring MVC 源码浅析——请求处理流程</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-22T04:42:36.000Z" itemprop="datePublished">2019-03-22</time>
               </p>
             </div>
           </li>
@@ -233,10 +233,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring源码浅析——AOP/" class="title">Spring 源码浅析——AOP</a>
+                <a href="/2019/03/20/Spring-AOP源码浅析——拦截器链的执行过程/" class="title">Spring AOP 源码浅析——拦截器链的执行过程</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-20T06:02:24.000Z" itemprop="datePublished">2019-03-20</time>
               </p>
             </div>
           </li>
@@ -248,10 +248,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring源码浅析——IOC/" class="title">Spring 源码浅析——IOC</a>
+                <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" class="title">Spring AOP 源码浅析——生成代理对象</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T11:53:18.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-20T04:13:32.000Z" itemprop="datePublished">2019-03-20</time>
               </p>
             </div>
           </li>
@@ -263,10 +263,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 复制、哨兵和集群</a>
+                <a href="/2019/03/19/Spring-AOP源码浅析——筛选合适的通知器/" class="title">Spring AOP 源码浅析——筛选合适的通知器</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+                <time datetime="2019-03-19T07:33:18.000Z" itemprop="datePublished">2019-03-19</time>
               </p>
             </div>
           </li>
@@ -278,10 +278,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/02/21/CMS-G1和ZGC/" class="title">CMS,G1 和 ZGC</a>
+                <a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" class="title">Spring AOP 源码分析——基本概念介绍</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+                <time datetime="2019-03-14T12:41:41.000Z" itemprop="datePublished">2019-03-14</time>
               </p>
             </div>
           </li>
@@ -301,21 +301,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、背景知识"><span class="toc-text">1、背景知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-观察者模式"><span class="toc-text">1.1 观察者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Spring-事件体系"><span class="toc-text">1.2 Spring 事件体系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Spring-事件实例"><span class="toc-text">1.3 Spring 事件实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、Spring-事件原理"><span class="toc-text">2、Spring 事件原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-初始化事件广播"><span class="toc-text">2.1 初始化事件广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-注册事件监听器"><span class="toc-text">2.2 注册事件监听器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-发布事件"><span class="toc-text">2.3 发布事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-异步事件"><span class="toc-text">2.4 异步事件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、基于注解的事件与异步事件"><span class="toc-text">3、基于注解的事件与异步事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-EventListener-原理"><span class="toc-text">3.1 @EventListener 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Async-原理"><span class="toc-text">3.2 @Async 原理</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、背景知识"><span class="toc-text">1、背景知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-观察者模式"><span class="toc-text">1.1 观察者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Spring-事件体系"><span class="toc-text">1.2 Spring 事件体系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-Spring-事件实例"><span class="toc-text">1.3 Spring 事件实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、Spring-事件原理"><span class="toc-text">2、Spring 事件原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-初始化事件广播"><span class="toc-text">2.1 初始化事件广播</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-注册事件监听器"><span class="toc-text">2.2 注册事件监听器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-发布事件"><span class="toc-text">2.3 发布事件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-异步事件"><span class="toc-text">2.4 异步事件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、基于注解的事件与异步事件"><span class="toc-text">3、基于注解的事件与异步事件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-EventListener-原理"><span class="toc-text">3.1 @EventListener 原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、总结"><span class="toc-text">4、总结</span></a></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-Spring-源码浅析——事件" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-Spring源码浅析——事件和异步事件" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      Spring 源码浅析——事件
+      Spring 源码浅析——事件和异步事件
     </h1>
   
 
@@ -323,8 +323,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/03/20/Spring-源码浅析——事件/" class="article-date">
-	  <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+	<a href="/2019/03/13/Spring源码浅析——事件和异步事件/" class="article-date">
+	  <time datetime="2019-03-13T13:47:24.000Z" itemprop="datePublished">2019-03-13</time>
 	</a>
 </span>
         
@@ -344,7 +344,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/20/Spring-源码浅析——事件/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/13/Spring源码浅析——事件和异步事件/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -395,7 +395,8 @@
 <p>监听器工厂创建事件监听器的逻辑如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ApplicationListener&lt;?&gt; createApplicationListener(String beanName, Class&lt;?&gt; type, Method method) &#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> ApplicationListenerMethodAdapter(beanName, type, method);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>返回的是一个 <code>ApplicationListenerMethodAdapter</code> 对象，这个 ApplicationListenerMethodAdapter 对象内部持有了 Method 且实现了 ApplicationListener 接口，它的 onApplicationEvent 方法就是调用相应 Method：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">    processEvent(event);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processEvent</span><span class="params">(ApplicationEvent event)</span> </span>&#123;</span><br><span class="line">    Object[] args = resolveArguments(event);</span><br><span class="line">    <span class="keyword">if</span> (shouldHandle(event, args)) &#123;</span><br><span class="line">        Object result = doInvoke(args);</span><br><span class="line">        <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">            handleResult(result);</span><br><span class="line">        &#125;</span><br><span class="line">     <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">protected</span> Object <span class="title">doInvoke</span><span class="params">(Object... args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">try</span>&#123;</span><br><span class="line">        <span class="comment">// 调用 method 的方法</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.method.invoke(bean, args);</span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>最终，我们注释了@EventListener 的方法会被封装成 ApplicationListenerMethodAdapter 对象，它也是一个 ApplicationListener 对象，跟通过实现 ApplicationListener 接口的监听器一样被注册进容器，被广播器调用。调用的时候执行的就是原方法。</p>
-<h3 id="3-2-Async-原理"><a href="#3-2-Async-原理" class="headerlink" title="3.2 @Async 原理"></a>3.2 @Async 原理</h3>
+<h2 id="4、总结"><a href="#4、总结" class="headerlink" title="4、总结"></a>4、总结</h2><p>Spring 中的事件机制是观察者模式的一个典型应用。Spring 会首先初始化事件广播器 ApplicationEventMulticaster，这个组件内部维护了一个事件监听器 ApplicationListener 的集合，事件监听器需要实现 onApplicationEvent 方法，这个方法有且只有一个参数就是 ApplicationEvent 的子类。当我们调用 applicationContext.publishEvent 发布事件的时候，本质上就是调用容器内部的事件广播器把它内部维护的监听器列表轮询一遍，依次调用各个监听器的 onApplicationEvent 方法。我们也可以给广播器传入一个线程池对象，这样广播器在调用各监听器的 onApplicationEvent 方法的时候会把它放在线程池里进行。注解@EventListener 可以指定一个方法为监听器方法，它的原理是在单例 bean 初始化之后，调用一个处理器来检查所有 bean 的方法是否包含@EventListener 注解（这里有一个容易搞错的地方就是处理器检查的时机是在单例 bean 初始化后没错，但检查的是所有的 bean，因为这是通过 beanName 来获取的，只要定义过的 bean 都会被检查到，不管是单例、多例还是懒加载），然后把这个方法包装成一个 ApplicationListener 注册到广播器中（这里又有一个容易搞错的地方就是这个 ApplicationListener 对象和持有方法的原对象是两个对象，原对象是单例还是多例、是创建出来了还是没创建出来，都不会影响生成  ApplicationListener，生成后就是单独的一个单例 bean）。@EventListener 定义的方法必须满足两点要求：一是只能有一个参数，二是参数必须继承 ApplicationEvent，否则会报错。</p>
+
       
     </div>
     <!--<div class="article-footer">-->
@@ -404,7 +405,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/03/20/Spring-源码浅析——事件/" title="Spring 源码浅析——事件" target="_blank" rel="external">http://yoursite.com/2019/03/20/Spring-源码浅析——事件/</a>
+      <a href="http://yoursite.com/2019/03/13/Spring源码浅析——事件和异步事件/" title="Spring 源码浅析——事件和异步事件" target="_blank" rel="external">http://yoursite.com/2019/03/13/Spring源码浅析——事件和异步事件/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -450,9 +451,13 @@
   
   <ul class="pager pull-left">
     
+    <li class="prev">
+      <a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" title="Spring AOP 源码分析——基本概念介绍"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
     
     <li class="next">
-      <a href="/2019/03/20/Spring源码浅析——AOP/" title="Spring 源码浅析——AOP"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/03/11/Spring源码浅析——创建bean实例/" title="Spring 源码浅析——创建 bean 实例"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

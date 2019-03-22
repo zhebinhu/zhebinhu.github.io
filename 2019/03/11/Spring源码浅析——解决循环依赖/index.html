@@ -27,19 +27,19 @@
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring 源码浅析——解决循环依赖">
-<meta property="og:url" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
+<meta property="og:url" content="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png">
-<meta property="og:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/bean创建流程.png">
-<meta property="og:updated_time" content="2019-03-20T12:01:03.275Z">
+<meta property="og:image" content="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/循环依赖.png">
+<meta property="og:image" content="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/bean创建流程.png">
+<meta property="og:updated_time" content="2019-03-22T15:16:06.460Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring 源码浅析——解决循环依赖">
 <meta name="twitter:description" content="本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。 1、背景知识1、什么是循环依赖循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖">
-<meta name="twitter:image" content="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/循环依赖.png">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -183,7 +183,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">16</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -193,7 +193,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.8px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.6px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.4px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.2px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.4px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -202,7 +202,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -221,10 +221,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring-源码浅析——事件/" class="title">Spring 源码浅析——事件</a>
+                <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" class="title">Spring MVC 源码浅析——请求处理流程</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T13:47:24.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-22T04:42:36.000Z" itemprop="datePublished">2019-03-22</time>
               </p>
             </div>
           </li>
@@ -236,10 +236,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring源码浅析——AOP/" class="title">Spring 源码浅析——AOP</a>
+                <a href="/2019/03/20/Spring-AOP源码浅析——拦截器链的执行过程/" class="title">Spring AOP 源码浅析——拦截器链的执行过程</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T12:02:34.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-20T06:02:24.000Z" itemprop="datePublished">2019-03-20</time>
               </p>
             </div>
           </li>
@@ -251,10 +251,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/03/20/Spring源码浅析——IOC/" class="title">Spring 源码浅析——IOC</a>
+                <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" class="title">Spring AOP 源码浅析——生成代理对象</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-03-20T11:53:18.000Z" itemprop="datePublished">2019-03-20</time>
+                <time datetime="2019-03-20T04:13:32.000Z" itemprop="datePublished">2019-03-20</time>
               </p>
             </div>
           </li>
@@ -266,10 +266,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/02/23/Redis高可用和分布式/" class="title">Redis 复制、哨兵和集群</a>
+                <a href="/2019/03/19/Spring-AOP源码浅析——筛选合适的通知器/" class="title">Spring AOP 源码浅析——筛选合适的通知器</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-02-23T08:20:24.000Z" itemprop="datePublished">2019-02-23</time>
+                <time datetime="2019-03-19T07:33:18.000Z" itemprop="datePublished">2019-03-19</time>
               </p>
             </div>
           </li>
@@ -281,10 +281,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/02/21/CMS-G1和ZGC/" class="title">CMS,G1 和 ZGC</a>
+                <a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" class="title">Spring AOP 源码分析——基本概念介绍</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-02-21T11:23:54.000Z" itemprop="datePublished">2019-02-21</time>
+                <time datetime="2019-03-14T12:41:41.000Z" itemprop="datePublished">2019-03-14</time>
               </p>
             </div>
           </li>
@@ -326,8 +326,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/03/13/Spring源码浅析——解决循环依赖/" class="article-date">
-	  <time datetime="2019-03-13T04:40:01.000Z" itemprop="datePublished">2019-03-13</time>
+	<a href="/2019/03/11/Spring源码浅析——解决循环依赖/" class="article-date">
+	  <time datetime="2019-03-11T04:40:01.000Z" itemprop="datePublished">2019-03-11</time>
 	</a>
 </span>
         
@@ -347,7 +347,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/13/Spring源码浅析——解决循环依赖/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/11/Spring源码浅析——解决循环依赖/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -355,7 +355,7 @@
       
         <p>本文来看一下 Spring 是如何解决循环依赖的。前几篇我们讲完了 IOC 容器创建的问题，但还有一些点没讲。比如在 doCreateBean 方法中的 earlySingletonExposure 是什么意思。这里我们要提到一个循环依赖的问题。</p>
 <h2 id="1、背景知识"><a href="#1、背景知识" class="headerlink" title="1、背景知识"></a>1、背景知识</h2><h3 id="1、什么是循环依赖"><a href="#1、什么是循环依赖" class="headerlink" title="1、什么是循环依赖"></a>1、什么是循环依赖</h3><p>循环依赖其实就是循环引用，也就是两个或则两个以上的 bean 互相持有对方，最终形成闭环。比如 A 依赖于 B，B 又依赖于A。在 Spring 中这样的场景有很多，比如构造器参数中的循环依赖，属性注入时的循环依赖。而其中，只有<code>单例对象的属性注入循环依赖</code>是可以被解决的。</p>
-<p><img src="/2019/03/13/Spring源码浅析——解决循环依赖/循环依赖.png"></p>
+<p><img src="/2019/03/11/Spring源码浅析——解决循环依赖/循环依赖.png"></p>
 <p>IOC 容器在实例化上左图两个 bean 时，会按照顺序，先去实例化 beanA，然后发现 beanA 依赖于 beanB，又去实例化 beanB；实例化 beanB 时，发现 beanB 又依赖于 beanA…如果容器不处理循环依赖的话，容器会无限执行上面的流程，直到内存溢出，程序崩溃。当然，Spring 是不会让这种情况发生的。在容器发现 beanB 依赖于 beanA 时，容器会获取 beanA 对象的一个早期的引用（early reference），并把这个早期引用注入到 beanB 中，让 beanB先完成实例化，beanA 就可以获取到 beanB 的引用，然后 beanA 完成实例化。</p>
 <h3 id="2、三级缓存"><a href="#2、三级缓存" class="headerlink" title="2、三级缓存"></a>2、三级缓存</h3><p>Spring 为了解决循环依赖问题使用了三级缓存的方式，三级缓存的定义如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Cache of singleton objects: bean name --&gt; bean instance */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; singletonObjects = <span class="keyword">new</span> ConcurrentHashMap&lt;String, Object&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Cache of early singleton objects: bean name --&gt; bean instance */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; earlySingletonObjects = <span class="keyword">new</span> HashMap&lt;String, Object&gt;(<span class="number">16</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Cache of singleton factories: bean name --&gt; ObjectFactory */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ObjectFactory&lt;?&gt;&gt; singletonFactories = <span class="keyword">new</span> HashMap&lt;String, ObjectFactory&lt;?&gt;&gt;(<span class="number">16</span>);</span><br></pre></td></tr></table></figure></p>
 <table>
@@ -380,7 +380,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="3、回顾获取-bean-的过程"><a href="#3、回顾获取-bean-的过程" class="headerlink" title="3、回顾获取 bean 的过程"></a>3、回顾获取 bean 的过程</h3><p>这里我们来了解从 Spring IOC 容器中获取 bean 实例的流程（简化版），这对我们后续的源码分析会有比较大的帮助。先看图：<br><br><br><img src="/2019/03/13/Spring源码浅析——解决循环依赖/bean创建流程.png"><br><br><br>这张图是一个简化后的流程图。开始流程图中只有一条执行路径，在条件 sharedInstance != null 这里出现了岔路，形成了绿色和红色两条路径。在上图中，读取/添加缓存的方法我用蓝色的框和☆标注了出来。</p>
+<h3 id="3、回顾获取-bean-的过程"><a href="#3、回顾获取-bean-的过程" class="headerlink" title="3、回顾获取 bean 的过程"></a>3、回顾获取 bean 的过程</h3><p>这里我们来了解从 Spring IOC 容器中获取 bean 实例的流程（简化版），这对我们后续的源码分析会有比较大的帮助。先看图：<br><br><br><img src="/2019/03/11/Spring源码浅析——解决循环依赖/bean创建流程.png"><br><br><br>这张图是一个简化后的流程图。开始流程图中只有一条执行路径，在条件 sharedInstance != null 这里出现了岔路，形成了绿色和红色两条路径。在上图中，读取/添加缓存的方法我用蓝色的框和☆标注了出来。</p>
 <p>我来按照上面的图，分析一下整个流程的执行顺序。这个流程从 getBean 方法开始，getBean 是个空壳方法，所有逻辑都在 doGetBean 方法中。doGetBean 首先会调用 getSingleton(beanName) 方法获取 sharedInstance，sharedInstance 可能是完全实例化好的 bean，也可能是一个早期 bean 对象，当然也有可能是 null。如果不为 null，则走绿色的那条路径。再经 getObjectForBeanInstance 这一步处理后，绿色的这条执行路径就结束了。</p>
 <p>我们再来看一下红色的那条执行路径，也就是 sharedInstance = null 的情况。在第一次获取某个 bean 的时候，缓存中是没有记录的，所以这个时候要走创建逻辑。上图中的 getSingleton(beanName,new ObjectFactory() {…}) 方法会创建一个 bean 实例，上图虚线路径指的是 getSingleton 方法内部调用的两个方法，其逻辑如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getSingleton</span><span class="params">(String beanName, ObjectFactory&lt;?&gt; singletonFactory)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 省略部分代码</span></span><br><span class="line">    singletonObject = singletonFactory.getObject();</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    addSingleton(beanName, singletonObject);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>如上所示，getSingleton 会在内部先调用 getObject 方法创建 singletonObject，然后再调用 addSingleton 将 singletonObject 放入缓存中。getObject 在内部代用了 createBean 方法，createBean 方法基本上也属于空壳方法，更多的逻辑是写在 doCreateBean 方法中的。doCreateBean 方法中的逻辑很多，其首先调用了 createBeanInstance 方法创建了一个原始的 bean 对象，随后调用 addSingletonFactory 方法向缓存中添加单例 bean 工厂，从该工厂可以获取早期 bean 对象。再之后，继续调用 populateBean 方法向原始 bean 对象中填充属性，并解析依赖。getObject 执行完成后，会返回完全实例化好的 bean。紧接着再调用 addSingleton 把完全实例化好的 bean 对象放入缓存中。到这里，红色执行路径差不多也就结束了。</p>
@@ -424,7 +424,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/" title="Spring 源码浅析——解决循环依赖" target="_blank" rel="external">http://yoursite.com/2019/03/13/Spring源码浅析——解决循环依赖/</a>
+      <a href="http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/" title="Spring 源码浅析——解决循环依赖" target="_blank" rel="external">http://yoursite.com/2019/03/11/Spring源码浅析——解决循环依赖/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -471,12 +471,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2019/03/14/Spring-AOP源码浅析——基本概念介绍/" title="Spring AOP源码分析——基本概念介绍"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/2019/03/11/Spring源码浅析——创建bean实例/" title="Spring 源码浅析——创建 bean 实例"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2019/03/11/Spring源码浅析——创建bean实例/" title="Spring 源码浅析——创建 bean 实例"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/03/04/Spring源码浅析——bean 创建流程/" title="Spring 源码浅析——bean 创建流程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
