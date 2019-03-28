@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Spring MVC 源码浅析——容器创建过程 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="Spring MVC  中会配置两个容器：一个用于加载 Web 层的类，比如 Controller、HandlerMapping、ViewResolver 等，叫 web 容器；另一个容器用于加载业务逻辑相关的类，比如 service、dao 层的一些类，叫业务容器。这两个容器是父子关系，业务容器是 web 容器的父容器。父容器中的 bean 对子容器可见，而子容器中的 bean 对父容器不可见。">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring MVC 源码浅析——容器创建过程">
+<meta property="og:url" content="http://yoursite.com/2019/03/26/Spring-MVC源码浅析——容器创建过程/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="Spring MVC  中会配置两个容器：一个用于加载 Web 层的类，比如 Controller、HandlerMapping、ViewResolver 等，叫 web 容器；另一个容器用于加载业务逻辑相关的类，比如 service、dao 层的一些类，叫业务容器。这两个容器是父子关系，业务容器是 web 容器的父容器。父容器中的 bean 对子容器可见，而子容器中的 bean 对父容器不可见。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-28T05:36:31.997Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring MVC 源码浅析——容器创建过程">
+<meta name="twitter:description" content="Spring MVC  中会配置两个容器：一个用于加载 Web 层的类，比如 Controller、HandlerMapping、ViewResolver 等，叫 web 容器；另一个容器用于加载业务逻辑相关的类，比如 service、dao 层的一些类，叫业务容器。这两个容器是父子关系，业务容器是 web 容器的父容器。父容器中的 bean 对子容器可见，而子容器中的 bean 对父容器不可见。">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/03/26/Spring-MVC源码浅析——容器创建过程/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" class="title">Spring AOP 源码浅析——事务的实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-28T08:03:54.000Z" itemprop="datePublished">2019-03-28</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" class="title">Spring MVC 源码浅析——容器创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-26T15:45:41.000Z" itemprop="datePublished">2019-03-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" class="title">Spring MVC 源码浅析——请求处理流程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-22T04:42:36.000Z" itemprop="datePublished">2019-03-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——拦截器链的执行过程/" class="title">Spring AOP 源码浅析——拦截器链的执行过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T06:02:24.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" class="title">Spring AOP 源码浅析——生成代理对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T04:13:32.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、父容器创建"><span class="toc-text">一、父容器创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、子容器创建"><span class="toc-text">二、子容器创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、小结"><span class="toc-text">三、小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、参考资料"><span class="toc-text">四、参考资料</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Spring-MVC源码浅析——容器创建过程" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring MVC 源码浅析——容器创建过程
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" class="article-date">
+	  <time datetime="2019-03-26T15:45:41.000Z" itemprop="datePublished">2019-03-26</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>Spring MVC  中会配置两个容器：一个用于加载 Web 层的类，比如 Controller、HandlerMapping、ViewResolver 等，叫 web 容器；另一个容器用于加载业务逻辑相关的类，比如 service、dao 层的一些类，叫业务容器。这两个容器是父子关系，业务容器是 web 容器的父容器。父容器中的 bean 对子容器可见，而子容器中的 bean 对父容器不可见。在初始化时，父容器会先于子容器初始化，这是因为子容器中的一些 bean 可能会依赖父容器。</p>
+<p>注：在 Sping Boot 中不再有父子容器的概念，因此这是 Spring MVC 独有的。因为面试会问到这部分概念，所以在这里总结一下。</p>
+<h2 id="一、父容器创建"><a href="#一、父容器创建" class="headerlink" title="一、父容器创建"></a>一、父容器创建</h2><p>web 应用程序启动时，servlet 容器会创建一个全局共享的上下文： ServletContext，然后会读取 web.xml 文件，将读取到的<context-param>转化为键值对，将读取到的<listener>创建出来。如果我们要使用 Spring 的话，就要在 web.xml 中添加如下配置：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">web-app</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 省略其他配置 --&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">listener</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">listener-class</span>&gt;</span>org.springframework.web.context.ContextLoaderListener<span class="tag">&lt;/<span class="name">listener-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">listener</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">context-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:application.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">context-param</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 省略其他配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure></listener></context-param></p>
+<p>tomcat 会在启动时创建 ContextLoaderListener 对象，这个对象会监听 ServletContext 的创建，然后在监听回调函数中创建父容器。我们来看一下它创建父容器的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ContextLoaderListener</span> <span class="keyword">extends</span> <span class="title">ContextLoader</span> <span class="keyword">implements</span> <span class="title">ServletContextListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 省略部分代码</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextInitialized</span><span class="params">(ServletContextEvent event)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 初始化父容器</span></span><br><span class="line">        initWebApplicationContext(event.getServletContext());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> WebApplicationContext <span class="title">initWebApplicationContext</span><span class="params">(ServletContext servletContext)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ServletContext 中会存储一个&lt;key，父容器&gt;的键值对，如果这个 key 被其它组件使用了，就会抛出异常</span></span><br><span class="line">    <span class="keyword">if</span> (servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(...);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.context == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 创建父容器</span></span><br><span class="line">            <span class="keyword">this</span>.context = createWebApplicationContext(servletContext);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.context <span class="keyword">instanceof</span> ConfigurableWebApplicationContext) &#123;</span><br><span class="line">            ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) <span class="keyword">this</span>.context;</span><br><span class="line">            <span class="keyword">if</span> (!cwac.isActive()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cwac.getParent() == <span class="keyword">null</span>) &#123;</span><br><span class="line">                     <span class="comment">// 加载当前容器的父容器，一般没有，除非特别配置</span></span><br><span class="line">                    ApplicationContext parent = loadParentContext(servletContext);</span><br><span class="line">                    cwac.setParent(parent);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 配置并刷新父容器，这里的刷新过程就是我们之前分析过的 refresh 方法</span></span><br><span class="line">                configureAndRefreshWebApplicationContext(cwac, servletContext);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在 ServletContext 中创建一个&lt;key，父容器&gt;的键值对，对应方法开头</span></span><br><span class="line">        servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, <span class="keyword">this</span>.context);</span><br><span class="line"></span><br><span class="line">        ClassLoader ccl = Thread.currentThread().getContextClassLoader();</span><br><span class="line">        <span class="keyword">if</span> (ccl == ContextLoader.class.getClassLoader()) &#123;</span><br><span class="line">            currentContext = <span class="keyword">this</span>.context;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (ccl != <span class="keyword">null</span>) &#123;</span><br><span class="line">            currentContextPerThread.put(ccl, <span class="keyword">this</span>.context);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.context;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (RuntimeException ex) &#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>进入创建容器的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> WebApplicationContext <span class="title">createWebApplicationContext</span><span class="params">(ServletContext sc)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断创建什么类型的容器，默认类型为 XmlWebApplicationContext</span></span><br><span class="line">    Class&lt;?&gt; contextClass = determineContextClass(sc);</span><br><span class="line">    <span class="keyword">if</span> (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ApplicationContextException(...);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 通过反射创建容器</span></span><br><span class="line">    <span class="keyword">return</span> (ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; determineContextClass(ServletContext servletContext) &#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 读取用户自定义配置，比如：</span></span><br><span class="line"><span class="comment">     * &lt;context-param&gt;</span></span><br><span class="line"><span class="comment">     *     &lt;param-name&gt;contextClass&lt;/param-name&gt;</span></span><br><span class="line"><span class="comment">     *     &lt;param-value&gt;XXXConfigWebApplicationContext&lt;/param-value&gt;</span></span><br><span class="line"><span class="comment">     * &lt;/context-param&gt;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String contextClassName = servletContext.getInitParameter(CONTEXT_CLASS_PARAM);</span><br><span class="line">    <span class="keyword">if</span> (contextClassName != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> ClassUtils.forName(contextClassName, ClassUtils.getDefaultClassLoader());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;...&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * 若无自定义配置，则获取默认的容器类型，默认类型为 XmlWebApplicationContext。</span></span><br><span class="line"><span class="comment">         * defaultStrategies 读取的配置文件为 ContextLoader.properties，</span></span><br><span class="line"><span class="comment">         * 该配置文件内容如下：</span></span><br><span class="line"><span class="comment">         * org.springframework.web.context.WebApplicationContext =</span></span><br><span class="line"><span class="comment">         *     org.springframework.web.context.support.XmlWebApplicationContext</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> ClassUtils.forName(contextClassName, ContextLoader.class.getClassLoader());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (ClassNotFoundException ex) &#123;...&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一句话就是根据配置文件的内容获取父容器的类型，然后通过反射创建容器。接下来再看看配置并刷新容器的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configureAndRefreshWebApplicationContext</span><span class="params">(ConfigurableWebApplicationContext wac, ServletContext sc)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (ObjectUtils.identityToString(wac).equals(wac.getId())) &#123;</span><br><span class="line">        <span class="comment">// 从 ServletContext 中获取用户配置的 contextId 属性</span></span><br><span class="line">        String idParam = sc.getInitParameter(CONTEXT_ID_PARAM);</span><br><span class="line">        <span class="keyword">if</span> (idParam != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 设置容器 id</span></span><br><span class="line">            wac.setId(idParam);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 用户未配置 contextId，则设置一个默认的容器 id</span></span><br><span class="line">            wac.setId(ConfigurableWebApplicationContext.APPLICATION_CONTEXT_ID_PREFIX + </span><br><span class="line">ObjectUtils.getDisplayString(sc.getContextPath()));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    wac.setServletContext(sc);</span><br><span class="line">    <span class="comment">// 获取 contextConfigLocation 配置</span></span><br><span class="line">    String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);</span><br><span class="line">    <span class="keyword">if</span> (configLocationParam != <span class="keyword">null</span>) &#123;</span><br><span class="line">        wac.setConfigLocation(configLocationParam);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    ConfigurableEnvironment env = wac.getEnvironment();</span><br><span class="line">    <span class="keyword">if</span> (env <span class="keyword">instanceof</span> ConfigurableWebEnvironment) &#123;</span><br><span class="line">        ((ConfigurableWebEnvironment) env).initPropertySources(sc, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    customizeContext(sc, wac);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 刷新容器</span></span><br><span class="line">    wac.refresh();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>说白了也很简单，就是从配置文件获取容器 id，没有的话就默认设置一个，然后获取配置文件的路径，放入容器中，刷新容器，之后就是大家熟悉的过程了。</p>
+<p>总结一下父容器的创建过程：</p>
+<ol>
+<li>创建 listener 节点中的 ContextLoaderListener 实例</li>
+<li>创建过程中初始化 webapplicationContext，也即是父容器对象</li>
+<li>从 ServletContext 中获取 contextConfigLocation 的值，这是父容器配置文件的路径，把路径放入父容器中</li>
+<li>根据配置信息刷新父容器</li>
+<li>将父容器保存在 ServletContext 中</li>
+</ol>
+<h2 id="二、子容器创建"><a href="#二、子容器创建" class="headerlink" title="二、子容器创建"></a>二、子容器创建</h2><p>子容器的加载发生在 DispatcherServlet 初始化的时候，而 DispatcherServlet 的初始化发生在第一个请求到达的时候，因此能确保 Servlet 的初始化发生在 listener 初始化之后。初始化 DispatcherServlet 需要在 web.xml 中添加如下配置：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">web-app</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 省略其他配置 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>springMVC<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.springframework.web.servlet.DispatcherServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 初始化参数，配置springmvc配置文件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>contextConfigLocation<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>classpath:application-web.xml<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- web容器启动时加载该Servlet --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>1<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>springMVC<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 拦截所有请求 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">servlet-mapping</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 省略其他配置 --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">web-app</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>初始化的入口在 DispatcherServlet 的 init 方法中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取 ServletConfig 中的配置信息</span></span><br><span class="line">    PropertyValues pvs = <span class="keyword">new</span> ServletConfigPropertyValues(getServletConfig(), <span class="keyword">this</span>.requiredProperties);</span><br><span class="line">    <span class="keyword">if</span> (!pvs.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 为 DispatcherServlet 对象创建一个 BeanWrapper，方便读/写对象属性。</span></span><br><span class="line">            BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(<span class="keyword">this</span>);</span><br><span class="line">            ResourceLoader resourceLoader = <span class="keyword">new</span> ServletContextResourceLoader(getServletContext());</span><br><span class="line">            bw.registerCustomEditor(Resource.class, <span class="keyword">new</span> ResourceEditor(resourceLoader, getEnvironment()));</span><br><span class="line">            initBeanWrapper(bw);</span><br><span class="line">            <span class="comment">// 设置配置信息到目标对象中</span></span><br><span class="line">            bw.setPropertyValues(pvs, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (BeansException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (logger.isErrorEnabled()) &#123;...&#125;</span><br><span class="line">            <span class="keyword">throw</span> ex;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 进行后续的初始化</span></span><br><span class="line">    initServletBean();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;...&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面的源码主要做的事情是将 web.xml 中的配置信息设置到 DispatcherServlet 对象中，容器的初始化在 initServletBean 中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">initServletBean</span><span class="params">()</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 初始化容器</span></span><br><span class="line">        <span class="keyword">this</span>.webApplicationContext = initWebApplicationContext();</span><br><span class="line">        initFrameworkServlet();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> WebApplicationContext <span class="title">initWebApplicationContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取父容器</span></span><br><span class="line">    WebApplicationContext rootContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());</span><br><span class="line">    WebApplicationContext wac = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 检查外部是否已经设置了子容器，Spring MVC 中一般 this.webApplicationContext = null，</span></span><br><span class="line">    <span class="comment">// 而 Spring Boot 中 this.webApplicationContext 就是父容器，看后面的代码就可以知道，Spring Boot 不会创建子容器，</span></span><br><span class="line">    <span class="comment">// 只会再刷新一次，初始化一些特殊组件比如 handler、invocation </span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.webApplicationContext != <span class="keyword">null</span>) &#123;</span><br><span class="line">        wac = <span class="keyword">this</span>.webApplicationContext;</span><br><span class="line">        <span class="keyword">if</span> (wac <span class="keyword">instanceof</span> ConfigurableWebApplicationContext) &#123;</span><br><span class="line">            ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;</span><br><span class="line">            <span class="comment">// Spring Boot 中虽然有外部设置的 this.webApplicationContext，但不会进入下面的代码</span></span><br><span class="line">            <span class="keyword">if</span> (!cwac.isActive()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cwac.getParent() == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// 设置父容器</span></span><br><span class="line">                    cwac.setParent(rootContext);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 配置并刷新容器</span></span><br><span class="line">                configureAndRefreshWebApplicationContext(cwac);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (wac == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 尝试从 ServletContext 中获取容器</span></span><br><span class="line">        wac = findWebApplicationContext();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (wac == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 创建容器，并设置父容器</span></span><br><span class="line">        wac = createWebApplicationContext(rootContext);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.refreshEventReceived) &#123;</span><br><span class="line">        <span class="comment">// 刷新容器</span></span><br><span class="line">        onRefresh(wac);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.publishContext) &#123;</span><br><span class="line">        String attrName = getServletContextAttributeName();</span><br><span class="line">        <span class="comment">// 将创建好的容器缓存到 ServletContext 中</span></span><br><span class="line">        getServletContext().setAttribute(attrName, wac);</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.logger.isDebugEnabled()) &#123;...&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wac;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上就是创建子容器的源码，下面总结一下该容器创建的过程，我们分成 Spring MVC 和 Spring Boot 两条路线：<br>Spring MVC 路线：</p>
+<ol>
+<li>从 ServletContext 中获取父容器</li>
+<li>如果已有外部设置的子容器的话，设置父容器、刷新子容器</li>
+<li>尝试从 ServletContext 中获取子容器，若子容器不为空，则无需执行步骤4</li>
+<li>创建子容器，并设置父容器</li>
+<li>刷新子容器</li>
+<li>缓存子容器到 ServletContext 中</li>
+</ol>
+<p>Spring Boot 路线：</p>
+<ol>
+<li>从 ServletContext 中获取父容器</li>
+<li>获取 this.webApplicationContext 的“子”容器，其实就是父容器</li>
+<li>刷新容器</li>
+<li>缓存容器到 ServletContext 中</li>
+</ol>
+<p>这里子容器的创建分为两条路线，Spring MVC 路线和 Spring Boot 路线。不过最终它们都会调用 onRefresh 刷新容器。接下来我们看一下 onRefresh 方法做了什么：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onRefresh</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">    initStrategies(context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initStrategies</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 初始化 MultipartResolver，用于文件上传</span></span><br><span class="line">    initMultipartResolver(context);</span><br><span class="line">    <span class="comment">// 初始化 LocaleResolver，用于解析用户区域</span></span><br><span class="line">    initLocaleResolver(context);</span><br><span class="line">    <span class="comment">// 初始化 ThemeResolver，用于设置主题</span></span><br><span class="line">    initThemeResolver(context);</span><br><span class="line">    <span class="comment">// 初始化 HandlerMappings，用于映射用户的 URL 和对应的处理类</span></span><br><span class="line">    initHandlerMappings(context);</span><br><span class="line">    <span class="comment">// 初始化 HandlerAdapters，用于执行处理类得到 ModelAndView</span></span><br><span class="line">    initHandlerAdapters(context);</span><br><span class="line">    <span class="comment">// 初始化 HandlerExceptionResolvers，用于统一异常处理</span></span><br><span class="line">    initHandlerExceptionResolvers(context);</span><br><span class="line">    <span class="comment">// 初始化 RequestToViewNameTranslator，用于在处理器返回的 View 为空时根据请求得到视图名称</span></span><br><span class="line">    initRequestToViewNameTranslator(context);</span><br><span class="line">    <span class="comment">// 初始化 ViewResolvers，用于把视图名称转换为真正的视图对象</span></span><br><span class="line">    initViewResolvers(context);</span><br><span class="line">    <span class="comment">// 初始化FlashMapManager，用于重定向数据保存</span></span><br><span class="line">    initFlashMapManager(context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们重点关注一下 <code>initHandlerMappings</code> 和 <code>initHandlerAdapters</code> 两个方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initHandlerMappings</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.handlerMappings = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.detectAllHandlerMappings) &#123;</span><br><span class="line">        <span class="comment">// 如果配置的是找到所有 HandlerMapping，则找到容器和父容器中所有的 HandlerMapping</span></span><br><span class="line">        Map&lt;String, HandlerMapping&gt; matchingBeans =</span><br><span class="line">                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (!matchingBeans.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 将所有 HandlerMapping 保存在 DispatcherServlet 中</span></span><br><span class="line">            <span class="keyword">this</span>.handlerMappings = <span class="keyword">new</span> ArrayList&lt;&gt;(matchingBeans.values());</span><br><span class="line">            <span class="comment">// 对 HandlerMapping 排序</span></span><br><span class="line">            AnnotationAwareOrderComparator.sort(<span class="keyword">this</span>.handlerMappings);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 如果配置的是只找一个 HandlerMapping，则找到容器中名称为 "handlerMapping" 的 HandlerMapping</span></span><br><span class="line">            HandlerMapping hm = context.getBean(<span class="string">"handlerMapping"</span>, HandlerMapping.class);</span><br><span class="line">            <span class="comment">// 将找到的 HandlerMapping 保存在 DispatcherServlet 中</span></span><br><span class="line">            <span class="keyword">this</span>.handlerMappings = Collections.singletonList(hm);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchBeanDefinitionException ex) &#123;...&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果容器中没有 HandlerMapping，就创建一个默认的保存在 DispatcherServlet 中</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.handlerMappings == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initHandlerAdapters</span><span class="params">(ApplicationContext context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.handlerAdapters = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.detectAllHandlerAdapters) &#123;</span><br><span class="line">        <span class="comment">// 如果配置的是找到所有 HandlerAdapter，则找到容器和父容器中所有的 HandlerAdapter</span></span><br><span class="line">        Map&lt;String, HandlerAdapter&gt; matchingBeans =</span><br><span class="line">                BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerAdapter.class, <span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">        <span class="keyword">if</span> (!matchingBeans.isEmpty()) &#123;</span><br><span class="line">            <span class="comment">// 将所有 HandlerAdapter 保存在 DispatcherServlet 中</span></span><br><span class="line">            <span class="keyword">this</span>.handlerAdapters = <span class="keyword">new</span> ArrayList&lt;&gt;(matchingBeans.values());</span><br><span class="line">            <span class="comment">// 对 HandlerAdapter 排序</span></span><br><span class="line">            AnnotationAwareOrderComparator.sort(<span class="keyword">this</span>.handlerAdapters);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 如果配置的是只找一个 HandlerAdapter，则找到容器中名称为 "handlerAdapter" 的 HandlerAdapter</span></span><br><span class="line">            HandlerAdapter ha = context.getBean(<span class="string">"handlerAdapter"</span>, HandlerAdapter.class);</span><br><span class="line">            <span class="comment">// 将找到的 HandlerAdapter 保存在 DispatcherServlet 中</span></span><br><span class="line">            <span class="keyword">this</span>.handlerAdapters = Collections.singletonList(ha);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchBeanDefinitionException ex) &#123;...&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果容器中没有 HandlerAdapter，就创建一个默认的保存在 DispatcherServlet 中</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.handlerAdapters == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.handlerAdapters = getDefaultStrategies(context, HandlerAdapter.class);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的注释我们可以看到，<code>initHandlerMappings</code> 和 <code>initHandlerAdapters</code> 这两个方法会从容器中找出 HandlerMapping 和 HandlerAdapter 然后保存在 DispatcherServlet 中。说明 DispatcherServlet 中的 onRefresh 方法并不像我们熟悉的容器刷新一样，它只是把容器中的在 DispatcherServlet 中要用到的组件设置到 DispatcherServlet 中。而实际的 HandlerMapping 和 HandlerAdapter 和普通 bean 一样在创建的时候就初始化了。</p>
+<h2 id="三、小结"><a href="#三、小结" class="headerlink" title="三、小结"></a>三、小结</h2><p>我们来总结一下，Sping MVC 中的容器创建分为父容器的创建和子容器的创建。父容器创建的时机在 Servlet 容器上下文创建的时候，通过监听器 ContextLoaderListener 的回调函数创建父容器。子容器创建的时机在 DispatcherServlet 初始化的时候，一般发生在第一个请求到达，由 Servlet 容器初始化。子容器的创建在我们之前熟知的容器创建步骤之后，还会执行 onRefresh 为 DispatcherServlet 设置几个重要组件，这几个组件用于处理和请求相关的工作。</p>
+<h2 id="四、参考资料"><a href="#四、参考资料" class="headerlink" title="四、参考资料"></a>四、参考资料</h2><p><a href="http://www.tianxiaobo.com/2018/06/30/Spring-MVC-%E5%8E%9F%E7%90%86%E6%8E%A2%E7%A7%98-%E5%AE%B9%E5%99%A8%E7%9A%84%E5%88%9B%E5%BB%BA%E8%BF%87%E7%A8%8B/" target="_blank" rel="noopener">Spring MVC 原理探秘 - 容器的创建过程</a><br><a href="https://blog.csdn.net/gaoshan12345678910/article/details/81910397" target="_blank" rel="noopener">SpringMVC工作原理之二：HandlerMapping和HandlerAdapter</a><br><a href="https://blog.csdn.net/dhaiuda/article/details/80026354" target="_blank" rel="noopener">Spring与SpringMVC父子容器的关系与初始化</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/03/26/Spring-MVC源码浅析——容器创建过程/" title="Spring MVC 源码浅析——容器创建过程" target="_blank" rel="external">http://yoursite.com/2019/03/26/Spring-MVC源码浅析——容器创建过程/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" title="Spring AOP 源码浅析——事务的实现"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" title="Spring MVC 源码浅析——请求处理流程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

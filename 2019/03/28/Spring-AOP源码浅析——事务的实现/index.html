@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Spring AOP 源码浅析——事务的实现 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="Spring AOP 的诸多应用中，事务无疑是最常使用的工具之一。对于 Spring 事务的有些特性我们很熟悉，比如事务的四大特性 ACID，比如具体的实现委托给底层 DB。但有些特性我又有些陌生，比如事务传播机制，事务实现的原理。这也是这篇文章要阐述的内容。 一、事务的七大传播机制传播机制这个概念大家或许不太懂，我先解释一下什么叫事务的传播，先看两段代码：12345678910public vo">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP 源码浅析——事务的实现">
+<meta property="og:url" content="http://yoursite.com/2019/03/28/Spring-AOP源码浅析——事务的实现/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="Spring AOP 的诸多应用中，事务无疑是最常使用的工具之一。对于 Spring 事务的有些特性我们很熟悉，比如事务的四大特性 ACID，比如具体的实现委托给底层 DB。但有些特性我又有些陌生，比如事务传播机制，事务实现的原理。这也是这篇文章要阐述的内容。 一、事务的七大传播机制传播机制这个概念大家或许不太懂，我先解释一下什么叫事务的传播，先看两段代码：12345678910public vo">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-28T09:10:18.486Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring AOP 源码浅析——事务的实现">
+<meta name="twitter:description" content="Spring AOP 的诸多应用中，事务无疑是最常使用的工具之一。对于 Spring 事务的有些特性我们很熟悉，比如事务的四大特性 ACID，比如具体的实现委托给底层 DB。但有些特性我又有些陌生，比如事务传播机制，事务实现的原理。这也是这篇文章要阐述的内容。 一、事务的七大传播机制传播机制这个概念大家或许不太懂，我先解释一下什么叫事务的传播，先看两段代码：12345678910public vo">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/03/28/Spring-AOP源码浅析——事务的实现/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" class="title">Spring AOP 源码浅析——事务的实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-28T08:03:54.000Z" itemprop="datePublished">2019-03-28</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" class="title">Spring MVC 源码浅析——容器创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-26T15:45:41.000Z" itemprop="datePublished">2019-03-26</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" class="title">Spring MVC 源码浅析——请求处理流程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-22T04:42:36.000Z" itemprop="datePublished">2019-03-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——拦截器链的执行过程/" class="title">Spring AOP 源码浅析——拦截器链的执行过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T06:02:24.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/20/Spring-AOP源码浅析——生成代理对象/" class="title">Spring AOP 源码浅析——生成代理对象</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-20T04:13:32.000Z" itemprop="datePublished">2019-03-20</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、事务的七大传播机制"><span class="toc-text">一、事务的七大传播机制</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Spring-AOP源码浅析——事务的实现" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring AOP 源码浅析——事务的实现
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" class="article-date">
+	  <time datetime="2019-03-28T08:03:54.000Z" itemprop="datePublished">2019-03-28</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>Spring AOP 的诸多应用中，事务无疑是最常使用的工具之一。对于 Spring 事务的有些特性我们很熟悉，比如事务的四大特性 ACID，比如具体的实现委托给底层 DB。但有些特性我又有些陌生，比如事务传播机制，事务实现的原理。这也是这篇文章要阐述的内容。</p>
+<h2 id="一、事务的七大传播机制"><a href="#一、事务的七大传播机制" class="headerlink" title="一、事务的七大传播机制"></a>一、事务的七大传播机制</h2><p>传播机制这个概念大家或许不太懂，我先解释一下什么叫事务的传播，先看两段代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">()</span></span>&#123;</span><br><span class="line">    serviceA();</span><br><span class="line">    serviceB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line">serviceA();</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line">serviceB();</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">()</span></span>&#123;</span><br><span class="line">    serviceA();</span><br><span class="line">    serviceB();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line">serviceA();</span><br><span class="line"></span><br><span class="line"><span class="meta">@Transactional</span></span><br><span class="line">serviceB();</span><br></pre></td></tr></table></figure>
+<p>如上，当我们在其它地方调用开启了事务的 serviceA() 和 serviceB() 时，就发生了事务的传播。这里面会有很多种情况，比如调用方当前存不存在事务，如果存在事务的话，是要加入当前的事务还是自己创建一个；如果不存在的话，是自己创建一个还是抛异常。这些策略的选择，统称为 Spring 的事务传播机制。</p>
+<p>org.springframework.transaction.annotation 包下的枚举类 Propagation 为 Spring 定义了七种传播机制，我们简单了解一下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">事务传播机制</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">REQUIRED</td>
+<td style="text-align:left">如果当前已经存在事务，那么加入该事务，如果不存在事务，创建一个事务，这是默认的传播属性值。</td>
+</tr>
+<tr>
+<td style="text-align:left">SUPPORTS</td>
+<td style="text-align:left">如果当前已经存在事务，那么加入该事务，否则在无事务环境执行。</td>
+</tr>
+<tr>
+<td style="text-align:left">MANDATORY</td>
+<td style="text-align:left">当前必须存在一个事务，否则抛出异常。</td>
+</tr>
+<tr>
+<td style="text-align:left">REQUIRES_NEW</td>
+<td style="text-align:left">暂停当前事务(当前无事务则不需要)，创建一个新事务。</td>
+</tr>
+<tr>
+<td style="text-align:left">NOT_SUPPORTED</td>
+<td style="text-align:left">暂停当前事务，在无事务环境上执行。</td>
+</tr>
+<tr>
+<td style="text-align:left">NEVER</td>
+<td style="text-align:left">如果当前存在事务，则抛出异常，否则在无事务环境上执行。</td>
+</tr>
+<tr>
+<td style="text-align:left">NESTED</td>
+<td style="text-align:left">如果当前存在事务，则嵌套事务执行</td>
+</tr>
+</tbody>
+</table>
+<p>这里解释一下暂停和嵌套的概念，假设我们有如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Transactional</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">service</span><span class="params">()</span></span>&#123;</span><br><span class="line">     <span class="keyword">do</span> sql</span><br><span class="line">     serviceA();</span><br><span class="line">     serviceB();</span><br><span class="line">     <span class="number">1</span>/<span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional</span>(propagation=Propagation.NESTED)</span><br><span class="line">serviceA()&#123;</span><br><span class="line">    <span class="keyword">do</span> sql</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">@Transactional</span>(propagation=Propagation.NEW)</span><br><span class="line">serviceB()&#123;</span><br><span class="line">    <span class="keyword">do</span> sql</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>很明显，1/0 会抛出异常，然后事务回滚。看 propagation 的值可以知道：serviceA 是嵌套事务执行，而 serviceB 是暂停后新建事务执行。那么<code>当 service 回滚时，嵌套的事务 serviceA 也会回滚，而暂停的事务 serviceB 此时已经提交了，不需要回滚</code>。而当 serviceA 内部发生错误，需要回滚时，<code>嵌套在内层的事务是不会引起外层事务的回滚的</code>，同样，<code>暂停后新建的事务回滚是不会引起暂停的事务回滚的</code>。</p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/03/28/Spring-AOP源码浅析——事务的实现/" title="Spring AOP 源码浅析——事务的实现" target="_blank" rel="external">http://yoursite.com/2019/03/28/Spring-AOP源码浅析——事务的实现/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" title="Spring MVC 源码浅析——容器创建过程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
