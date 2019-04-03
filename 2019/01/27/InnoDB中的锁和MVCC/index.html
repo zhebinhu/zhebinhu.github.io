@@ -23,13 +23,13 @@
         InnoDB 中的锁和 MVCC |
         
         huzb的小书斋</title>
-    <meta name="description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+    <meta name="description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 一、锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server">
 <meta name="keywords" content="MySQL">
 <meta property="og:type" content="article">
 <meta property="og:title" content="InnoDB 中的锁和 MVCC">
 <meta property="og:url" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
-<meta property="og:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+<meta property="og:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 一、锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/undo%20log.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合一.jpg">
@@ -38,10 +38,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合四.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合七.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg">
-<meta property="og:updated_time" content="2019-03-09T07:39:05.484Z">
+<meta property="og:updated_time" content="2019-03-29T10:54:52.057Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="InnoDB 中的锁和 MVCC">
-<meta name="twitter:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层">
+<meta name="twitter:description" content="锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。 一、锁1、表锁InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server">
 <meta name="twitter:image" content="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/undo%20log.png">
     <!-- Canonical links -->
     <link rel="canonical" href="http://yoursite.com/2019/01/27/InnoDB中的锁和MVCC/index.html">
@@ -309,7 +309,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#锁"><span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、表锁"><span class="toc-text">1、表锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、行级锁"><span class="toc-text">2、行级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、意向锁"><span class="toc-text">3、意向锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC"><span class="toc-text">MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#read-view"><span class="toc-text">read view</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next-key-解决幻读问题"><span class="toc-text">next-key 解决幻读问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#innodb-加锁处理分析"><span class="toc-text">innodb 加锁处理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条简单-SQL-的加锁实现分析"><span class="toc-text">一条简单 SQL 的加锁实现分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-1：id-列是主键，RC-隔离级别"><span class="toc-text">组合 1：id 列是主键，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-2：id-列是二级唯一索引，RC-隔离级别"><span class="toc-text">组合 2：id 列是二级唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-3：id-列是二级非唯一索引，RC-隔离级别"><span class="toc-text">组合 3：id 列是二级非唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-4：id-列上没有索引，RC-隔离级别"><span class="toc-text">组合 4：id 列上没有索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-5：id-列是主键，RR-隔离级别"><span class="toc-text">组合 5：id 列是主键，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-6：id-列是二级唯一索引，RR-隔离级别"><span class="toc-text">组合 6：id 列是二级唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-7：id-列是二级非唯一索引，RR-隔离级别"><span class="toc-text">组合 7：id 列是二级非唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-8：id-列上没有索引，RR-隔离级别"><span class="toc-text">组合 8：id 列上没有索引，RR 隔离级别</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、锁"><span class="toc-text">一、锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、表锁"><span class="toc-text">1、表锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、行级锁"><span class="toc-text">2、行级锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、意向锁"><span class="toc-text">3、意向锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MVCC"><span class="toc-text">二、MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#read-view"><span class="toc-text">read view</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、next-key-解决幻读问题"><span class="toc-text">三、next-key 解决幻读问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、innodb-加锁处理分析"><span class="toc-text">四、innodb 加锁处理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#一条简单-SQL-的加锁实现分析"><span class="toc-text">一条简单 SQL 的加锁实现分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-1：id-列是主键，RC-隔离级别"><span class="toc-text">组合 1：id 列是主键，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-2：id-列是二级唯一索引，RC-隔离级别"><span class="toc-text">组合 2：id 列是二级唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-3：id-列是二级非唯一索引，RC-隔离级别"><span class="toc-text">组合 3：id 列是二级非唯一索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-4：id-列上没有索引，RC-隔离级别"><span class="toc-text">组合 4：id 列上没有索引，RC 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-5：id-列是主键，RR-隔离级别"><span class="toc-text">组合 5：id 列是主键，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-6：id-列是二级唯一索引，RR-隔离级别"><span class="toc-text">组合 6：id 列是二级唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-7：id-列是二级非唯一索引，RR-隔离级别"><span class="toc-text">组合 7：id 列是二级非唯一索引，RR 隔离级别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#组合-8：id-列上没有索引，RR-隔离级别"><span class="toc-text">组合 8：id 列上没有索引，RR 隔离级别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、参考资料"><span class="toc-text">五、参考资料</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -360,12 +360,12 @@
       
         <a id="more"></a>
 <p>锁和 MVCC 是 MySQL 控制并发访问的两种手段。InnoDB 在 MySQL 的基础上提供了更细粒度的行级锁，使用了 next-key 算法解决了幻读的问题。另外 InnoDB 提供了一套基于 MVCC 的一致性非锁定读方式，实现了“读不加锁，读写不冲突”的快照读方式。</p>
-<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
+<h2 id="一、锁"><a href="#一、锁" class="headerlink" title="一、锁"></a>一、锁</h2><h3 id="1、表锁"><a href="#1、表锁" class="headerlink" title="1、表锁"></a>1、表锁</h3><p>InnoDB 直接沿用了ＭySQL 提供的表锁。事实上，表锁的加锁和解锁都是在 MySQL server 层面的，和存储引擎没有关系。加锁的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LOCK</span> <span class="keyword">TABLES</span> orders <span class="keyword">READ</span>; // 加读锁</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(total) <span class="keyword">FROM</span> orders;</span><br><span class="line"><span class="keyword">UNLOCK</span> <span class="keyword">TABLES</span>; // 解锁</span><br></pre></td></tr></table></figure></p>
 <h3 id="2、行级锁"><a href="#2、行级锁" class="headerlink" title="2、行级锁"></a>2、行级锁</h3><p>顾名思义，行级锁锁定的是某一行数据。InnoDB 中的所有数据项都保存在聚簇索引中，所以行级锁实质上锁住的是索引项。如果表中有多个索引存在，一行数据会对应到多个索引项，此时行级锁会锁住所有索引上的相应索引项。</p>
 <p>行级锁分为共享锁（S 锁）和排他锁（X 锁）。S 锁和 S 锁可以兼容；S 锁和 X 锁，X 锁和 X 锁不能兼容。（InnoDB 存储引擎默认采用行级锁，所以下文如无指明，S 锁和 X 锁均指行锁）</p>
 <h3 id="3、意向锁"><a href="#3、意向锁" class="headerlink" title="3、意向锁"></a>3、意向锁</h3><p>在没有引入意向锁之前，行级锁和表锁之间的兼容有点麻烦：如果要对一张表加 X 表锁，那么首先要判断这张表是否加了 X 表锁和 S 表锁，其次要判断每一行是否加了 X 锁和 S 锁，如果表的行数比较多的话，这种判断方式会比较损失性能。因此 InnoDB 引入了意向锁。</p>
 <p>和行锁一样，意向锁也分为意向共享锁（IS 锁）和意向排他锁（IX 锁）。事务在申请 S 或 X 锁之前，必须先申请到 IS 或 IX 锁。InnoDB 中的意向锁是一种特殊的表锁：意向锁之间互不冲突，意向锁和表锁之间会冲突，此时意向锁相当于同类型的表锁。</p>
-<h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><p>MVCC 是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。InnoDB 利用 undo log 实现了 MVCC。undo log 的数据结构如图所示：</p>
+<h2 id="二、MVCC"><a href="#二、MVCC" class="headerlink" title="二、MVCC"></a>二、MVCC</h2><p>MVCC 是一种非锁定读的一致性读机制。它的特点是读不加锁，读写不冲突。InnoDB 利用 undo log 实现了 MVCC。undo log 的数据结构如图所示：</p>
 <p><img src="/2019/01/27/InnoDB中的锁和MVCC/undo log.png"></p>
 <p>前四行是数据列，后三列是隐藏列。隐藏列的含义如下：</p>
 <ul>
@@ -387,7 +387,7 @@
 <p>当前数据行若是不可见，InnoDB 会沿着 DB_ROLL_PTR 往下查找，直到找到第一个可见的数据行或者 null。</p>
 <p>可见与否只是第一步，实际返回的数据还要经过判断。因为删除和更新共用一个字段，区别只是删除有一个字节的删除标记，那么在返回的时候 InnoDB 就要判断当前的数据行是否被标记为删除。如果标记了删除，就不会返回。</p>
 <p>MVCC 在 READ COMMITED 和 REPEATABLE READ 两个隔离级别下共用一套逻辑，区别只是在于<strong>RC 隔离级别是在读操作开始时刻创建 read view 的，而 RR 隔离级别是在事务开始时刻，确切地说是第一个读操作创建 read view 的。</strong>由于这一点上的不同，使得 MVCC 在 RC 隔离级别下读取的是最新提交的数据，而 RR 隔离级别下读取的是事务开始前提交的数据。</p>
-<h2 id="next-key-解决幻读问题"><a href="#next-key-解决幻读问题" class="headerlink" title="next-key 解决幻读问题"></a>next-key 解决幻读问题</h2><p>幻读是指一个事务内连续进行两次相同的 SQL 语句可能导致不同的结果，第二次的 SQL 语句可能会返回之前不存在的行。发生这种现象的原因是事务 A 两次查找的间隔中事务 B 插入了一条或多条数据并提交，导致事务 A 的第二次查询查到了新插入的数据。</p>
+<h2 id="三、next-key-解决幻读问题"><a href="#三、next-key-解决幻读问题" class="headerlink" title="三、next-key 解决幻读问题"></a>三、next-key 解决幻读问题</h2><p>幻读是指一个事务内连续进行两次相同的 SQL 语句可能导致不同的结果，第二次的 SQL 语句可能会返回之前不存在的行。发生这种现象的原因是事务 A 两次查找的间隔中事务 B 插入了一条或多条数据并提交，导致事务 A 的第二次查询查到了新插入的数据。</p>
 <p>InnoDB 中有三种锁算法：</p>
 <ul>
 <li>Record Lock：单个行记录上的锁</li>
@@ -395,8 +395,8 @@
 <li>Next-Key Lock：Record Lock+Gap Lock，锁定一个范围，并且锁定记录本身</li>
 </ul>
 <p>幻读现象问题的根本原因是 Record Lock 只锁住记录本身而不锁范围，导致其它事务可以在记录间插入数据。InnoDB 使用了 Next-Key Lock 来解决这个问题。Next-Key Lock 会锁住一个范围，例如一个索引有 10,11,13,20 这四个值，那么该索引可能被 Next-Key Locking 的区间为：<br>(-∞,10]<br>(10,11]<br>(11,13]<br>(13,20]<br>(20,+∞)</p>
-<p>当然，如果查询的索引是唯一索引的话，就不用担心被插入的问题，InnoDB 会对 Next-Key Lock 进行优化，将其降级为 Record Lock。</p>
-<h2 id="innodb-加锁处理分析"><a href="#innodb-加锁处理分析" class="headerlink" title="innodb 加锁处理分析"></a>innodb 加锁处理分析</h2><p>以上是理论部分，那么实际 innodb 怎么加锁呢？我们结合 SQL 语句来分析。</p>
+<p>当然，如果是等值查询且查询的索引是唯一索引的话，就不用担心被插入的问题，InnoDB 会对 Next-Key Lock 进行优化，将其降级为 Record Lock。</p>
+<h2 id="四、innodb-加锁处理分析"><a href="#四、innodb-加锁处理分析" class="headerlink" title="四、innodb 加锁处理分析"></a>四、innodb 加锁处理分析</h2><p>以上是理论部分，那么实际 innodb 怎么加锁呢？我们结合 SQL 语句来分析。</p>
 <p>在支持 MVCC 并发控制的系统中，读操作可以分成两类：快照读 (snapshot read) 与当前读 (current read)。快照读，读取的是记录的可见版本 (有可能是历史版本)，不用加锁。当前读，读取的是记录的最新版本，并且，当前读返回的记录，都会加上锁，保证其他事务不会再并发修改这条记录。</p>
 <ul>
 <li>快照读：<ul>
@@ -453,6 +453,7 @@
 <p>那么为什么组合五、组合六，也是 RR 隔离级别，却不需要加 GAP 锁呢？这是因为组合五，id 是主键；组合六，id 是 unique 键，都能够保证唯一性。一个等值查询，最多只能返回一条记录，而且新的相同取值的记录，一定不会再新插入进来，因此也就避免了 GAP 锁的使用。</p>
 <h3 id="组合-8：id-列上没有索引，RR-隔离级别"><a href="#组合-8：id-列上没有索引，RR-隔离级别" class="headerlink" title="组合 8：id 列上没有索引，RR 隔离级别"></a>组合 8：id 列上没有索引，RR 隔离级别</h3><p>组合八，Repeatable Read 隔离级别下的最后一种情况，id 列上没有索引。此时 SQL：delete from t1 where id = 10; 没有其他的路径可以选择，只能进行全表扫描。最终的加锁情况，如下图所示：</p>
 <p><img src="/2019/01/27/InnoDB中的锁和MVCC/组合八.jpg" width="40%" length="40%"></p>
+<h2 id="五、参考资料"><a href="#五、参考资料" class="headerlink" title="五、参考资料"></a>五、参考资料</h2><p><a href="http://hedengcheng.com/?p=771" target="_blank" rel="noopener">何登成的技术博客</a></p>
 
       
     </div>

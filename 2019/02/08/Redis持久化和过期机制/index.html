@@ -32,7 +32,7 @@
 <meta property="og:description" content="本文主要介绍了 Redis 持久化的两种机制：RDB 和 AOF，以及键过期的策略：惰性删除和定期删除，还有 RDB、AOF 和复制功能对过期键的处理。 RDBRDB 是 Redis 持久化的第一种方式。有两个 Redis 命令可以用于生成 RDB 文件，一个是 SAVE，另一个是 BGSAVE。SAVE 会阻塞 Redis 服务器进程，执行时 Redis 服务器会阻塞所有客户端发送的命令。12">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/02/08/Redis持久化和过期机制/过期键的保存.png">
-<meta property="og:updated_time" content="2019-03-08T14:13:02.687Z">
+<meta property="og:updated_time" content="2019-04-02T03:56:17.151Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 持久化和过期机制">
 <meta name="twitter:description" content="本文主要介绍了 Redis 持久化的两种机制：RDB 和 AOF，以及键过期的策略：惰性删除和定期删除，还有 RDB、AOF 和复制功能对过期键的处理。 RDBRDB 是 Redis 持久化的第一种方式。有两个 Redis 命令可以用于生成 RDB 文件，一个是 SAVE，另一个是 BGSAVE。SAVE 会阻塞 Redis 服务器进程，执行时 Redis 服务器会阻塞所有客户端发送的命令。12">
@@ -372,7 +372,7 @@
 <p>RDB 文件本身是一个经过压缩的二进制文件，每次 SAVE 或者 BGSAVE 都会创建一个新的 RDB 文件，不支持追加操作。</p>
 <h2 id="AOF"><a href="#AOF" class="headerlink" title="AOF"></a>AOF</h2><p>AOF 是 Redis 持久化的第二种方式，在 AOF 和 RDB 同时开启时，服务器会优先考虑从 AOF 恢复数据，因为 AOF 每次记录间隔的时间更短。</p>
 <p>和 RDB 直接记录键值对不同，AOF 记录的是命令。服务器在执行完一个写命令以后，会把这条命令追加到服务器 aof_buf 缓冲区的末尾，并在一个适当的时候写入文件。重建时服务器会创建一个伪客户端，依次执行文件中的命令即可完成数据的载入。</p>
-<h3 id="文件的写入与同步"><a href="#文件的写入与同步" class="headerlink" title="文件的写入与同步"></a>文件的写入与同步</h3><p>AOF 在持久化时会调用操作系统的 write 函数，但通常该函数会把数据保存在一个内存缓冲区里面而不是立刻刷入磁盘。这就带来一个安全问题。为了避免这个问题操作系统又提供了 fsync 和 fdatasync 两个强制刷盘的同步函数。我们把 write 称为写入，把 fsync 和 fdatasync 称为同步。</p>
+<h3 id="文件的写入与同步"><a href="#文件的写入与同步" class="headerlink" title="文件的写入与同步"></a>文件的写入与同步</h3><p>AOF 的持久化发生在每次事件循环结束之前，会阻塞服务器。在持久化时会调用操作系统的 write 函数，但通常该函数会把数据保存在一个内存缓冲区里面而不是立刻刷入磁盘。这就带来一个安全问题。为了避免这个问题操作系统又提供了 fsync 和 fdatasync 两个强制刷盘的同步函数。我们把 write 称为写入，把 fsync 和 fdatasync 称为同步。</p>
 <p>服务器会在每次事件循环结束之前根据 appendfsync 选项写入和同步 aof_buf 中的数据：</p>
 <ul>
 <li>always：写入并同步</li>
