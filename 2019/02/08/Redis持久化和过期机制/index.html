@@ -32,7 +32,7 @@
 <meta property="og:description" content="本文主要介绍了 Redis 持久化的两种机制：RDB 和 AOF，以及键过期的策略：惰性删除和定期删除，还有 RDB、AOF 和复制功能对过期键的处理。 RDBRDB 是 Redis 持久化的第一种方式。有两个 Redis 命令可以用于生成 RDB 文件，一个是 SAVE，另一个是 BGSAVE。SAVE 会阻塞 Redis 服务器进程，执行时 Redis 服务器会阻塞所有客户端发送的命令。12">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/02/08/Redis持久化和过期机制/过期键的保存.png">
-<meta property="og:updated_time" content="2019-04-02T03:56:17.151Z">
+<meta property="og:updated_time" content="2019-04-11T13:10:16.247Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 持久化和过期机制">
 <meta name="twitter:description" content="本文主要介绍了 Redis 持久化的两种机制：RDB 和 AOF，以及键过期的策略：惰性删除和定期删除，还有 RDB、AOF 和复制功能对过期键的处理。 RDBRDB 是 Redis 持久化的第一种方式。有两个 Redis 命令可以用于生成 RDB 文件，一个是 SAVE，另一个是 BGSAVE。SAVE 会阻塞 Redis 服务器进程，执行时 Redis 服务器会阻塞所有客户端发送的命令。12">
@@ -413,8 +413,7 @@
 <h2 id="AOF-对过期键的处理"><a href="#AOF-对过期键的处理" class="headerlink" title="AOF 对过期键的处理"></a>AOF 对过期键的处理</h2><p>AOF 文件写入时，如果数据库中的某个键已过期，但它还没被删除，那么 AOF 文件不会因为这个键产生任何影响。当它被惰性删除或者定期删除之后，程序会向 AOF 文件追加一条 DEL 命令显示记录该键已被删除。</p>
 <p>AOF 重写时，和生成 RDB 文件一样，会过滤掉已经过期的键。</p>
 <h2 id="复制功能对过期键的处理"><a href="#复制功能对过期键的处理" class="headerlink" title="复制功能对过期键的处理"></a>复制功能对过期键的处理</h2><p>主服务器在删除一个过期键后，会显式地向所有从服务器发送一个 DEL 命令，告知从服务器删除这个过期键。</p>
-<p>为了保持主从一致性，从服务器在执行客户端发送的读命令时，即使碰到过期键也不会将过期键删除，而是继续像处理未过期键一样处理过期键。</p>
-<p>从服务器只有在接到主服务器发来的 DEL 命令之后，才会删除过期键。</p>
+<p>Redis 3.2 前，为了保持主从一致性，从服务器在执行客户端发送的读命令时，即使碰到过期键也不会将过期键删除，而是继续像处理未过期键一样处理过期键。从服务器只有在接到主服务器发来的 DEL 命令之后，才会删除过期键。Redis 3.2 后，从节点在读取数据时，增加了对数据是否过期的判断：如果该数据已过期，则不返回给客户端。</p>
 
       
     </div>
