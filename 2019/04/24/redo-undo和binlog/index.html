@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/binlog和redo.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/undo%20log.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/2pc.png">
-<meta property="og:updated_time" content="2019-04-26T13:40:06.210Z">
+<meta property="og:updated_time" content="2019-04-26T13:57:20.076Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redo log,undo log 和 binlog">
 <meta name="twitter:description" content="MySQL 中有很多日志，其中 redo log,undo log 和 binlog 是使用比较多的日志。redo log 和 undo log 是 innodb 层面的日志，用于实现数据库引擎中的事务。其中，redo log 保证了事务的持久性，undo log 保证了事务的一致性，redo log 和 undo log 共同保证了事务的原子性。binlog 是 mysql server 层面的">
@@ -305,7 +305,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、binlog"><span class="toc-text">1、binlog</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-主从复制"><span class="toc-text">1.1 主从复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、redo-log"><span class="toc-text">2、redo log</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-LSN"><span class="toc-text">2.1 LSN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、undo-log"><span class="toc-text">3、undo log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、事务写入过程"><span class="toc-text">4、事务写入过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、崩溃恢复过程"><span class="toc-text">5、崩溃恢复过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、binlog-和-redo-log-的一致性"><span class="toc-text">6、binlog 和 redo log 的一致性</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、binlog"><span class="toc-text">1、binlog</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-主从复制"><span class="toc-text">1.1 主从复制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、redo-log"><span class="toc-text">2、redo log</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-LSN"><span class="toc-text">2.1 LSN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、undo-log"><span class="toc-text">3、undo log</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、事务写入过程"><span class="toc-text">4、事务写入过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5、崩溃恢复过程"><span class="toc-text">5、崩溃恢复过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6、binlog-和-redo-log-的一致性"><span class="toc-text">6、binlog 和 redo log 的一致性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7、参考资料"><span class="toc-text">7、参考资料</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -419,6 +419,7 @@
 <p>3、最后，调用引擎的commit完成事务的提交。会清除undo信息，刷redo日志，将事务设为TRX_NOT_STARTED状态。</p>
 <p>由上面的二阶段提交流程可以看出，一旦步骤 2 中的操作完成，就确保了事务的提交，即使在执行步骤 3 时数据库发送了宕机。此外需要注意的是，每个步骤都需要进行一次 fsync 操作才能保证上下两层数据的一致性。步骤 2 的 fsync 参数由 sync_binlog=1 控制，步骤 3 的 fsync 由参数 innodb_flush_log_at_trx_commit=1 控制，俗称“双1”，是保证日志一致性的根本。</p>
 <p>事务的两阶段提交协议保证了无论在任何情况下，事务要么同时存在于存储引擎和 binlog 中，要么两个里面都不存在，这就保证了主库与从库之间数据的一致性。如果数据库系统发生崩溃，当数据库系统重新启动时会进行崩溃恢复操作，存储引擎中处于 prepare 状态的事务会去查询该事务是否也同时存在于 binlog 中，如果存在就在存储引擎内部提交该事务（因为此时从库可能已经获取了对应的 binlog 内容），如果 binlog 中没有该事务，就回滚该事务。例如：当崩溃发生在第一步和第二步之间时，明显处于 prepare 状态的事务还没来得及写入到 binlog 中，所以该事务会在存储引擎内部进行回滚，这样该事务在存储引擎和 binlog 中都不会存在；当崩溃发生在第二步和第三步之间时，处于 prepare 状态的事务存在于 binlog 中，那么该事务会在存储引擎内部进行提交，这样该事务就同时存在于存储引擎和 binlog 中。</p>
+<h2 id="7、参考资料"><a href="#7、参考资料" class="headerlink" title="7、参考资料"></a>7、参考资料</h2><p><a href="https://www.cnblogs.com/mao3714/p/8734838.html" target="_blank" rel="noopener">MySQL 中Redo与Binlog顺序一致性问题</a></p>
 
       
     </div>
