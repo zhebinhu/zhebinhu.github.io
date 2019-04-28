@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/binlog和redo.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/undo%20log.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/2pc.png">
-<meta property="og:updated_time" content="2019-04-28T05:21:48.419Z">
+<meta property="og:updated_time" content="2019-04-28T10:39:01.208Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="redo log,undo log 和 binlog">
 <meta name="twitter:description" content="MySQL 中有很多日志，其中 redo log,undo log 和 binlog 是使用比较多的日志。redo log 和 undo log 是 innodb 层面的日志，用于实现数据库引擎中的事务。其中，redo log 保证了事务的持久性，undo log 保证了事务的一致性，redo log 和 undo log 共同保证了事务的原子性。binlog 是 mysql server 层面的">
@@ -402,7 +402,7 @@
 <p>T0、T1、T2 表示创建 undo log 的事务。undo log 中保存的是每一行数据在每一个事务版本下的<strong>逻辑</strong>数据。而恢复也很简单，就是将某个版本的数据设置为当前数据就好。这里可能会有一个问题，就是数据库中可能同时有数千个并发的事务，当我们回滚某一个事务时，如何保障其它事务的修改仍然有效？答案很简单，当我们回滚某一个事务时，该事物还未提交，而如果该事务还未提交，则当前数据行会加锁，因此对某一行数据而言，不存在回滚会同时擦除其它事务修改的可能。而对整个数据页而言，如果使用物理日志，就会发生这种擦除的情况。因此 undo log 使用<strong>逻辑日志</strong>。</p>
 <p>事务为 undo log 分配的页不会一直存在，当事务提交时，undo log 就没有了回滚的价值。但仍不能立马删除 undo log 的所在页，因为可能还有其它事务通过 MVCC 访问之前的版本。故事务提交时将 undo log 放入一个链表中，是否可以最终删除 undo log 及 undo log 所在页由 purge 线程判断。</p>
 <h2 id="4、事务写入过程"><a href="#4、事务写入过程" class="headerlink" title="4、事务写入过程"></a>4、事务写入过程</h2><p>1、事务开启<br>2、undo log’s redo log 写入<br>3、undo log 写入<br>4、redo log 写入<br>5、数据页写入<br>6、redo log 刷盘<br>7、2-6 重复若干<br>8、事务提交<br>9、某个时间脏页刷盘</p>
-<h2 id="5、崩溃恢复过程"><a href="#5、崩溃恢复过程" class="headerlink" title="5、崩溃恢复过程"></a>5、崩溃恢复过程</h2><p>1、启动开始时检测是否发生崩溃<br>2、定位到最近的一个 checkpoint<br>3、定位在这个 checkpoint 时 flush 到磁盘的数据页，检查 checksum。如果不正确，说明这个页在上次写入是不完整的，从 doublewrite buffer 里把正确的页读出来，更新到 buffer 中的页<br>4、分析 redo log，标识出未提交事务<br>5、顺序执行 redo，跳过页 LSN 大于当前 LSN 的页（通过 redo log 也可以恢复 undo log）<br>6、通过 undo log 回滚未提交的事务</p>
+<h2 id="5、崩溃恢复过程"><a href="#5、崩溃恢复过程" class="headerlink" title="5、崩溃恢复过程"></a>5、崩溃恢复过程</h2><p>1、启动开始时检测是否发生崩溃<br>2、定位到最近的一个 checkpoint<br>3、定位在这个 checkpoint 时 flush 到磁盘的数据页，检查 checksum。如果不正确，说明这个页在上次写入是不完整的，从 doublewrite buffer 里把正确的页读出来，更新到 buffer 中的页<br>4、分析 redo log，标识出未提交事务（事务提交之后会清除 undo log，undo log 中记录了事务的ID。通过检查是否存在对应的 undo log 可以知道事务的提交状态）<br>5、顺序执行 redo，跳过页 LSN 大于当前 LSN 的页（通过 redo log 也可以恢复 undo log）<br>6、通过 undo log 回滚未提交的事务</p>
 <h2 id="6、binlog-和-redo-log-的一致性"><a href="#6、binlog-和-redo-log-的一致性" class="headerlink" title="6、binlog 和 redo log 的一致性"></a>6、binlog 和 redo log 的一致性</h2><p>MySQL 主从复制之间依赖 binlog，而 binlog 文件的写入在 commit 之前，如果写完 binlog 文件后主库宕机，再次启动时会回滚事务。但此时从库已经执行，则会造成主备数据不一致。所以在开启binlog 后，如何保证 binlog 和 redo log 的一致性呢？为此，MySQL 引入二阶段提交（two phase commit or 2pc），MySQL 内部会自动将普通事务当做一个 XA 事务（内部分布式事物）来处理：</p>
 <p>– 自动为每个事务分配一个唯一的ID（XID）。</p>
 <p>– COMMIT 会被自动的分成 Prepare 和 Commit 两个阶段。</p>
