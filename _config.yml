@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: huzb的博客
+title: huzb的小书斋
 subtitle: 念念不忘，必有回响
 description: 一枚前行的小码农
 author: huzb
@@ -78,7 +78,7 @@ theme: yilia
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/zhebinhu/zhebinhu.github.io.git
+  repo: https://zhebinhu:huzhebin123@github.com/zhebinhu/zhebinhu.github.io.git
   branch: master
 
 #所有文章

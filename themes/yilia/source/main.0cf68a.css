@@ -2001,7 +2001,7 @@ pre .css ~ * .id, pre .id {
 
 .article-inner h1.article-title, .article-title {
   color: #696969;
-  margin-left: 0;
+  margin-left: -5px;
   font-weight: 300;
   line-height: 35px;
   margin-bottom: 20px;
@@ -2066,7 +2066,7 @@ pre .css ~ * .id, pre .id {
 
 .article-info-index.article-info {
   padding-top: 20px;
-  margin: 30px 7.6923% 0;
+  margin: 60px 7.6923% 0;
   min-height: 72px;
   border-top: 1px solid #ddd
 }
@@ -2078,7 +2078,7 @@ pre .css ~ * .id, pre .id {
 }
 
 .article-inner p {
-  margin: 0 0 1.75em
+  margin: 1em 0 1em
 }
 
 .article-inner {
@@ -2106,7 +2106,7 @@ pre .css ~ * .id, pre .id {
   font-size: 1.1875rem;
   line-height: 1.1052631579;
   margin-top: 2.9473684211em;
-  margin-bottom: 1.4736842105em
+  margin-bottom: 1.1736842105em
 }
 
 .article-inner h4, .article-inner h5, .article-inner h6 {
@@ -2114,7 +2114,7 @@ pre .css ~ * .id, pre .id {
   font-size: 1rem;
   line-height: 1.3125;
   margin-top: 3.5em;
-  margin-bottom: 1.75em
+  margin-bottom: 1.25em
 }
 
 .article-inner h4 {
@@ -2201,8 +2201,8 @@ pre .css ~ * .id, pre .id {
 }
 
 .article-entry ol, .article-entry ul {
-  font-size: 14px;
-  margin: 10px 0
+  font-size: 1rem;
+  margin: 0 0 25px 20px
 }
 
 .article-entry li ol, .article-entry li ul {
@@ -2219,10 +2219,10 @@ pre .css ~ * .id, pre .id {
 }
 
 .article-entry h2, .article-entry h3, .article-entry h4, .article-entry h5, .article-entry h6 {
-  margin-top: 20px;
+  margin-top: 35px;
   font-weight: 700;
   color: #574c4c;
-  padding-bottom: 5px;
+
   /*border-bottom: 1px solid #ddd*/
 }
 
