@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/binlog和redo.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/undo%20log.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/24/redo-undo和binlog/2pc.png">
-<meta property="og:updated_time" content="2019-05-15T05:07:01.029Z">
+<meta property="og:updated_time" content="2019-07-02T15:15:33.885Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redo log,Undo log 和 Binlog">
 <meta name="twitter:description" content="MySQL 中有很多日志，其中 redo log,undo log 和 binlog 是使用比较多的日志。redo log 和 undo log 是 innodb 层面的日志，用于实现数据库引擎中的事务。其中，redo log 保证了事务的持久性，undo log 保证了事务的一致性，redo log 和 undo log 共同保证了事务的原子性。binlog 是 mysql server 层面的">
@@ -397,7 +397,7 @@
 <li>Last checkpoint at：上次脏页刷盘后，内存中仍存在的脏页中最小的 LSN。这个参数的意思是，页 LSN 小于该 LSN 的数据页都已经刷入了磁盘（但不代表大于该 LSN 的页都没有刷入，redo log 的幂等性确保了重复恢复的一致性），该参数会保存两份交替写入，避免了因介质失败而导致无法找到可用的 checkpoint。</li>
 </ul>
 <p>当数据恢复时，只需要应用 checkpoint 之后的日志，且对于某一页，只需要应用页 LSN 之后的日志。这样加快了恢复的速度。而且 redo log 中小于 checkpoint 的部分可以写入新的数据，循环利用，节省空间。</p>
-<h2 id="3、undo-log"><a href="#3、undo-log" class="headerlink" title="3、undo log"></a>3、undo log</h2><p>undo log 的设计目的在于回滚，在 innodb 中还顺带实现了 MVCC 的功能。undo log 位于共享表空间中，事务需要在 undo log segment 中申请相应的页并写入。这个过程同样需要写入 redo log。undo log 的逻辑结构如下：</p>
+<h2 id="3、undo-log"><a href="#3、undo-log" class="headerlink" title="3、undo log"></a>3、undo log</h2><p>undo log 的设计目的在于回滚，在 innodb 中还顺带实现了 MVCC 的功能。undo log 位于共享表空间中，事务需要在 undo log segment 中申请相应的页，页的头部会记录事务相关的信息（事务类型，事务状态等）。将 undo log 写入共享表空间的过程同样需要写入 redo log。undo log 的逻辑结构如下：</p>
 <p><img src="/2019/04/24/redo-undo和binlog/undo log.png"></p>
 <p>T0、T1、T2 表示创建 undo log 的事务。undo log 中保存的是每一行数据在每一个事务版本下的<strong>逻辑</strong>数据。而恢复也很简单，就是将某个版本的数据设置为当前数据就好。这里可能会有一个问题，就是数据库中可能同时有数千个并发的事务，当我们回滚某一个事务时，如何保障其它事务的修改仍然有效？答案很简单，当我们回滚某一个事务时，该事物还未提交，而如果该事务还未提交，则当前数据行会加锁，因此对某一行数据而言，不存在回滚会同时擦除其它事务修改的可能。而对整个数据页而言，如果使用物理日志，就会发生这种擦除的情况。因此 undo log 使用<strong>逻辑日志</strong>。</p>
 <p>事务为 undo log 分配的页不会一直存在，当事务提交时，undo log 就没有了回滚的价值。但仍不能立马删除 undo log 的所在页，因为可能还有其它事务通过 MVCC 访问之前的版本。故事务提交时将 undo log 放入一个链表中，是否可以最终删除 undo log 及 undo log 所在页由 purge 线程判断。</p>
