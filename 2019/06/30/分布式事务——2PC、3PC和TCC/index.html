@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        分布式事务——2PC、3PC 和 TCC |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="对于单机下的本地事务，很显然我们有已被实践证明的成熟 ACID 模型来保证数据的严格一致性。但对于一个高访问量、高并发的分布式系统来说，如果我们期望实现一套严格满足 ACID 特性的分布式事务，很可能出现的情况就是在系统的可用性和严格一致性之间出现冲突——因为当我们要求分布式系统具有严格一致性时，很可能就要牺牲掉系统的可用性。但毋庸置疑的一点是，可用性又是一个所有用户不允许我们讨价还价的属性，比如">
+<meta name="keywords" content="分布式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务——2PC、3PC 和 TCC">
+<meta property="og:url" content="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="对于单机下的本地事务，很显然我们有已被实践证明的成熟 ACID 模型来保证数据的严格一致性。但对于一个高访问量、高并发的分布式系统来说，如果我们期望实现一套严格满足 ACID 特性的分布式事务，很可能出现的情况就是在系统的可用性和严格一致性之间出现冲突——因为当我们要求分布式系统具有严格一致性时，很可能就要牺牲掉系统的可用性。但毋庸置疑的一点是，可用性又是一个所有用户不允许我们讨价还价的属性，比如">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/2pc时序图.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/3pc时序图.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/tcc.jpg">
+<meta property="og:updated_time" content="2019-07-02T14:56:58.174Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式事务——2PC、3PC 和 TCC">
+<meta name="twitter:description" content="对于单机下的本地事务，很显然我们有已被实践证明的成熟 ACID 模型来保证数据的严格一致性。但对于一个高访问量、高并发的分布式系统来说，如果我们期望实现一套严格满足 ACID 特性的分布式事务，很可能出现的情况就是在系统的可用性和严格一致性之间出现冲突——因为当我们要求分布式系统具有严格一致性时，很可能就要牺牲掉系统的可用性。但毋庸置疑的一点是，可用性又是一个所有用户不允许我们讨价还价的属性，比如">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/2pc时序图.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" class="title">分布式事务——2PC、3PC 和 TCC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-06-30T08:06:24.000Z" itemprop="datePublished">2019-06-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/06/27/从paxos到raft/" class="title">从 paxos 到 raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-06-27T08:06:43.000Z" itemprop="datePublished">2019-06-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/04/24/redo-undo和binlog/" class="title">Redo log,Undo log 和 Binlog</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-04-24T06:38:43.000Z" itemprop="datePublished">2019-04-24</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" class="title">Spring AOP 源码浅析——事务的实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-28T08:03:54.000Z" itemprop="datePublished">2019-03-28</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" class="title">Spring MVC 源码浅析——容器创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-26T15:45:41.000Z" itemprop="datePublished">2019-03-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、CAP-定理"><span class="toc-text">一、CAP 定理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、BASE-理论"><span class="toc-text">二、BASE 理论</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、2PC-协议"><span class="toc-text">三、2PC 协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、3PC-协议"><span class="toc-text">四、3PC 协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、TCC-协议"><span class="toc-text">五、TCC 协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、参考资料"><span class="toc-text">六、参考资料</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-分布式事务——2PC、3PC和TCC" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      分布式事务——2PC、3PC 和 TCC
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" class="article-date">
+	  <time datetime="2019-06-30T08:06:24.000Z" itemprop="datePublished">2019-06-30</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/分布式/">分布式</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>对于单机下的本地事务，很显然我们有已被实践证明的成熟 ACID 模型来保证数据的严格一致性。但对于一个高访问量、高并发的分布式系统来说，如果我们期望实现一套严格满足 ACID 特性的分布式事务，很可能出现的情况就是在系统的可用性和严格一致性之间出现冲突——因为当我们要求分布式系统具有严格一致性时，很可能就要牺牲掉系统的可用性。但毋庸置疑的一点是，可用性又是一个所有用户不允许我们讨价还价的属性，比如像淘宝这样的网站，我们要求它 7x24 小时不间断地对外服务。因此，我们需要在可用性和一致性之间做一些取舍，围绕这种取舍，出现了两个经典的分布式理论——CAP 和 BASE，这两者也是所有分布式事务协议的基石。</p>
+<h2 id="一、CAP-定理"><a href="#一、CAP-定理" class="headerlink" title="一、CAP 定理"></a>一、CAP 定理</h2><p>CAP 首次在 ACM PODC 会议上作为猜想被提出，两年后被证明为定理，从此深深影响了分布式计算的发展。CAP 理论告诉我们，一个分布式系统不可能同时满足一致性（Consistency）、可用性（Availability）和分区容错性（Partition tolerance）这三个基本需求，最多只能同时满足其中的两项。</p>
+<ul>
+<li>一致性：数据在多个副本之间保持一致。当有一个节点的数据发生更新后，其它节点应该也能同步地更新数据。</li>
+<li>可用性：对于用户的每一个操作请求，系统总能在有限的时间内返回结果。</li>
+<li>分区容错性：分布式系统中的不同节点可能分布在不同的子网络中，这些子网络被称为网络分区。由于一些特殊原因导致子网络之间出现网络不连通的情况，系统仍需要能够保证对外提供一致性和可用性的服务。</li>
+</ul>
+<p>CAP 定理告诉了我们同时满足这三项是不可能的，那么放弃其中的一项会是什么样的呢？</p>
+<style>
+table th:first-of-type {
+    width: 100px;
+}
+</style>
+
+<table>
+<thead>
+<tr>
+<th>放弃项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>放弃P 　　　</td>
+<td>如果希望能够避免出现分区容错性问题，一种较为简单的做法是将所有数据放在一个节点上。这样肯定不会受网络分区影响。但此时分布式系统也失去了意义。因此在实际的架构设计中，P是一定要满足的。</td>
+</tr>
+<tr>
+<td>放弃A 　　　</td>
+<td>放弃可用性就是在系统遇到网络分区或其他故障时，受影响的服务可以暂时不对外提供，等到系统恢复后再对外提供服务。</td>
+</tr>
+<tr>
+<td>放弃C 　　　</td>
+<td>放弃一致性不代表完全放弃数据一致性，这样的话系统就没有意义了。而是放弃数据的强一致性，保留最终一致性。这样的系统无法保证数据保持实时的一致性，但能够承诺数据最终会达到一个一致的状态。</td>
+</tr>
+</tbody>
+</table>
+<p>实际的实现中，我们往往会把精力花在如何根据业务特点在 C（一致性）和 A（可用性）之间寻求平衡。</p>
+<h2 id="二、BASE-理论"><a href="#二、BASE-理论" class="headerlink" title="二、BASE 理论"></a>二、BASE 理论</h2><p>BASE 是 Basically Available（基本可用）、Soft state（软状态）和 Eventually consistent（最终一致性）三个短语的简写。BASE 是对 CAP 中一致性和可用性权衡的结果，其来源于对大规模互联网系统分布式实践的总结。其核心思想是：即使无法做到强一致性，但每个应用都可以根据自身的业务特点，采用适当的方式来使系统达到最终一致性。</p>
+<ul>
+<li>基本可用：基本可用是指在分布式系统出现不可预知的故障时，允许损失部分性能。比如：正常情况下 0.5 秒就能返回结果的服务，但在故障情况（网络分区或其他故障）下，需要 1~2 秒；正常情况下，电商网站的首页展示的是每个用户个性化的推荐内容，但在节日大促的情况下，展示的是统一的推荐内容。</li>
+<li>软状态：软状态是指运行系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。比如秒杀系统中，用户余额的扣减和商家余额的增加可以存在延时，当用户余额减了之后即可返回支付成功，商家余额的增加可以等系统压力小的时候再做。</li>
+<li>最终一致性：最终一致性强调的是系统中所有的数据副本，在经过一段时间的同步后，最终能达到一个一致的状态。这也是分布式系统的一个基本要求。</li>
+</ul>
+<p><strong>严格遵守 ACID 的分布式事务我们称为刚性事务，而遵循 BASE 理论的事务我们称为柔性事务。在分布式环境下，刚性事务会让系统的可用性变得难以忍受，因此实际生产中使用的分布式事务都是柔性事务，其中使用最多的就是 2PC、3PC 和 TCC。</strong></p>
+<h2 id="三、2PC-协议"><a href="#三、2PC-协议" class="headerlink" title="三、2PC 协议"></a>三、2PC 协议</h2><p>2PC 是二阶段提交（Two-phase Commit）的缩写，顾名思义，这个协议分两阶段完成。第一个阶段是准备阶段，第二个阶段是提交阶段，准备阶段和提交阶段都是由事务管理器（协调者）发起的，协调的对象是资源管理器（参与者）。二阶段提交协议的概念来自 X/Open 组织提出的分布式事务的规范 XA 协议，协议主要定义了（全局）事务管理器和（局部）资源管理器之间的接口。XA 接口是双向的系统接口，在事务管理器以及一个或多个资源管理器之间形成通信桥梁。Java 平台上的事务规范 JTA（Java Transaction API）提供了对 XA 事务的支持，它要求所有需要被分布式事务管理的资源（由不同厂商实现）都必须实现规定接口（XAResource 中的 prepare、commit 和 rollback 等）。</p>
+<p>两阶段如下：</p>
+<ul>
+<li>准备阶段：协调者向参与者发起指令，参与者评估自己的状态，如果参与者评估指令可以完成，参与者会写 redo 和 undo 日志，然后锁定资源，执行操作，但是并不提交。</li>
+<li>提交阶段：如果每个参与者明确返回准备成功，也就是预留资源和执行操作成功，协调者向参与者发起提交指令，参与者提交资源变更的事务，释放锁定的资源；如果任何一个参与者明确返回准备失败，也就是预留资源或者执行操作失败，协调者向参与者发起中止指令，参与者取消已经变更的事务，执行 undo 日志，释放锁定的资源。</li>
+</ul>
+<p>两阶段提交协议成功场景示意图如下：</p>
+<p><img src="/2019/06/30/分布式事务——2PC、3PC和TCC/2pc时序图.png" width="80%"></p>
+<p>我们看到两阶段提交协议在准备阶段锁定资源，是一个重量级的操作，并能保证强一致性，但是实现起来复杂、成本较高，不够灵活，更重要的是它有如下致命的问题：</p>
+<ul>
+<li>阻塞：从上面的描述来看，对于任何一次指令必须收到明确的响应，才会继续做下一步，否则处于阻塞状态，占用的资源被一直锁定，不会被释放。</li>
+<li>单点故障：如果协调者宕机，参与者没有了协调者指挥，会一直阻塞，尽管可以通过选举新的协调者替代原有协调者，但是如果之前协调者在发送一个提交指令后宕机，而提交指令仅仅被一个参与者接受，并且参与者接收后也宕机，新上任的协调者无法处理这种情况。</li>
+<li>脑裂：协调者发送提交指令，有的参与者接收到执行了事务，有的参与者没有接收到事务，就没有执行事务，多个参与者之间是不一致的。</li>
+</ul>
+<p>上面所有的这些问题，都是需要人工干预处理，没有自动化的解决方案，因此两阶段提交协议在正常情况下能保证系统的强一致性，但是在出现异常情况下，当前处理的操作处于错误状态，需要管理员人工干预解决，因此可用性不够好，这也符合 CAP 定理的一致性和可用性不能兼得的原理。</p>
+<h2 id="四、3PC-协议"><a href="#四、3PC-协议" class="headerlink" title="四、3PC 协议"></a>四、3PC 协议</h2><p>三阶段提交协议（3PC 协议）是两阶段提交协议的改进版本。它通过超时机制解决了阻塞的问题，并且把两个阶段增加为三个阶段：</p>
+<ul>
+<li>询问阶段：协调者询问参与者是否可以完成指令，协调者只需要回答是还是不是，而不需要做真正的操作，这个阶段参与者在等待超时后会自动中止。</li>
+<li>准备阶段：如果在询问阶段所有的参与者都返回可以执行操作，协调者向参与者发送预执行请求，然后参与者写 redo 和 undo 日志，锁定资源，执行操作，但是不提交操作；如果在询问阶段任何参与者返回不能执行操作的结果，则协调者向参与者发送中止请求，这里的逻辑与两阶段提交协议的的准备阶段是相似的，这个阶段参与者在等待超时后会自动提交。</li>
+<li>提交阶段：如果每个参与者在准备阶段返回准备成功，也就是预留资源和执行操作成功，协调者向参与者发起提交指令，参与者提交资源变更的事务，释放锁定的资源；如果任何一个参与者返回准备失败，也就是预留资源或者执行操作失败，协调者向参与者发起中止指令，参与者取消已经变更的事务，执行 undo 日志，释放锁定的资源，这里的逻辑与两阶段提交协议的提交阶段一致。</li>
+</ul>
+<p>三阶段提交协议成功场景示意图如下：</p>
+<p><img src="/2019/06/30/分布式事务——2PC、3PC和TCC/3pc时序图.png" width="80%"></p>
+<p>这里与两阶段提交协议有两个主要的不同：</p>
+<ul>
+<li>增加了一个询问阶段，询问阶段可以确保尽可能早的发现无法执行操作而需要中止的行为，但是它并不能发现所有的这种行为，只会减少这种情况的发生。</li>
+<li>增加了等待超时的处理逻辑，如果在询问阶段等待超时，则自动中止；如果在准备阶段之后等待超时，则自动提交。这也是根据概率统计上的正确性最大。</li>
+</ul>
+<p>三阶段提交协议相比二阶段提交协议，避免了资源被无限锁定的情况。但也增加了系统的复杂度，增加了参与者和协调者之间的通信次数。</p>
+<h2 id="五、TCC-协议"><a href="#五、TCC-协议" class="headerlink" title="五、TCC 协议"></a>五、TCC 协议</h2><p>无论是 2PC 还是 3PC，都存在一个大粒度资源锁定的问题。为了解释这个问题，我们先来想象这样一种场景，用户在电商网站购买商品1000元，使用余额支付800元，使用红包支付200元。我们看一下在 2PC 中的流程：</p>
+<p>prepare 阶段：</p>
+<ul>
+<li>下单系统插入一条订单记录，不提交</li>
+<li>余额系统减 800 元，给记录加锁，写 redo 和 undo 日志，不提交</li>
+<li>红包系统减 200 元，给记录加锁，写 redo 和 undo 日志，不提交</li>
+</ul>
+<p>commit 阶段：</p>
+<ul>
+<li>下单系统提交订单记录</li>
+<li>余额系统提交，释放锁</li>
+<li>红包系统提交，释放锁</li>
+</ul>
+<p>为什么说这是一种大粒度的资源锁定呢？是因为在 prepare 阶段，当数据库给用户余额减 800 元之后，为了维持隔离性，会给该条记录加锁，在事务提交前，其它事务无法再访问该条记录。但实际上，我们只需要预留其中的 800 元，不需要锁定整个用户余额。这是 2PC 和 3PC 的局限，因为这两者是资源层的协议，无法提供更灵活的资源锁定操作。为了解决这个问题，TCC 应运而生。TCC 本质上也是一个二阶段提交协议，但和 JTA 中的二阶段协议不同的是，它是一个服务层的协议，因此开发者可以根据业务自由控制资源锁定的粒度。我们等会儿可以看到 TCC 在上面这个场景中的优势，但在那之前，我们先来看一下 TCC 协议的运行过程。</p>
+<p>TCC 将事务的提交过程分为 try-confirm-cancel(实际上 TCC 就是 try、confirm、cancel 的简称) 三个阶段:</p>
+<ul>
+<li>try：完成业务检查、预留业务资源</li>
+<li>confirm：使用预留的资源执行业务操作（需要保证幂等性）</li>
+<li>cancel：取消执行业务操作，释放预留的资源（需要保证幂等性）</li>
+</ul>
+<p>和 JTA 二阶段事务的参与方都要实现 prepare、commit、rollback 一样，TCC 的事务参与方也必须实现 try、confirm、cancel 三个接口。流程如下：</p>
+<ol>
+<li>事务发起方向事务协调器发起事务请求，事务协调器调用所有事务参与者的 try 方法完成资源的预留，这时候并没有真正执行业务，而是为后面具体要执行的业务预留资源，这里完成了一阶段。</li>
+<li>如果事务协调器发现有参与者的 try 方法预留资源时候发现资源不够，则调用参与方的 cancel 方法回滚预留的资源，需要注意 cancel 方法需要实现业务幂等，因为有可能调用失败（比如网络原因参与者接受到了请求，但是由于网络原因事务协调器没有接受到回执）会重试。</li>
+<li>如果事务协调器发现所有参与者的 try 方法返回都 OK，则事务协调器调用所有参与者的 confirm 方法，不做资源检查，直接进行具体的业务操作。</li>
+<li>如果协调器发现所有参与者的 confirm 方法都 OK 了，则分布式事务结束。</li>
+<li>如果协调器发现有些参与者的 confirm 方法失败了，或者由于网络原因没有收到回执，则协调器会进行重试。这里如果重试一定次数后还是失败，会怎么样？常见的是做事务补偿。</li>
+</ol>
+<p>TCC 执行场景示意图如下：<br><img src="/2019/06/30/分布式事务——2PC、3PC和TCC/tcc.jpg" width="80%"></p>
+<p>现在我们再回到开始的那个支付场景中，看看 TCC 在该场景中的流程：</p>
+<p>Try操作</p>
+<ul>
+<li>tryX 下单系统创建待支付订单</li>
+<li>tryY 冻结账户红包 200 元</li>
+<li>tryZ 冻结资金账户 800 元</li>
+</ul>
+<p>Confirm操作</p>
+<ul>
+<li>confirmX 订单更新为支付成功</li>
+<li>confirmY 扣减账户红包 200 元</li>
+<li>confirmZ 扣减资金账户 800 元</li>
+</ul>
+<p>Cancel操作</p>
+<ul>
+<li>cancelX 订单处理异常，资金红包退回，订单支付失败</li>
+<li>cancelY 冻结红包失败，账户余额退回，订单支付失败</li>
+<li>cancelZ 冻结余额失败，账户红包退回，订单支付失败</li>
+</ul>
+<p>可以看到，我们使用了冻结代替了原先的账号锁定（实际操作中，冻结操作可以用数据库减操作+日志实现），这样在冻结操作之后，事务提交之前，其它事务也能使用账户余额，提高了并发性。</p>
+<p>总结一下，相比于二阶段提交协议，TCC 主要有以下区别：</p>
+<ul>
+<li>2PC 位于资源层而 TCC 位于服务层。</li>
+<li>2PC 的接口由第三方厂商实现，TCC 的接口由开发人员实现。</li>
+<li>TCC 可以更灵活地控制资源锁定的粒度。</li>
+<li>TCC 对应用的侵入性强。业务逻辑的每个分支都需要实现 try、confirm、cancel 三个操作，应用侵入性较强，改造成本高。</li>
+</ul>
+<h2 id="六、参考资料"><a href="#六、参考资料" class="headerlink" title="六、参考资料"></a>六、参考资料</h2><p><a href="https://mp.weixin.qq.com/s/6H_VaTOq3KGvcGPzxJcJbA" target="_blank" rel="noopener">李艳鹏：分布式一致性协议</a><br><a href="https://my.oschina.net/fileoptions/blog/899991" target="_blank" rel="noopener">TCC型分布式事务原理和实现之：原理介绍</a><br><a href="https://cloud.tencent.com/developer/article/1049345" target="_blank" rel="noopener">分布式事务 TCC-Transaction 源码分析 —— TCC 实现</a><br><a href="http://ifeve.com/tcc/" target="_blank" rel="noopener">分布式事务-TCC编程式模式</a><br><a href="https://www.liangzl.com/get-article-detail-525.html" target="_blank" rel="noopener">分布式事务之TCC事务</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/" title="分布式事务——2PC、3PC 和 TCC" target="_blank" rel="external">http://yoursite.com/2019/06/30/分布式事务——2PC、3PC和TCC/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/06/27/从paxos到raft/" title="从 paxos 到 raft"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

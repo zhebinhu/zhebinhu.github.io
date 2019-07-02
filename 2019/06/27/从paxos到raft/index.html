@@ -20,26 +20,28 @@
     
     <title>
         
-        2PC,3PC 和 Paxos |
+        从 paxos 到 raft |
         
         huzb的小书斋</title>
     <meta name="description" content="最近在看分布式的各种算法和实现，paxos 是其中绕不开的一环。然而无论是网上的各种博客还是倪超老师的那本《从paxos到zookeeper》，在讲算法的时候都过于学术化了，导致开始看的时候很痛苦。直到昨天看了微信后台团队的博客，才开始有了点感觉。因此想把阅读的心得体会记录下来，以备随时查阅。 一、分布式理论学习分布式就离不开分布式著名的两个理论：CAP 和 BASE 理论。前者从理论层面证明了完">
 <meta name="keywords" content="分布式">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2PC,3PC 和 Paxos">
-<meta property="og:url" content="http://yoursite.com/2019/05/15/2pc-3pc和paxos/index.html">
+<meta property="og:title" content="从 paxos 到 raft">
+<meta property="og:url" content="http://yoursite.com/2019/06/27/从paxos到raft/index.html">
 <meta property="og:site_name" content="huzb的小书斋">
 <meta property="og:description" content="最近在看分布式的各种算法和实现，paxos 是其中绕不开的一环。然而无论是网上的各种博客还是倪超老师的那本《从paxos到zookeeper》，在讲算法的时候都过于学术化了，导致开始看的时候很痛苦。直到昨天看了微信后台团队的博客，才开始有了点感觉。因此想把阅读的心得体会记录下来，以备随时查阅。 一、分布式理论学习分布式就离不开分布式著名的两个理论：CAP 和 BASE 理论。前者从理论层面证明了完">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/05/15/2pc-3pc和paxos/2PC-commit.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/05/15/2pc-3pc和paxos/2PC-rollback.jpg">
-<meta property="og:updated_time" content="2019-05-18T09:29:05.488Z">
+<meta property="og:image" content="http://yoursite.com/2019/06/27/从paxos到raft/2PC-commit.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/27/从paxos到raft/2PC-rollback.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/06/27/从paxos到raft/3pc.png">
+<meta property="og:image" content="http://yoursite.com/2019/06/27/从paxos到raft/paxos-1.png">
+<meta property="og:updated_time" content="2019-06-30T09:37:20.359Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="2PC,3PC 和 Paxos">
+<meta name="twitter:title" content="从 paxos 到 raft">
 <meta name="twitter:description" content="最近在看分布式的各种算法和实现，paxos 是其中绕不开的一环。然而无论是网上的各种博客还是倪超老师的那本《从paxos到zookeeper》，在讲算法的时候都过于学术化了，导致开始看的时候很痛苦。直到昨天看了微信后台团队的博客，才开始有了点感觉。因此想把阅读的心得体会记录下来，以备随时查阅。 一、分布式理论学习分布式就离不开分布式著名的两个理论：CAP 和 BASE 理论。前者从理论层面证明了完">
-<meta name="twitter:image" content="http://yoursite.com/2019/05/15/2pc-3pc和paxos/2PC-commit.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/27/从paxos到raft/2PC-commit.jpg">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/05/15/2pc-3pc和paxos/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/06/27/从paxos到raft/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -183,7 +185,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -193,7 +195,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/分布式/" style="font-size: 13px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -202,7 +204,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">五月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -221,10 +223,25 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/05/15/2pc-3pc和paxos/" class="title">2PC,3PC 和 Paxos</a>
+                <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" class="title">分布式事务——2PC、3PC 和 TCC</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-05-15T03:54:14.000Z" itemprop="datePublished">2019-05-15</time>
+                <time datetime="2019-06-30T08:06:24.000Z" itemprop="datePublished">2019-06-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/06/27/从paxos到raft/" class="title">从 paxos 到 raft</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-06-27T08:06:43.000Z" itemprop="datePublished">2019-06-27</time>
               </p>
             </div>
           </li>
@@ -274,21 +291,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/03/22/Spring-MVC源码浅析——请求处理流程/" class="title">Spring MVC 源码浅析——请求处理流程</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-03-22T04:42:36.000Z" itemprop="datePublished">2019-03-22</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -304,21 +306,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、分布式理论"><span class="toc-text">一、分布式理论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、CAP"><span class="toc-text">1、CAP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、BASE"><span class="toc-text">2、BASE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、一致性协议"><span class="toc-text">二、一致性协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、2PC"><span class="toc-text">1、2PC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、3PC"><span class="toc-text">2、3PC</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、分布式理论"><span class="toc-text">一、分布式理论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、CAP"><span class="toc-text">1、CAP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、BASE"><span class="toc-text">2、BASE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、一致性协议"><span class="toc-text">二、一致性协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、2PC"><span class="toc-text">1、2PC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、3PC"><span class="toc-text">2、3PC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、Paxos"><span class="toc-text">3、Paxos</span></a></li></ol></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-2pc-3pc和paxos" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-从paxos到raft" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      2PC,3PC 和 Paxos
+      从 paxos 到 raft
     </h1>
   
 
@@ -326,8 +328,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/05/15/2pc-3pc和paxos/" class="article-date">
-	  <time datetime="2019-05-15T03:54:14.000Z" itemprop="datePublished">2019-05-15</time>
+	<a href="/2019/06/27/从paxos到raft/" class="article-date">
+	  <time datetime="2019-06-27T08:06:43.000Z" itemprop="datePublished">2019-06-27</time>
 	</a>
 </span>
         
@@ -347,7 +349,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/05/15/2pc-3pc和paxos/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/06/27/从paxos到raft/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -391,7 +393,7 @@
 <li>软状态：软状态是指运行系统中的数据存在中间状态，并认为该中间状态的存在不会影响系统的整体可用性，即允许系统在不同节点的数据副本之间进行数据同步的过程存在延时。比如秒杀系统中，用户余额的扣减和商家余额的增加可以存在延时，当用户余额减了之后即可返回支付成功，商家余额的增加可以等系统压力小的时候再做。</li>
 <li>最终一致性：最终一致性强调的是系统中所有的数据副本，在经过一段时间的同步后，最终能达到一个一致的状态。这也是分布式系统的一个基本要求。</li>
 </ul>
-<h2 id="二、一致性协议"><a href="#二、一致性协议" class="headerlink" title="二、一致性协议"></a>二、一致性协议</h2><p>为了解决分布式一致性问题，在长期的探索研究中涌现出一大批经典的算法，其中最著名的要数 2PC、3PC 和 Paxos 了。本文将介绍这三种算法的实现流程和各自的优缺点，同时着重介绍 Paxos 算法。</p>
+<h2 id="二、一致性协议"><a href="#二、一致性协议" class="headerlink" title="二、一致性协议"></a>二、一致性协议</h2><p>为了解决分布式一致性问题，在长期的探索研究中涌现出一大批经典的算法，其中最著名的要数 Paxos 了。本文将介绍这三种算法的实现流程和各自的优缺点，同时着重介绍 Paxos 算法。</p>
 <h3 id="1、2PC"><a href="#1、2PC" class="headerlink" title="1、2PC"></a>1、2PC</h3><p>在单机系统中，事务的执行全由一台机器完成，所以该机器能清晰地知道这次事务执行的结果：成功则提交，失败则回滚。但在分布式系统中，事务的执行需要多台机器合作完成，系统中的每一台机器能明确知道的只有自己这部分事务执行的结果，其它机器的执行结果需要询问或通知。当 A 向 B 发起询问时，A 收到的可能结果有三种：成功、失败和超时。当超时发生时，A 无法获知 B 的执行情况，此时 A 无论是提交还是回滚，都可能造成数据的不一致。因此，当一个事务操作需要跨越多个分布式节点的时候，就需要引入一个“协调者”的角色。</p>
 <p>二阶段提交协议通过引入协调者的角色保证了分布式数据的一致性，它的执行分为两个阶段：</p>
 <p><strong>阶段一：准备阶段</strong></p>
@@ -407,7 +409,7 @@
 <li>反馈提交结果：参与者完成事务提交后向协调者发送 Ack 消息。</li>
 <li>完成事务：协调者受到所有参与者反馈的 Ack 消息后，完成事务。</li>
 </ol>
-<p><img src="/2019/05/15/2pc-3pc和paxos/2PC-commit.jpg"></p>
+<p><img src="/2019/06/27/从paxos到raft/2PC-commit.jpg"></p>
 <p>假如任何一个参与者向协调者反馈了 No 响应或者在等待超时后，协调者就会中断事务：</p>
 <p><strong>中断事务</strong></p>
 <ol>
@@ -416,7 +418,7 @@
 <li>反馈回滚结果：参与者完成事务回滚后向协调者发送 Ack 消息。</li>
 <li>中断事务：协调者受到所有参与者反馈的 Ack 消息后，完成事务中断。</li>
 </ol>
-<p><img src="/2019/05/15/2pc-3pc和paxos/2PC-rollback.jpg"></p>
+<p><img src="/2019/06/27/从paxos到raft/2PC-rollback.jpg"></p>
 <p>以上就是二阶段提交协议的执行流程，简单来讲，二阶段提交将一个事务的处理过程分为了投票和执行两个阶段，其核心是对每个事务都采用先尝试后提交的处理方式，很显然它是一个强一致性的算法。它的优缺点也非常明显：</p>
 <p><strong>优点</strong><br>二阶段提交协议的优点：原理简单、实现方便。</p>
 <p><strong>缺点</strong><br>二阶段提交协议的缺点：</p>
@@ -468,16 +470,29 @@
 <li>反馈结果：参与者在完成事务回滚之后，向协调者发送 Ack 消息。</li>
 <li>中断事务：协调者接收到所有参与者反馈的 Ack 消息后，中断事务。</li>
 </ol>
+<p><img src="/2019/06/27/从paxos到raft/3pc.png"></p>
 <p>需要注意的是，一旦进入阶段三，可能会存在以下两种故障：</p>
 <ul>
 <li>协调者出现问题。</li>
 <li>协调者和参与者之间的网络出现故障。</li>
 </ul>
-<p>无论出现哪种情况，最终都会导致参与者无法及时接收到来自协调者的 doComit 或是 abort 请求，针对这样的异常情况，参与者会在等待超时之后，<strong>继续进行事务提交</strong>。</p>
+<p>无论出现哪种情况，最终都会导致参与者无法及时接收到来自协调者的 doComit 或是 abort 请求。针对这样的异常情况，参与者会在等待超时之后选择继续进行事务提交。</p>
 <blockquote>
 <p>阶段三中的参与者如果没有收到协调者的请求，在超时之后会继续事务的提交。这是基于概率的判断，因为进入阶段三之前，参与者一定接收到了协调者的 preCommit 请求，而接收到这个请求，意味着其它所有节点都认为自己有能力顺利执行事务，那么参与者有理由相信，当前事务成功提交的几率很大。</p>
 </blockquote>
-<p><strong>优点</strong><br>3PC 相比 2PC，最大的优点就是解决了 2PC 中的单点问题，它确保了系统在协调者不可用后，不会一直阻塞下去，并且各参与者能以很大概率在出现单点故障后继续达成一致。</p>
+<p><strong>优点</strong><br>3PC 相比 2PC，最大的优点就是解决了 2PC 中的单点问题，它确保了系统在协调者不可用后，不会一直阻塞下去，并且由于将准备阶段拆分为 canCommit 和 preCommit，使得系统能以很大概率在出现单点故障后继续达成一致。</p>
+<p><strong>缺点</strong><br>3PC 解决了单点问题，但也引入了一个新的数据不一致问题：如果参与者在收到 preCommit 请求后和协调者失去联系，那么此时参与者的 Ack 响应无法到达协调者，协调者会判定此次事务失败；而另一方面，参与者收到了 preCommit，那么他在和协调者失联后会继续提交事务。此时必然会出现数据的不一致。</p>
+<h3 id="3、Paxos"><a href="#3、Paxos" class="headerlink" title="3、Paxos"></a>3、Paxos</h3><p>终于来到了我们的重点 Paxos 算法了。通过 2PC 和 3PC 的例子我们了解到，在复杂不可靠的网络环境中，二阶段提交还是三阶段提交都无法很好的解决分布式的一致性问题。Google Chubby 的作者 Mike Burrows 说过，“there is only one consensus protocol, and that’s Paxos – all other approaches are just broken versions of Paxos. ” 意即世上只有一种一致性算法，那就是 Paxos，所有其他一致性算法都是 Paxos 算法的不完整版。下面我们来看一下这个公认为难于理解但是行之有效的 Paxos 算法。</p>
+<p>要讲 Paxos 算法，首先要明白 Paxos 做了什么事。Paxos 的本意，就是在分布式系统中确定一个值。听上去似乎很容易，但是实际操作起来会有各种各样的问题。比如节点 A 对数据 i 设置了一个值 i = 1，然后告诉其它节点 i = 1；但是这个时候节点 B 也对数据 i 设置了一个值 i = 2，那么系统中就出现了两个 i 的值，这个时候应该以哪个为准呢？有人可能会说，按时间来，时间早的那个为准。这里且不说每个节点的时钟不一定同步，即使时钟同步了，那么仍有可能出现，A 节点的消息因为网络原因没有到达 B，B 就会认为自己提出的 i = 2 才是最早的。那么这时候系统中也会有两个 i 的值，这就出现了数据的不一致。而 Paxos 强大的地方在于，它能让系统中每一个节点确定一个唯一的 i 的值，即当我们询问系统中的任意一个节点 i 的值是多少，它的回答要么是不知道，要么是 i = 1，不会出现其它的答案，这就是数据的一致性。那么这是怎么做到的呢？</p>
+<p>一切分歧都可以通过投票的方式解决，Paxos 也不例外。在 Paxos 中，节点被分成了三种角色：</p>
+<ul>
+<li>Proposer（提案者）：这类节点负责提出提案，就像上文的 A、B 节点，提出了 i = 1，i = 2 两个提案。</li>
+<li>Accpetor（投票者）：这类节点负责给提案投票，然后选定其中一个提案，就像上文的其它节点，可以给 i = 1，i = 2 两种提案投票。</li>
+<li>Learner（学习者）：这类节点负责询问结果，就像上文中的询问者，负责从 Accpetor 中获知 i 的值。</li>
+</ul>
+<p>实际执行中，一个节点可以身兼多种身份，比如 A、B 两个节点，可以既是提案者，也是投票者，甚至还可以是学习者</p>
+<p><img src="/2019/06/27/从paxos到raft/paxos-1.png"></p>
+<p>首先我们要确定一些身份</p>
 
       
     </div>
@@ -487,7 +502,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/05/15/2pc-3pc和paxos/" title="2PC,3PC 和 Paxos" target="_blank" rel="external">http://yoursite.com/2019/05/15/2pc-3pc和paxos/</a>
+      <a href="http://yoursite.com/2019/06/27/从paxos到raft/" title="从 paxos 到 raft" target="_blank" rel="external">http://yoursite.com/2019/06/27/从paxos到raft/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -532,6 +547,10 @@
   <div class="bar-inner">
   
   <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" title="分布式事务——2PC、3PC 和 TCC"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
     
     
     <li class="next">
