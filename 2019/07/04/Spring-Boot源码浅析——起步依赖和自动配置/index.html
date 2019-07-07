@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Spring Boot 源码浅析——起步依赖和自动配置 |
+        
+        huzb的小书斋</title>
+    <meta name="description" content="从根本上来讲 Spring Boot 就是一些库的集合，是一个基于“约定优于配置”的原则，快速搭建应用的框架。本质上依然是 Spring，在这之上帮我们省去了很多样板化的配置，使得我们能够更专注于应用程序功能的开发。 Spring Boot 将很多魔法带入了 Spring 应用程序的开发之中，其中最重要的是以下四个核心：  自动配置：Spring Boot 会基于你的 classpath 中的 j">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Boot 源码浅析——起步依赖和自动配置">
+<meta property="og:url" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/index.html">
+<meta property="og:site_name" content="huzb的小书斋">
+<meta property="og:description" content="从根本上来讲 Spring Boot 就是一些库的集合，是一个基于“约定优于配置”的原则，快速搭建应用的框架。本质上依然是 Spring，在这之上帮我们省去了很多样板化的配置，使得我们能够更专注于应用程序功能的开发。 Spring Boot 将很多魔法带入了 Spring 应用程序的开发之中，其中最重要的是以下四个核心：  自动配置：Spring Boot 会基于你的 classpath 中的 j">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/起步依赖1.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/起步依赖2.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置1.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置2.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置3.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置4.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置5.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置6.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置7.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置8.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置9.png">
+<meta property="og:updated_time" content="2019-07-07T14:04:36.866Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Boot 源码浅析——起步依赖和自动配置">
+<meta name="twitter:description" content="从根本上来讲 Spring Boot 就是一些库的集合，是一个基于“约定优于配置”的原则，快速搭建应用的框架。本质上依然是 Spring，在这之上帮我们省去了很多样板化的配置，使得我们能够更专注于应用程序功能的开发。 Spring Boot 将很多魔法带入了 Spring 应用程序的开发之中，其中最重要的是以下四个核心：  自动配置：Spring Boot 会基于你的 classpath 中的 j">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/起步依赖1.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的小书斋！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">19</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/分布式/" style="font-size: 13px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/" class="title">Spring Boot 源码浅析——起步依赖和自动配置</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-07-04T07:28:45.000Z" itemprop="datePublished">2019-07-04</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" class="title">分布式事务——2PC、3PC 和 TCC</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-06-30T08:06:24.000Z" itemprop="datePublished">2019-06-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/04/24/redo-undo和binlog/" class="title">Redo log,Undo log 和 Binlog</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-04-24T06:38:43.000Z" itemprop="datePublished">2019-04-24</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/28/Spring-AOP源码浅析——事务的实现/" class="title">Spring AOP 源码浅析——事务的实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-28T08:03:54.000Z" itemprop="datePublished">2019-03-28</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/03/26/Spring-MVC源码浅析——容器创建过程/" class="title">Spring MVC 源码浅析——容器创建过程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-03-26T15:45:41.000Z" itemprop="datePublished">2019-03-26</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、原生-Spring-引入-Mybatis"><span class="toc-text">一、原生 Spring 引入 Mybatis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、起步依赖"><span class="toc-text">二、起步依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、自动配置"><span class="toc-text">三、自动配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、基于注解的-bean-配置"><span class="toc-text">1、基于注解的 bean 配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、bean-参数获取"><span class="toc-text">2、bean 参数获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、bean-发现"><span class="toc-text">3、bean 发现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Spring-Boot源码浅析——起步依赖和自动配置" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spring Boot 源码浅析——起步依赖和自动配置
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/" class="article-date">
+	  <time datetime="2019-07-04T07:28:45.000Z" itemprop="datePublished">2019-07-04</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>从根本上来讲 Spring Boot 就是一些库的集合，是一个基于“约定优于配置”的原则，快速搭建应用的框架。本质上依然是 Spring，在这之上帮我们省去了很多样板化的配置，使得我们能够更专注于应用程序功能的开发。</p>
+<p>Spring Boot 将很多魔法带入了 Spring 应用程序的开发之中，其中最重要的是以下四个核心：</p>
+<ul>
+<li>自动配置：Spring Boot 会基于你的 classpath 中的 jar 包，试图猜测和配置你可能需要的 bean。</li>
+<li>起步依赖：本质上是一个 Maven 项目对象模型，定义了对其他库的传递依赖，这些东西加在一起即支持某项功能（比如 mybatis-spring-boot-starter 中整合了 jdbc、mybatis、spring-mybatis 等多种依赖，这些依赖共同提供了 mybatis 这一功能）。</li>
+<li>内置容器：嵌入了 Tomcat、Jetty 等 Servlet 容器，应用可以不用打包成 War 格式，而是可以直接以 Jar 格式运行。</li>
+<li>应用监控：提供了一整套的对应用状态的监控与管理的功能模块（通过引入 spring-boot-starter-actuator），包括应用的线程信息、内存信息、应用是否处于健康状态等，为了满足更多的资源监控需求。</li>
+</ul>
+<p>本文主要讲述自动配置和起步依赖这两个特性的实现原理，这两个特性也是 Spring Boot 开箱即用的重要保证。<strong>所谓开箱即用是指，在 Spring Boot 中，对于大部分的功能（比如 web、mybatis、redis 等），只需要引入一个 starter 包和少量的配置就能使用</strong>，不需要像以前一样引入很多 jar 包-&gt;注入很多 bean-&gt;在 bean 中配置很多属性。</p>
+<p>我们通过对比在 Spring 中引入 Mybatis 的流程来说明这两个特性带来的开发体验提升。</p>
+<h2 id="一、原生-Spring-引入-Mybatis"><a href="#一、原生-Spring-引入-Mybatis" class="headerlink" title="一、原生 Spring 引入 Mybatis"></a>一、原生 Spring 引入 Mybatis</h2><p>回忆一下，在原生 Spring 中引入 Mybatis 的步骤：</p>
+<p><strong>1、引入 jar 包</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- MyBatis依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- MyBatis自身实现的spring整合依赖 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.3.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 引入数据源 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-jdbc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>2、配置和注入 bean</strong></p>
+<p>首先配置 DataSource：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DriverManagerDataSource"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$&#123;driver&#125;<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$&#123;url&#125;<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$&#123;username&#125;<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>$&#123;password&#125;<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>然后配置 SqlSessionFactory 并将 DataSource 注入：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"sqlSessionFactory"</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.SqlSessionFactoryBean"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mapperLocations"</span> <span class="attr">value</span>=<span class="string">"classpath:config/mybatis/mapper/*.xml"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"configLocation"</span> <span class="attr">value</span>=<span class="string">"classpath:config/mybatis/mybatis-configuration.xml"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>最后配置自动扫描，将 Mapper 接口生成的代理注入到 Spring：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.mybatis.spring.mapper.MapperScannerConfigurer"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"basePackage"</span> <span class="attr">value</span>=<span class="string">"org.mybatis.spring.sample.mapper"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="二、起步依赖"><a href="#二、起步依赖" class="headerlink" title="二、起步依赖"></a>二、起步依赖</h2><p>起步依赖通过把同一功能下的大量 jar 包封装成一个 starter 包的形式降低了依赖的复杂度。</p>
+<p>在 Spring Boot 中，我们只需要引入一个 mybatis-spring-boot-starter 包就可以引入 Mybatis 所需的所有 jar 包（左边原生，右边 Spring Boot）：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/起步依赖1.png"></p>
+<p>这样做的好处有两个，第一是将包按照功能整合后，减少了 pom 文件的复杂度，而且 starter 包表意明确，一般是一个功能对应一个包，不需要开发人员记忆大量的包依赖；第二是版本号管理，当我们需要为项目添加一个新的依赖时，不需要再去纠结选择的版本号是否合适，因为 Spring Boot 官方提供的起步依赖都和 Spring Boot 版本紧密相连，为我们传递的第三方依赖是经过足够测试后敲定下来最合适的版本。</p>
+<p>那么这个功能是怎么实现的呢？我们点击 mybatis-spring-boot-starter 进去，发现里面是一些包的集合：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/起步依赖2.png"></p>
+<p>所以起步依赖就是将用于实现某个功能的 jar 包统一整合进 starter 包中，我们需要引入某个功能的时候，直接引入该 starter 包就行了。当然，整合进 starter 包的 jar 包都是经过足够测试敲定下来的，这也避免了某些版本的包不兼容的情况。</p>
+<h2 id="三、自动配置"><a href="#三、自动配置" class="headerlink" title="三、自动配置"></a>三、自动配置</h2><p>在原生方式中，引入 jar 包后我们还要进行 bean 的配置和注入，而在 Spring Boot 中，我们只需要在全局的配置文件 application.properties 中加几行就行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spring.datasource.driverClassName = com.mysql.jdbc.Driver</span><br><span class="line">spring.datasource.url = jdbc:mysql://127.0.0.1:3306/mybatis_test</span><br><span class="line">spring.datasource.username = root</span><br><span class="line">spring.datasource.password = root</span><br></pre></td></tr></table></figure>
+<p>相比于原生的方式，Spring Boot 中不再需要手动注入 dataSource 和 sqlSessionFactory 等相关的 bean，那么这些 bean 是在哪里被配置并且注入的呢？</p>
+<h3 id="1、基于注解的-bean-配置"><a href="#1、基于注解的-bean-配置" class="headerlink" title="1、基于注解的 bean 配置"></a>1、基于注解的 bean 配置</h3><p>以 Mybatis 为例，我们发现 mybatis-spring-boot-starter 这个包帮我们引入了 mybatis-spring-boot-autoconfigure 这个包，如下图：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置1.png"></p>
+<p>里面有 MybatisAutoConfiguration 这个类，打开这个类看看有什么东西：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置2.png"></p>
+<p>熟悉 @Configuration、@Bean 这两个注解的同学或许已经知道了，这两个注解一起使用就可以创建一个基于 java 代码的配置类，可以用来替代相应的 xml 配置文件。</p>
+<h3 id="2、bean-参数获取"><a href="#2、bean-参数获取" class="headerlink" title="2、bean 参数获取"></a>2、bean 参数获取</h3><p>我们看到了 bean 配置的地方，但是还没有看到 Spring Boot 是如何读取 application.properties 这个配置文件的。</p>
+<p>在 DataSourceAutoConfiguration 类里面，我们注意到使用了 @EnableConfigurationProperties 这个注解：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置3.png"></p>
+<p>DataSourceProperties 中封装了数据源的各个属性，且使用了注解 @ConfigurationProperties 指定了配置文件的前缀，这个注解会自动去寻找 application.properties 这个文件中前缀为指定前缀的配置项，并把值注入到配置类的同名属性中：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置4.png"></p>
+<p>最后这个 DataSourceProperties 被 Spring Boot 默认的数据源 HikariDataSource 使用：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置5.png"></p>
+<p>到这里我们可以总结出：application.properties 中的配置通过 @ConfigurationProperties 注解被读取到相应的配置类中，这些配置类又被各种 bean 读取，最终把配置传递到实际的 bean 中。</p>
+<h3 id="3、bean-发现"><a href="#3、bean-发现" class="headerlink" title="3、bean 发现"></a>3、bean 发现</h3><p>Spring Boot 默认扫描启动类所在的包下的主类与子类的所有组件，但并没有包括依赖包的中的类，那么依赖包中的 bean 是如何被发现的呢？</p>
+<p>这就要从 @SpringBootApplication 这个注解说起了。我们通常在启动类中加 @SpringBootApplication 这个注解：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置6.png"></p>
+<p>点进去看：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置7.png"></p>
+<p>实际上重要的注解只有三个：</p>
+<ul>
+<li>@Configuration 的作用我们已经知道了，被注解的类将成为一个 bean 配置类。</li>
+<li>@ComponentScan 的作用我们也比较熟悉，自动扫描并加载符合条件的组件。</li>
+<li><strong>@EnableAutoConfiguration</strong> 这个注解的功能很重要，它借助 @Import 的支持，收集和注册依赖包中相关的 bean 定义，这也是自动配置的关键所在。</li>
+</ul>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置8.png"></p>
+<p>如上源码，@EnableAutoConfiguration 注解引入了 @AutoConfigurationPackage 和 @Import 这两个注解。</p>
+<p>@AutoConfigurationPackage 这个注解不是本文的重点，但也跟自动配置相关。这个注解要放在配置类上，会把当前配置类所在的包名放进一个全局的数组里。这些包名会被 org.springframework.boot.autoconfigure 下的一些配置类扫描，从而进行自动配置。这个功能看上去跟 @ComponentScan 有点像，但两者是有很大区别的：@ComponentScan 是 Spring Core 下的注解，作用是扫描到标记 @Component 的类然后将其加入 Spring 容器；@AutoConfigurationPackage 是 Spring Boot 下的注解，作用是为 org.springframework.boot.autoconfigure 下的一些配置类提供扫描的路径，但具体的行为由配置类自己决定。</p>
+<p>回到正题，我们实际要关心的是 @Import 这个注解。这个注解注入了一个类型为 AutoConfigurationImportSelector 的 bean，先看这个类的继承关系：</p>
+<p><img src="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/自动配置9.png"></p>
+<p>特别关注红框框起来的两个接口：ImportSelector 和 DeferredImportSelector。Spring 允许用户在配置类中使用 @Import 自行导入所需的类，而 @Import 有四种用法：</p>
+<ul>
+<li>1、导入一个普通类。</li>
+<li>2、导入一个标记了 @Configuration 的类，将该类以实例工厂的方式导入标记 @Bean 的方法的返回值。</li>
+<li>3、导入一个 ImportBeanDefinitionRegistrar 的子类，该类可以获取到当前配置类（@Import 所在的类一定是配置类）的元数据信息，比如类全名和所在的包名，然后进行一些自定义的 bean 注册（上文的 @AutoConfigurationPackage 和我们熟知的 @ComponentScan 都是通过这种方式实现的）。</li>
+<li>4、<strong>导入一个 ImportSelector 的子类</strong>，该类的 selectImports 方法返回一个类全名的数组，根据返回的类全名会注册相应的 bean。</li>
+</ul>
+<p><strong>自动配置导入依赖包的中的类所用的方法就是 ImportSelector 这种方法。</strong></p>
+<p>如继承关系图所示，AutoConfigurationImportSelector 实现了 DeferredImportSelector 接口，而 DeferredImportSelector 是 ImportSelector 的子接口。DeferredImportSelector 和 ImportSelector 的区别在于执行的时机。 ImportSelector 实例的 selectImports 方法的执行时机在 @Configuration 注解中的其他逻辑（@ImportResource、@Bean）被处理之前；而 DeferredImportSelector 实例的 selectImports 方法的执行时机则是在 @Configguration 注解中的其他逻辑被处理完毕之后：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConfigurationClassParser</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">parse</span><span class="params">(Set&lt;BeanDefinitionHolder&gt; configCandidates)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (BeanDefinitionHolder holder : configCandidates) &#123;</span><br><span class="line">            BeanDefinition bd = holder.getBeanDefinition();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (bd <span class="keyword">instanceof</span> AnnotatedBeanDefinition) &#123;</span><br><span class="line">                    parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (bd <span class="keyword">instanceof</span> AbstractBeanDefinition &amp;&amp; ((AbstractBeanDefinition) bd).hasBeanClass()) &#123;</span><br><span class="line">                    parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    parse(bd.getBeanClassName(), holder.getBeanName());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (BeanDefinitionStoreException ex) &#123;</span><br><span class="line">                <span class="keyword">throw</span> ex;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> BeanDefinitionStoreException(</span><br><span class="line">                        <span class="string">"Failed to parse configuration class ["</span> + bd.getBeanClassName() + <span class="string">"]"</span>, ex);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// DeferredImportSelector 的执行时机在其它所有逻辑执行之后</span></span><br><span class="line">        <span class="keyword">this</span>.deferredImportSelectorHandler.process();</span><br><span class="line">    &#125;</span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么自动配置为什么要使用 DeferredImportSelector 而不是 ImportSelector 呢？这是因为在自动配置的时候需要通过判断容器中有没有特定的 bean 来判断一个配置类是否要被注册，如果自动配置的逻辑在其它逻辑之前，此时容器中注册的 bean 还不全，会导致该注册的配置类没有被注册，正确性就无法保证，因此自动配置要在其它逻辑之后。</p>
+<p>现在我们来看一下 AutoConfigurationImportSelector 的 selectImports 方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AutoConfigurationImportSelector</span> <span class="keyword">implements</span> <span class="title">DeferredImportSelector</span>, <span class="title">BeanClassLoaderAware</span>, <span class="title">ResourceLoaderAware</span>, <span class="title">BeanFactoryAware</span>, <span class="title">EnvironmentAware</span>, <span class="title">Ordered</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String[] NO_IMPORTS = <span class="keyword">new</span> String[<span class="number">0</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="comment">// 实现 DeferredImportSelector 接口的 selectImports 方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String[] selectImports(AnnotationMetadata annotationMetadata) &#123;</span><br><span class="line">        <span class="keyword">if</span>(!<span class="keyword">this</span>.isEnabled(annotationMetadata)) &#123;</span><br><span class="line">            <span class="keyword">return</span> NO_IMPORTS;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            AutoConfigurationMetadata autoConfigurationMetadata = AutoConfigurationMetadataLoader</span><br><span class="line">                .loadMetadata(<span class="keyword">this</span>.beanClassLoader);</span><br><span class="line">            AnnotationAttributes attributes = <span class="keyword">this</span>.getAttributes(annotationMetadata);</span><br><span class="line">            <span class="comment">// 获取所有自动配置的配置类列表</span></span><br><span class="line">            List&lt;String&gt; configurations = <span class="keyword">this</span>.getCandidateConfigurations(annotationMetadata, attributes);</span><br><span class="line">            <span class="comment">// 去除重复的配置类</span></span><br><span class="line">            configurations = <span class="keyword">this</span>.removeDuplicates(configurations);</span><br><span class="line">            <span class="comment">// 获取应该被排除的配置类列表</span></span><br><span class="line">            Set exclusions = <span class="keyword">this</span>.getExclusions(annotationMetadata, attributes);</span><br><span class="line">            <span class="keyword">this</span>.checkExcludedClasses(configurations, exclusions);</span><br><span class="line">            <span class="comment">// 排除所有应该被排除的配置类</span></span><br><span class="line">            configurations.removeAll(exclusions);</span><br><span class="line">            <span class="comment">// 筛选，选出满足条件的配置类（核心）</span></span><br><span class="line">            configurations = <span class="keyword">this</span>.filter(configurations, autoConfigurationMetadata);</span><br><span class="line">            <span class="keyword">this</span>.fireAutoConfigurationImportEvents(configurations, exclusions);</span><br><span class="line">            <span class="comment">// 返回列表</span></span><br><span class="line">            <span class="keyword">return</span> StringUtils.toStringArray(configurations);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> List&lt;String&gt; <span class="title">getCandidateConfigurations</span><span class="params">(AnnotationMetadata metadata, AnnotationAttributes attributes)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 从 classpath 目录下所有的 jar 包中读取 META-INF/spring.factories 文件信息，获取配置类列表</span></span><br><span class="line">        List&lt;String&gt; configurations = SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class,</span><br><span class="line">            <span class="keyword">this</span>.getBeanClassLoader());</span><br><span class="line">        <span class="keyword">return</span> configurations;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>SpringFactoriesLoader.loadFactoryNames 方法调用 loadSpringFactories 方法从 classpath 目录下所有的 jar 包中读取 META-INF/spring.factories 文件信息，然后调用 getOrDefault 选出 key 为 factoryClassName 的 value，将其解析为列表：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;String&gt; <span class="title">loadFactoryNames</span><span class="params">(Class&lt;?&gt; factoryClass, @Nullable ClassLoader classLoader)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取全类名</span></span><br><span class="line">    String factoryClassName = factoryClass.getName();</span><br><span class="line">    <span class="comment">// loadSpringFactories 方法从 classpath 目录下所有的 jar 包中读取 META-INF/spring.factories 文件信息，</span></span><br><span class="line">    <span class="comment">// 解析为 Map，然后从中选出 key 为 factoryClassName 的 value，value 是一个 List。</span></span><br><span class="line">    <span class="keyword">return</span> loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, List&lt;String&gt;&gt; loadSpringFactories(<span class="meta">@Nullable</span> ClassLoader classLoader) &#123;</span><br><span class="line">    MultiValueMap&lt;String, String&gt; result = cache.get(classLoader);</span><br><span class="line">    <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 文件路径为 "META-INF/spring.factories"</span></span><br><span class="line">        Enumeration&lt;URL&gt; urls = (classLoader != <span class="keyword">null</span> ?</span><br><span class="line">                classLoader.getResources(<span class="string">"META-INF/spring.factories"</span>) :</span><br><span class="line">                ClassLoader.getSystemResources(<span class="string">"META-INF/spring.factories"</span>));</span><br><span class="line">        result = <span class="keyword">new</span> LinkedMultiValueMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">while</span> (urls.hasMoreElements()) &#123;</span><br><span class="line">            URL url = urls.nextElement();</span><br><span class="line">            UrlResource resource = <span class="keyword">new</span> UrlResource(url);</span><br><span class="line">            Properties properties = PropertiesLoaderUtils.loadProperties(resource);</span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;?, ?&gt; entry : properties.entrySet()) &#123;</span><br><span class="line">                String factoryClassName = ((String) entry.getKey()).trim();</span><br><span class="line">                <span class="keyword">for</span> (String factoryName : StringUtils.commaDelimitedListToStringArray((String) entry.getValue())) &#123;</span><br><span class="line">                    result.add(factoryClassName, factoryName.trim());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        cache.put(classLoader, result);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"..."</span>, ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.cnblogs.com/hjwublog/p/10332042.html" target="_blank" rel="noopener">深入springboot原理——一步步分析springboot启动机制（starter机制）</a><br><a href="https://sylvanassun.github.io/2018/01/08/2018-01-08-spring_boot_auto_configure/" target="_blank" rel="noopener">Spring Boot自动配置的”魔法”是如何实现的？</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/" title="Spring Boot 源码浅析——起步依赖和自动配置" target="_blank" rel="external">http://yoursite.com/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/06/30/分布式事务——2PC、3PC和TCC/" title="分布式事务——2PC、3PC 和 TCC"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
