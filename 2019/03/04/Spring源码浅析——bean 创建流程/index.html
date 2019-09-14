@@ -22,13 +22,13 @@
         
         Spring 源码浅析——bean 创建流程 |
         
-        huzb的小书斋</title>
+        huzb的博客</title>
     <meta name="description" content="上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。 bean 生命周期在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：  接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：  扫描得到 beanDefinition">
 <meta name="keywords" content="Java,Spring">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spring 源码浅析——bean 创建流程">
 <meta property="og:url" content="http://yoursite.com/2019/03/04/Spring源码浅析——bean 创建流程/index.html">
-<meta property="og:site_name" content="huzb|个人博客">
+<meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="上一篇中概览了容器刷新的过程，其中着重跟进了容器准备的代码。那么现在容器准备好了，就要创建和往里面注入 bean 了。 bean 生命周期在跟进这部分代码之前，我们首先需要对 Spring 中 bean 的生命周期有个宏观的认识。下面是 bean 生命周期的大致流程：  接下来对照上图，一步一步对 singleton 类型 bean 的生命周期进行解析：  扫描得到 beanDefinition">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/03/04/Spring源码浅析——bean%20创建流程/bean生命周期.png">
