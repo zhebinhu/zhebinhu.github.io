@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/t压缩.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/a压缩.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/定位t.png">
-<meta property="og:updated_time" content="2019-09-07T14:55:50.869Z">
+<meta property="og:updated_time" content="2019-09-14T07:15:33.385Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="第五届阿里中间件性能挑战赛总结">
 <meta name="twitter:description" content="历时一个月的阿里中间件性能挑战赛终于告一段落，起初只是想在实习的碎片时间找点事做，不知不觉竟走完了整个比赛。比赛的过程不可谓不波折，中途几次想要退赛都被队友劝了回来，排行榜上的名次也是起起落落最终定格在第六名。当然名次是次要的，比赛过程中和大佬们切磋交流，拓宽眼界，才是无价的收获。 这篇文章记录了这次比赛中我的方案和有效的优化点，欢迎大家拍砖交流。代码地址：第五届阿里中间件性能挑战赛复赛第6名代码">
@@ -402,7 +402,7 @@
 <p>聚合查询阶段，大致流程和第二阶段相同，只是少了读 body 和最后的数据合并。</p>
 <h3 id="文件读写"><a href="#文件读写" class="headerlink" title="文件读写"></a>文件读写</h3><p>由于这次比赛禁止使用 C++ 和 JNI，因此在读写方式上能选择的就非常有限。排除掉性能堪忧的字节流 IO，摆在我们面前的就剩下了 ByteBuffer，DirectByteBuffer 和 Mmap。这三种 IO 的原理和优劣已有大佬珠玉在前：<a href="https://www.cnkirito.moe/file-io-best-practise/" target="_blank" rel="noopener">文件IO操作的一些最佳实践</a>，这里就不赘述了。总之最后我们选择了 DirectByteBuffer 作为读写方式。</p>
 <p>确定了读写方式后就要确定块大小。当我们把消息分区，并将 a 和 body 分开存储之后，这里的写实际上就变成了随机写。理论上讲随机写是不如顺序写的，但好在 SSD 有个特性：大块数据的随机读写不输于顺序读写。要理解这个事情可以参考大佬的博客：<a href="http://codecapsule.com/2014/02/12/coding-for-ssds-part-6-a-summary-what-every-programmer-should-know-about-solid-state-drives/" target="_blank" rel="noopener">What every programmer should know about solid-state drives</a>，一言以蔽之就是当我们对齐簇（SSD 的一种访问单位）进行随机读写时，SSD 会充分利用内部的并发机制，将读写性能提升到顺序读写的水平。一个簇的大小在 16M/32M，为了保险起见，我们将块大小定在了 32M。</p>
-<h3 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h3><p>关于 TSDB 中的数据压缩大家可以参考这篇文章：(阿里巴巴双十一千万级实时监控系统技术揭秘)[<a href="https://www.infoq.cn/article/YRyUcv8zGw6*2BKOmTf7" target="_blank" rel="noopener">https://www.infoq.cn/article/YRyUcv8zGw6*2BKOmTf7</a>]</p>
+<h3 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h3><p>关于 TSDB 中的数据压缩大家可以参考这篇文章：<a href="https://www.infoq.cn/article/YRyUcv8zGw6*2BKOmTf7" target="_blank" rel="noopener">阿里巴巴双十一千万级实时监控系统技术揭秘</a></p>
 <p>这里提一下时间戳压缩算法 delta-of-delta。对于时序数据来说，时间戳是一个非常适合压缩的点。特别是在高并发场景下，时间戳数据会非常密集，可能很多条数据的时间戳都是连续的，当面对这些连续递增的数据时，存储数据之间的差值会有很好的的效果。比如我们把相差在 100ms 的数据放在一个组中，那么对于 {100000,100030,100062,100099} 这组数据，我们可以把它存成 {100000,30,32,37}，因为相差在 100ms 内，所以每个差值用 7 个 bit 就可以存储，4个数据一共占用空间 64+7+7+7 = 85 bits。delta-of-delta 则是在差值的基础上更进了一步，存储的是差值的差值：</p>
 <table>
 <thead>
