@@ -27,19 +27,19 @@
 <meta name="keywords" content="Netty">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Netty 源码学习笔记——NioEventLoop">
-<meta property="og:url" content="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/index.html">
+<meta property="og:url" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="NioEventLoop 是 Netty 的核心组件。我们在服务端启动时，会用服务端 Channel 绑定一个 NioEventLoop，那么 NioEventLoop 里面到底在干些什么事？Netty 是如何保证事件循环的高效轮询和任务的及时执行？又是如何优雅地 fix 掉 jdk 的 nio bug 的呢？让我们深入源码一探究竟。 NioEventLoop 概述我们先对 NioEventLoo">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
-<meta property="og:image" content="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/空轮询.png">
-<meta property="og:updated_time" content="2019-09-27T13:32:37.907Z">
+<meta property="og:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/空轮询.png">
+<meta property="og:updated_time" content="2019-09-27T13:34:41.723Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Netty 源码学习笔记——NioEventLoop">
 <meta name="twitter:description" content="NioEventLoop 是 Netty 的核心组件。我们在服务端启动时，会用服务端 Channel 绑定一个 NioEventLoop，那么 NioEventLoop 里面到底在干些什么事？Netty 是如何保证事件循环的高效轮询和任务的及时执行？又是如何优雅地 fix 掉 jdk 的 nio bug 的呢？让我们深入源码一探究竟。 NioEventLoop 概述我们先对 NioEventLoo">
-<meta name="twitter:image" content="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -221,10 +221,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/09/18/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-09-18T13:17:49.000Z" itemprop="datePublished">2019-09-18</time>
+                <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
               </p>
             </div>
           </li>
@@ -326,8 +326,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/09/18/netty源码学习笔记——NioEventLoop/" class="article-date">
-	  <time datetime="2019-09-18T13:17:49.000Z" itemprop="datePublished">2019-09-18</time>
+	<a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="article-date">
+	  <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
 	</a>
 </span>
         
@@ -347,7 +347,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/09/18/netty源码学习笔记——NioEventLoop/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -364,7 +364,7 @@
 <li>NioEventLoop 内部是一个 for 循环，不停地做三件事：检测 IO 事件-&gt;处理 IO 事件-&gt;处理异步任务队列</li>
 </ul>
 <p>NioEventLoop 的生命周期分为三个过程：创建-&gt;启动-&gt;运行。三者的关系和触发时机如下图所示：</p>
-<p><img src="/2019/09/18/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png" width="70%"></p>
+<p><img src="/2019/09/27/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png" width="70%"></p>
 <p>可以看到，NioEventLoop 的生命周期起始于我们在用户代码中调用 <code>new NioEventLoopGroup()</code>，这条语句会创建出 NioEventLoop；然后在两个地方触发 NioEventLoop 的启动，分别是服务端绑定端口和新连接接入；最终 NioEventLoop 会稳定在一个 for 循环中不断接收和处理 Channel 相关的事件。下面我们就按这个生命周期来阅读源码。</p>
 <h2 id="NioEventLoop-创建"><a href="#NioEventLoop-创建" class="headerlink" title="NioEventLoop 创建"></a>NioEventLoop 创建</h2><p>NioEventLoop 的创建发生在 <code>new NioEventLoopGroup()</code> 时，NioEventLoop 的创建是以组进行的，而每个 NioEventLoopGroup 创建时，会做以下三件事：</p>
 <ul>
@@ -434,7 +434,7 @@
 <p>可以看到，在外部线程添加任务的时候，会调用 jdk 底层的 <code>selector.wakeup()</code> 方法，这个方法会唤醒阻塞中的 Selector。</p>
 <p>上述三步操作已经能够实现检测 IO 事件的逻辑。但要保证顺利运行， Netty 还必须解决 jdk 空轮询的 bug。</p>
 <h4 id="jdk-空轮询"><a href="#jdk-空轮询" class="headerlink" title="jdk 空轮询"></a>jdk 空轮询</h4><p>jdk 空轮询的 bug，是指 jdk 底层的 select 操作可能在没有任何 fd 有读写请求的情况下被唤醒，导致外层循环空转从而使 cpu 达到 100% 的 bug：</p>
-<p><img src="/2019/09/18/netty源码学习笔记——NioEventLoop/空轮询.png" width="50%"></p>
+<p><img src="/2019/09/27/netty源码学习笔记——NioEventLoop/空轮询.png" width="50%"></p>
 <p>产生这个 bug 的原因是在部分 Linux 的 2.6 的 kernel 中，poll 和 epoll 对于突然中断的连接 socket 会对返回的 eventSet 事件集合置为 POLLHUP（也可能是 POLLERR），eventSet 事件集合发生了变化，这就可能导致 Selector 会被唤醒。这意味着 Selector 可能在没有任何 fd 可读写的情况下被唤醒，而此时返回的感兴趣事件数量是 0。</p>
 <p>那么 Netty 是如何解决这个 bug 的呢？主要思路是在检测到这个 bug 发生之后重建一个新的 Selector：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> currentTimeNanos = System.nanoTime();</span><br><span class="line"><span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    <span class="comment">// 1. 判断定时任务的执行时间是否快到了，是的话终止本次轮询</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="comment">// 2. 判断轮询过程中是否有任务加入，是的话终止本次轮询</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="comment">// 3. 阻塞式select操作</span></span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="comment">// 4.解决 jdk 的空轮询 bug</span></span><br><span class="line">    <span class="keyword">long</span> time = System.nanoTime();</span><br><span class="line">    <span class="comment">// 计算当前时间距离 select 开始时间是否达到了 timeoutMillis 秒，如果达到了 timeoutMillis 秒，那说明这是一次有效的轮询，重置 selectCnt 标志</span></span><br><span class="line">    <span class="keyword">if</span> (time - TimeUnit.MILLISECONDS.toNanos(timeoutMillis) &gt;= currentTimeNanos) &#123;</span><br><span class="line">        <span class="comment">// 重置 selectCnt 标志</span></span><br><span class="line">        selectCnt = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果没达到，说明 select 在没有 fd 可读写的情况下提前返回，那么就可能是触发了 jdk 的空轮询 bug，当空轮询的次数超过阀值的时候就重建 Selector</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (SELECTOR_AUTO_REBUILD_THRESHOLD &gt; <span class="number">0</span> &amp;&amp; selectCnt &gt;= SELECTOR_AUTO_REBUILD_THRESHOLD) &#123;</span><br><span class="line">        <span class="comment">// 重建 Selector</span></span><br><span class="line">        rebuildSelector();</span><br><span class="line">        selector = <span class="keyword">this</span>.selector;</span><br><span class="line">        selector.selectNow();</span><br><span class="line">        selectCnt = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    currentTimeNanos = time; </span><br><span class="line">    ...</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
 <p>首先进入到这段代码的时候 select() 返回的 selectedKeys 一定等于 0。然后 Netty 会检查一下当前时间距离 select() 开始时间是否达到了 timeoutMillis 秒。如果达到了 timeoutMillis 秒，那说明这是一次有效的轮询，重置 selectCnt 标志；否则，表明该阻塞方法在没有 fd 可读写的情况下提前返回，那么就可能是触发了 jdk 的空轮询 bug，当空轮询的次数超过一个阀值的时候，默认是 512，就开始重建 Selector。</p>
@@ -510,7 +510,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/" title="Netty 源码学习笔记——NioEventLoop" target="_blank" rel="external">http://yoursite.com/2019/09/18/netty源码学习笔记——NioEventLoop/</a>
+      <a href="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/" title="Netty 源码学习笔记——NioEventLoop" target="_blank" rel="external">http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/</a>
     </li>
     
     <li class="post-copyright-license">
