@@ -61,7 +61,7 @@ T1、T2、T3 表示事务的记录。*T1、*T2、*T3表示事务提交时的日�
 当数据恢复时，只需要应用 checkpoint 之后的日志，且对于某一页，只需要应用页 LSN 之后的日志。这样加快了恢复的速度。而且 redo log 中小于 checkpoint 的部分可以写入新的数据，循环利用，节省空间。
 
 ## 3、undo log
-undo log 的设计目的在于回滚，在 innodb 中还顺带实现了 MVCC 的功能。undo log 位于共享表空间中，事务需要在 undo log segment 中申请相应的页并写入。这个过程同样需要写入 redo log。undo log 的逻辑结构如下：
+undo log 的设计目的在于回滚，在 innodb 中还顺带实现了 MVCC 的功能。undo log 位于共享表空间中，事务需要在 undo log segment 中申请相应的页，页的头部会记录事务相关的信息（事务类型，事务状态等）。将 undo log 写入共享表空间的过程同样需要写入 redo log。undo log 的逻辑结构如下：
 
 <img src="./redo-undo和binlog/undo log.png"/>
 
