@@ -44,7 +44,11 @@
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%206.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/流量控制%207.png">
 <meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png">
-<meta property="og:updated_time" content="2019-09-24T09:29:32.223Z">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/最优工作点1.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/最优工作点2.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/最优工作点3.png">
+<meta property="og:image" content="http://yoursite.com/2019/01/23/TCP协议回顾/算法流程.png">
+<meta property="og:updated_time" content="2019-10-01T09:09:01.826Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TCP 协议回顾">
 <meta name="twitter:description" content="本科的时候面向考试学习计算机网络，TCP 是重点中的重点，可惜当时不知道 TCP 在网络世界中的重要，考完试就把知识点扔了。最近在复习计算机网络，看到 TCP 这章，就像看到了一个老朋友。就想把它记录下来，便于复习。 TCP 协议非常复杂，标准也非常多，但核心内容就以下几个部分：  三次握手 四次挥手 可靠性传输 流量控制 拥塞控制  TCP 协议头要想了解 TCP 协议首先就必须了解 TCP">
@@ -194,7 +198,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">20</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zookeeper/">Zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">20</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zookeeper/">Zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -204,7 +208,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.17px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 13px;">Zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.33px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 13px;">Zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -213,7 +217,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -225,6 +229,21 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/09/28/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-09-28T06:33:27.000Z" itemprop="datePublished">2019-09-28</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -285,21 +304,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/07/04/Spring-Boot源码浅析——起步依赖和自动配置/" class="title">Spring Boot 源码浅析——起步依赖和自动配置</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-07-04T07:28:45.000Z" itemprop="datePublished">2019-07-04</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -315,7 +319,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-协议头"><span class="toc-text">TCP 协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-text">拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-协议头"><span class="toc-text">TCP 协议头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三次握手"><span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四次挥手"><span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可靠性传输"><span class="toc-text">可靠性传输</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序与丢包问题"><span class="toc-text">顺序与丢包问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#流量控制"><span class="toc-text">流量控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拥塞控制"><span class="toc-text">拥塞控制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BBR-算法"><span class="toc-text">BBR 算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#经典算法的缺陷"><span class="toc-text">经典算法的缺陷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最优工作点"><span class="toc-text">最优工作点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法基本思想"><span class="toc-text">算法基本思想</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法流程"><span class="toc-text">算法流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法优缺点"><span class="toc-text">算法优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -435,9 +439,14 @@
 </ul>
 <p>根据这个例子，我们可以知道，顺序问题和丢包问题都有可能发生，所以我们先来看确认与重发的机制。</p>
 <p>假设 4 的确认到了，不幸的是，5 的 ACK 丢了，6、7 的数据包丢了，这该怎么办呢？</p>
-<p>一种方法就是超时重试，当发出去的 TCP 包超过超时时间未收到 ACK，就重新发送。这个超时时间 RTO 的大小和往返时间 RTT 相关，具体计算较为复杂，但一定是一个大于 RTT 的数。</p>
-<p>那么如何设置往返时间 RTT 呢？TCP 采用了加权的自适应重传算法：EstimatedRTT=0.875<em>EstimatedRTT+0.125</em>SampleRTT 其中 EstimatedRTT 为平均往返时间，SampleRTT 为某次采样的往返时间。</p>
-<p>如果过一段时间，5、6、7 都超时了，就会重新发送。接收方发现 5 原来接收过，于是丢弃 5；6 收到了，发送 ACK，要求下一个是 7，7 不幸又丢了。当 7 再次超时的时候，有需要重传的时候，TCP 的策略是超时间隔加倍。每当遇到一次超时重传的时候，都会将下一次超时时间间隔设为先前值的两倍。两次超时，就说明网络环境差，不宜频繁反复发送。</p>
+<p>一种方法就是超时重试，当发出去的 TCP 包超过超时时间未收到 ACK，就重新发送。这个超时时间 RTO 的大小和往返时间 RTT 相关，具体的计算公式为：</p>
+<ul>
+<li>SRTT=0.875*SRTT+0.125*RTT</li>
+<li>DevRTT=0.75*DevRTT+0.25*(|RTT-SRTT|)</li>
+<li>RTO=SRTT+4*DevRTT</li>
+</ul>
+<p>其中 RTT 表示一次采样的往返时间。</p>
+<p>如果过一段时间，5、6、7 都超时了，就会重新发送。接收方发现 5 原来接收过，于是丢弃 5；6 收到了，发送 ACK，要求下一个是 7，7 不幸又丢了。当 7 再次超时的时候，有需要重传的时候，TCP 的策略是超时间隔加倍。<strong>每当遇到一次超时重传的时候，都会将下一次超时时间间隔设为先前值的两倍</strong>。两次超时，就说明网络环境差，不宜频繁反复发送。</p>
 <p>超时触发重传存在的问题是，超时周期可能相对较长。那是不是可以有更快的方式呢？</p>
 <p>有一个叫<strong>快速重传</strong>的机制：当接收方收到一个序号大于下一个所期望的报文段时，就检测到了数据流中的一个间格，于是发送三个冗余的 ACK，客户端收到后，就在定时器过期之前，重传丢失的报文段。</p>
 <p>例如，接收方发现 6、8、9 都已经接收了，就是 7 没来，那肯定是丢了，于是发送三个 6 的 ACK，要求下一个是 7。客户端收到 3 个，就会发现 7 的确又丢了，不等超时，马上重发。</p>
@@ -464,7 +473,39 @@
 <p>第一种是超时丢包，这种情况下，发送端会认为当前网络非常拥挤，因此会采取激进的限制措施：将 sshresh 设为 cwnd/2，将 cwnd 设为 1，重新开始慢启动。</p>
 <p>第二种是三个相同 ACK 丢包，发送端会认为这个丢包是个偶然事件，因此网络并不非常拥挤，采取的措施也会温和一些：sshresh 设为 cwnd/2，cwnd 设为 cwnd/2，又因为返回了三个确认包，cwnd 再加 3。之后进入快速恢复阶段，因为当前 cwnd 仍在比较高的值，这个阶段中 cwnd 也是线性增长。</p>
 <p>两种方式的比较如下：<br><img src="/2019/01/23/TCP协议回顾/传统算法和快速恢复比较.png" width="50%" length="50%"></p>
+<h2 id="BBR-算法"><a href="#BBR-算法" class="headerlink" title="BBR 算法"></a>BBR 算法</h2><p>上文所讲是 TCP 经典的拥塞控制算法（CUBIC）。而在 2016 年底，Google 提出了一个新的算法（BBR），相比 CUBIC 有很大的提升，目前已经集成到 Linux 4.9 之后内核中了。</p>
+<h3 id="经典算法的缺陷"><a href="#经典算法的缺陷" class="headerlink" title="经典算法的缺陷"></a>经典算法的缺陷</h3><p>经典算法（CUBIC）基于丢包进行拥塞控制，这种方式有两大缺陷：</p>
+<ul>
+<li><strong>不能区分是拥塞导致的丢包还是错误丢包：</strong>基于丢包的拥塞控制方法把数据包的丢失解释为网络发生了拥塞，而假定链路错误造成的分组丢失是忽略不计的，这种情况是基于当时 V. Jacobson 的观察，认为链路错误的几率太低从而可以忽略，然而在高速网络中，这种假设是不成立的，当数据传输速率比较高时，链路错误是不能忽略的。在无线网络中，链路的误码率更高。<strong>因此，如果笼统地认为分组丢失就是拥塞所引起的，从而降低一半的速率，是对网络资源的极大浪费。</strong></li>
+<li><strong>引起缓冲区膨胀：</strong>我们会在网络中设置一些缓冲区，用于吸收网络中的流量波动，在连接的开始阶段，基于丢包的拥塞控制方法倾向于填满缓冲区。当瓶颈链路的缓冲区很大时，需要很长时间才能将缓冲区中的数据包排空，造成很大的网络延时，这种情况称之为缓冲区膨胀。在过去存储器昂贵，缓冲区的容量只比管道稍大，增加的时延不明显，随着内存价格的下降导致缓冲区容量远大于管道 ，增加的时延很大。<strong>因此等缓冲区满再控制流量，会造成很大的时延。</strong></li>
+</ul>
+<h3 id="最优工作点"><a href="#最优工作点" class="headerlink" title="最优工作点"></a>最优工作点</h3><p>网络工作的目标是满足最大带宽和最小时延，而 CUBIC 这样的算法在缓冲区溢出时才开始工作，实际上已经错过了网络工作的最优点，网络工作的最优点应该是在管道刚被填满时。这是因为随着网络中数据包的增加，我们的有效带宽（BW）和往返时延（RTT）会发生如下三阶段的变化：</p>
+<p><img src="/2019/01/23/TCP协议回顾/最优工作点1.png" width="75%" length="75%"></p>
+<p>1）当网络中数据包不多，还没有填满链路管道时，随着网络中数据包的增加，有效带宽不断上升，往返时延不发生变化。当数据包刚好填满管道，达到网络工作的最优点（满足最大带宽 BtlBw 和最小时延 RTprop），定义带宽时延积 BDP = BtlBw × RTprop ，则在最优点网络中的数据包数量 = BDP ；2）继续增加网络中的数据包，超出 BDP 的数据包会占用缓冲区 ，有效带宽不再变化（达到带宽上限），往返时延会增加；3）继续增加数据包，缓冲区会被填满从而发生丢包。</p>
+<p>过去基于丢包的拥塞控制算法工作在第二条蓝线处，但实际上第一条蓝线处，网络中数据包刚刚填满管道时才是最优工作点。</p>
+<h3 id="算法基本思想"><a href="#算法基本思想" class="headerlink" title="算法基本思想"></a>算法基本思想</h3><p>BBR 算法的基本思想有两个：1）不考虑丢包；2）估计最优工作点（max BW , min RTT）。</p>
+<p><img src="/2019/01/23/TCP协议回顾/最优工作点2.png" width="75%" length="75%"></p>
+<p>上图红色圆圈所示即为网络工作的最优点，此时有效带宽 = BtlBW（链路带宽），保证了链路带宽被 100 % 利用；网络中数据包 = BDP（时延带宽积），保证未占用缓冲区 。</p>
+<p><img src="/2019/01/23/TCP协议回顾/最优工作点3.png"></p>
+<p>然而 max BW 和 min RTT 并不能被同时测准。要测量最大带宽，就要把链路管道填满，此时缓冲区中有一定量的数据包，延迟较高。要测量最低延迟，就要保证缓冲区为空，网络中数据包越少越好，但此时带宽较低。</p>
+<p><strong>BBR 的解决办法是：交替测量带宽和延迟，用一段时间内的带宽极大值和延迟极小值作为估计值。</strong></p>
+<blockquote>
+<p>如何测量有效带宽？<br>实际上是根据收到 ACK 包的速率来的。比如发送了 1-12 号包，2s 后返回了编号为 6 的 ACK 包，那么有效带宽就是 5*包大小 Mbps。</p>
+</blockquote>
+<h3 id="算法流程"><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h3><p>BBR 算法共有 4 种状态：启动、排空、带宽探测和时延探测。其中前两种状态一般发生在连接建立初期，稳定之后会维持在带宽探测状态，当带宽探测连续十秒没有检测到更小的时延后，会进行一次短暂的时延探测。</p>
+<p><img src="/2019/01/23/TCP协议回顾/算法流程.png"></p>
+<p>（1）当连接建立时，BBR 采用类似标准 TCP 的慢启动 ，指数增加发送速率，目的也是尽可能快的占满管道，经过三次发现有效带宽不再增长，说明管道被填满，开始占用缓冲区 ，结束慢启动，进入排空阶段。在慢启动过程中，由于缓冲区在前期几乎没被占用，延迟的最小值就是延迟的初始估计；慢启动结束时的最大有效带宽就是带宽的初始估计。</p>
+<p>（2）在排空阶段，指数降低发送速率，此时缓冲区慢慢排空，往返延迟慢慢降低。当往返延迟不再降低，结束排空阶段。</p>
+<p>（3）排空阶段结束后，BBR 就进入带宽探测阶段，BBR 在绝大部分时间里都会稳定在这个阶段。这一阶段中 BBR 会通过不断改变发送速率来探测实际有效的带宽。具体地，BBR 会以至少 8 个往返延迟为周期：1）在第一个往返的时间里，BBR 尝试以估计带宽的 5/4 速度发送，如果此时接收到的有效带宽也相应增加，那么 BBR 会把新的有效带宽作为估计带宽，然后进一步增加发包速度，直到检测到的有效带宽不再增加；2）在下一个往返的时间里，为了把前面往返可能多发出来的包排空，BBR 会以估计带宽的 3/4 速度发送，这一步降低速度后如果检测到往返延迟下降了，说明之前的估计带宽偏大，BBR 会把 3/4 的估计带宽作为新的估计带宽；3）接下来 6 个往返的时间里，BBR 使用估计的带宽发包。</p>
+<blockquote>
+<p>可以看到，BBR 在往上探测剩余可用带宽和向下收敛到实际可用带宽时的表现是不对称的：往上探测剩余可用带宽时，如果一次加速成功后，BBR 会立刻尝试再加速，直到可用带宽被占满；而向下收敛带宽时，如果一次减速成功，BBR 不会继续接着减速，而是等到下一个周期再减速。这种加减速的策略也被称为“激进加，保守减”。</p>
+</blockquote>
+<p>（4）如果带宽探测阶段连续 10 秒估计延迟没有改变（也就是没有发现一个更低的延迟），那么就会进入延迟探测阶段。延迟探测阶段持续的时间仅为 200 毫秒（或一个往返延迟，如果后者更大），这段时间里发送窗口固定为 4 个包，也就是几乎不发包。这段时间内测得的最小延迟作为新的延迟估计。由于这段时间内发包速度几乎为 0，所以这段时间内测到的最小延迟基本等于实际的最小延迟。</p>
+<h3 id="算法优缺点"><a href="#算法优缺点" class="headerlink" title="算法优缺点"></a>算法优缺点</h3><p>BBR 算法的优点前面其实已经提到很多了：1）丢包不敏感，不会因为网络中的错误报文自废武功；2）填满通道而不是填满缓冲区的方式能够让 BBR 算法获取更低的延迟和丢包率。</p>
+<p>但是 BBR 也不是十全十美的：1）BBR 周期性的特点会让它对带宽变化不敏感，因为大多数情况下 BBR 在一个周期内只有第一阶段有一次机会去提升带宽，如果网络上同时存在 CUBIC 算法和 BBR 算法，那么当网络中有新的剩余带宽出现时，实时增加的 CUBIC 算法有更大概率抢占到这部分带宽。2）另一点是 BBR 算法的初衷是维持最优工作点，也就是避免数据包进入缓冲区，但是当网络上混杂着 BBR 算法和 CUBIC 算法时，CUBIC 算法会不可避免地填满链路上的缓冲区，这也导致 BBR 算法排空缓冲区的努力成为泡影，性能也会大打折扣。</p>
+<p>所以，BBR 算法是一个在纯净的环境中表现优秀，但一旦有 CUBIC 竞争就会大打折扣的算法。需要一个纯净的网络环境才能发挥其效果。这一点也需要我们牢记在心。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>TCP 协议的核心部分在于：三次握手、四次挥手、可靠性传输、流量控制、拥塞控制，掌握好这些知识点对网络编程很有帮助。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.zhihu.com/question/53559433/" target="_blank" rel="noopener">Linux Kernel 4.9 中的 BBR 算法与之前的 TCP 拥塞控制相比有什么优势？</a><br><a href="https://ccie.lol/knowledge-base/analysis-bbr/" target="_blank" rel="noopener">BBR 拥塞控制算法解析（来自 Google 的 TCP 拥塞控制算法）</a><br><a href="https://blog.csdn.net/dog250/article/details/53730374" target="_blank" rel="noopener">令人躁动一时且令人不安的TCP BBR算法</a></p>
 
       
     </div>
