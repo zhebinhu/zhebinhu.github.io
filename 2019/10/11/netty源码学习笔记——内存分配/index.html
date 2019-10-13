@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Netty 源码学习笔记——内存分配 |
+        
+        huzb的博客</title>
+    <meta name="description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
+<meta name="keywords" content="Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty 源码学习笔记——内存分配">
+<meta property="og:url" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/内存规格.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/分配机制2.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/Chunk内存管理.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/节点分配.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/Page内存管理.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/Subpage池组.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/Subpage池.png">
+<meta property="og:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/cache规格.png">
+<meta property="og:updated_time" content="2019-10-13T13:27:50.014Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty 源码学习笔记——内存分配">
+<meta name="twitter:description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/内存规格.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">20</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zookeeper/">Zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.71px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.57px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.43px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.86px;">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 13px;">Zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.14px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.14px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.29px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/11/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-11T04:40:00.000Z" itemprop="datePublished">2019-10-11</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/09/16/netty源码学习笔记——服务器启动流程/" class="title">Netty 源码学习笔记——服务器启动流程</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-09-16T02:12:17.000Z" itemprop="datePublished">2019-09-16</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内存规格介绍"><span class="toc-text">内存规格介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chunk-中的内存分配"><span class="toc-text">Chunk 中的内存分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Subpage-中的内存分配"><span class="toc-text">Subpage 中的内存分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chunk-管理"><span class="toc-text">Chunk 管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Cache-机制"><span class="toc-text">Cache 机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-netty源码学习笔记——内存分配" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Netty 源码学习笔记——内存分配
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/10/11/netty源码学习笔记——内存分配/" class="article-date">
+	  <time datetime="2019-10-11T04:40:00.000Z" itemprop="datePublished">2019-10-11</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Netty/">Netty</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/10/11/netty源码学习笔记——内存分配/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。</p>
+<h2 id="内存规格介绍"><a href="#内存规格介绍" class="headerlink" title="内存规格介绍"></a>内存规格介绍</h2><p>Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是不一样的。Netty 按规格对内存块的分类如下图所示：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/内存规格.png"></p>
+<p>最上面一行就代表了 Netty 中所有的规格。其中 tiny 代表了大小在 0-512B 的内存块，small 代表了大小在 512B-8K 的内存块，normal 代表了大小在 8K-16M 的内存块，huge 代表了大于 16M 的内存块。围绕不同规格内存的分界线，Netty 又定义了几个内存分配的单位：</p>
+<ul>
+<li>Chunk：一个 Chunk 的大小是 16M，Chunk 是 Netty 对操作系统进行内存申请的单位，后续所有的内存分配都是在 Chunk 里面进行操作。</li>
+<li>Page：Chunk 内部以 Page 为单位分配内存，一个 Page 大小为 8K。当我们需要 16K 的空间时，Netty 就会从一个 Chunk 中找到两个 Page 进行分配。</li>
+<li>Subpage 和 element：element 是比 Page 更小的单位，当我们申请小于 8K 的内存时，Netty 会以 element 为单位进行内存分配。element 没有固定大小，具体由用户的需求决定。Netty 通过 Subpage 管理 element，Subpage 是由 Page 转变过来的。当我们需要 1K 的空间时，Netty 会把一个 Page 变成 Subpage，然后把 Subpage 分成 8 个 1K 的 element 进行分配。</li>
+</ul>
+<h2 id="Chunk-中的内存分配"><a href="#Chunk-中的内存分配" class="headerlink" title="Chunk 中的内存分配"></a>Chunk 中的内存分配</h2><p>线程分配内存主要从两个地方分配: PoolThreadCache 和 Arena。其中 PoolThreadCache 线程独享, Arena 为几个线程共享：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/分配机制2.png" width="60%"></p>
+<p>当我们初次申请内存的时候，Netty 会从一整块内存（Chunk）中分出一部分来给用户使用，这部分工作是由 Arena 来完成。而当用户使用完毕释放内存的时候，这些被分出来的内存会按不同规格大小放在 PoolThreadCache 中缓存起来。当下次要申请内存的时候，就会先从 PoolThreadCache 中找。</p>
+<p>PoolThreadCache 的部分我们后面会看到，这边先讨论 Arena 的部分。Chunk、Page、Subpage 和 element 都是 Arena 中的概念，Arena 的工作就是从一整块内存中分出合适大小的内存块。Arena 中最大的内存单位是 Chunk，这是 Netty 向操作系统申请内存的单位。而一块 Chunk（16M） 申请下来之后，内部会被分成 2048 个 Page（8K），当用户向 Netty 申请超过 8K 内存的时候，Netty 会以 Page 的形式分配内存。</p>
+<p>Chunk 内部通过伙伴算法管理 Page，具体实现为一棵平衡二叉树 memoryMap：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/Chunk内存管理.png" width="70%"></p>
+<p>二叉树中所有子节点管理的内存也属于其父节点。当我们要申请大小为 16K 的内存时，我们会从根节点开始不断寻找可用的节点，一直到第 10 层。那么如何判断一个节点是否可用呢？Netty 会在每个节点内部保存一个值，这个值代表这个节点之下的第几层还存在未分配的节点。比如第 9 层的节点的值如果为 9，就代表这个节点本身到下面所有的子节点都未分配；如果第 9 层的节点的值为 10，代表它本身不可被分配，但第 10 层有子节点可以被分配；如果第 9 层的节点的值为 12，此时可分配节点的深度大于了总深度，代表这个节点及其下面的所有子节点都不可被分配。下图描述了分配的过程：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/节点分配.png"></p>
+<p>下面我们从源码的角度看一下这里的逻辑。</p>
+<p>首先是 memoryMap 的初始化：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">memoryMap = <span class="keyword">new</span> <span class="keyword">byte</span>[maxSubpageAllocs &lt;&lt; <span class="number">1</span>];</span><br><span class="line">depthMap = <span class="keyword">new</span> <span class="keyword">byte</span>[memoryMap.length];</span><br><span class="line"><span class="keyword">int</span> memoryMapIndex = <span class="number">1</span>;</span><br><span class="line"><span class="comment">// 下面这个 for 循环会把两个数组都初始化为当前节点的层数</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> d = <span class="number">0</span>; d &lt;= maxOrder; ++ d) &#123; <span class="comment">// move down the tree one level at a time</span></span><br><span class="line">    <span class="keyword">int</span> depth = <span class="number">1</span> &lt;&lt; d;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> p = <span class="number">0</span>; p &lt; depth; ++ p) &#123;</span><br><span class="line">        <span class="comment">// in each level traverse left to right and set value to the depth of subtree</span></span><br><span class="line">        memoryMap[memoryMapIndex] = (<span class="keyword">byte</span>) d;</span><br><span class="line">        depthMap[memoryMapIndex] = (<span class="keyword">byte</span>) d;</span><br><span class="line">        memoryMapIndex ++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里创建了两个数组 memoryMap 和 depthMap，两个数组初始化时都保存了当前节点的层数。而使用过程中，memoryMap 中的值会变化，变化逻辑上面已经讲过；depthMap 中的值不变，仍表示当前节点的层数。</p>
+<p>下面看看如何向 PoolChunk 申请一段内存：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">allocate</span><span class="params">(<span class="keyword">int</span> normCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ((normCapacity &amp; subpageOverflowMask) != <span class="number">0</span>) &#123; <span class="comment">// &gt;= pageSize</span></span><br><span class="line">        <span class="comment">// 分配 Page</span></span><br><span class="line">        <span class="keyword">return</span> allocateRun(normCapacity);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 分配 Subpage</span></span><br><span class="line">        <span class="keyword">return</span> allocateSubpage(normCapacity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当需要分配的内存大于 pageSize（8K） 时，使用 <code>allocateRun()</code> 实现内存分配。否则使用方法 <code>allocateSubpage()</code> 分配内存。分配 Subpage 的逻辑我们下面再讲。先看分配 Page 的逻辑：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">allocateRun</span><span class="params">(<span class="keyword">int</span> normCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 找到层数</span></span><br><span class="line">    <span class="keyword">int</span> d = maxOrder - (log2(normCapacity) - pageShifts);</span><br><span class="line">    <span class="comment">// 分配节点</span></span><br><span class="line">    <span class="keyword">int</span> id = allocateNode(d);</span><br><span class="line">    <span class="keyword">if</span> (id &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 可用内存减少</span></span><br><span class="line">    freeBytes -= runLength(id);</span><br><span class="line">    <span class="keyword">return</span> id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>normCapacity 是处理过的值，如申请大小为 1000K 的内存，实际申请的内存大小为 1024K。方法中会先找到对应的层数，比如 1024K 对应第 4 层。然后在 memoryMap 中找到第 4 层第一个可用的节点，查询逻辑如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">allocateNode</span><span class="params">(<span class="keyword">int</span> d)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> id = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> initial = - (<span class="number">1</span> &lt;&lt; d); </span><br><span class="line">    <span class="comment">// value(id)=memoryMap[id] </span></span><br><span class="line">    <span class="keyword">byte</span> val = value(id); </span><br><span class="line">    <span class="keyword">if</span> (val &gt; d) &#123; <span class="comment">// unusable</span></span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 从根节点开始遍历，如果当前节点的 val&lt;d，则通过 id &lt;&lt;=1 匹配下一层</span></span><br><span class="line">    <span class="keyword">while</span> (val &lt; d || (id &amp; initial) == <span class="number">0</span>) &#123; <span class="comment">// id &amp; initial == 1 &lt;&lt; d for all ids at depth d, for &lt; d it is 0</span></span><br><span class="line">        id &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">        <span class="comment">// 获取左子节点的 val</span></span><br><span class="line">        val = value(id);</span><br><span class="line">        <span class="comment">// 如果左子节点 val &gt; d，说明左子节点的内存不够分配，此时需要在右子节点上继续查找</span></span><br><span class="line">        <span class="keyword">if</span> (val &gt; d) &#123;</span><br><span class="line">            id ^= <span class="number">1</span>; <span class="comment">// 找到兄弟节点</span></span><br><span class="line">            val = value(id);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">byte</span> value = value(id);</span><br><span class="line">    <span class="comment">// 分配成功的节点需要标记为不可用，防止被再次分配，在 memoryMap 对应位置更新为 12</span></span><br><span class="line">    setValue(id, unusable); <span class="comment">// mark as unusable</span></span><br><span class="line">    <span class="comment">// 分配节点完成后，递归更新其父节点的状态</span></span><br><span class="line">    updateParentsAlloc(id);</span><br><span class="line">    <span class="keyword">return</span> id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>查询分为以下几个步骤：</p>
+<ul>
+<li>从根节点开始遍历，如果当前节点的 val &lt; d，则通过 id &lt;&lt;=1 匹配下一层；</li>
+<li>先找左子节点，如果左子节点 val &gt; d，则表示左子节点内存不够分配，此时需要在右子节点上继续查找；</li>
+<li>分配成功的节点需要标记为不可用，防止被再次分配，在 memoryMap 对应位置更新为 12；</li>
+<li>分配节点完成后，递归更新其父节点的状态。</li>
+</ul>
+<p>我们再来看一下递归更新其父节点状态的逻辑：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateParentsAlloc</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (id &gt; <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> parentId = id &gt;&gt;&gt; <span class="number">1</span>; <span class="comment">// 找到父节点</span></span><br><span class="line">        <span class="keyword">byte</span> val1 = value(id); <span class="comment">// 当前节点的 value</span></span><br><span class="line">        <span class="keyword">byte</span> val2 = value(id ^ <span class="number">1</span>); <span class="comment">// 兄弟节点的 value</span></span><br><span class="line">        <span class="keyword">byte</span> val = val1 &lt; val2 ? val1 : val2; <span class="comment">// 选择其中的较小值</span></span><br><span class="line">        setValue(parentId, val);<span class="comment">// 更新父节点 value</span></span><br><span class="line">        id = parentId;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>递归更新父节点状态时，会选择当前节点和兄弟节点中较小值更新。至于原因大家看之前分配过程的图就明白啦。</p>
+<p>到此，Chunk 中的内存分配已经完成。</p>
+<h2 id="Subpage-中的内存分配"><a href="#Subpage-中的内存分配" class="headerlink" title="Subpage 中的内存分配"></a>Subpage 中的内存分配</h2><p>上一节中分析了如何在 Chunk 中分配一块 Page 级别的内存，但在实际应用中，存在很多分配小内存的情况，如果也占用一个 Page，明显很浪费。针对这种情况，Netty 提供了 Subpage 把一个 Page 划分成更小的内存段，通过对每个内存段的标记与清理标记进行内存的分配与释放。如下图：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/Page内存管理.png" width="60%"></p>
+<p>Subpage 由 Page 转变而来，一个 Subpage 的内部可以被<strong>等分</strong>成多个 element。Subpage 通过 bitmap 的方式来标记一段内存是否已被使用。Subpage 的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">PoolSubpage</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">// 对应的 page 在 chunk 中的 id</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> memoryMapIdx; </span><br><span class="line">    <span class="comment">// 对应的 page 在 chunk.memory 的偏移量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> runOffset;    </span><br><span class="line">    <span class="comment">// page 大小</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> pageSize;</span><br><span class="line">    <span class="comment">// 通过对位图中每一个二进制位的标记来记录一段内存的占用状态</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span>[] bitmap; </span><br><span class="line">    <span class="comment">// 位图长度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> bitmapLength;</span><br><span class="line">    </span><br><span class="line">    PoolSubpage&lt;T&gt; prev;</span><br><span class="line">    PoolSubpage&lt;T&gt; next;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> doNotDestroy;    </span><br><span class="line">    <span class="comment">// element 的大小</span></span><br><span class="line">    <span class="keyword">int</span> elemSize;   </span><br><span class="line">    <span class="comment">// element 的数量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> maxNumElems;        </span><br><span class="line">    <span class="comment">// 下一个可用 element 的位置</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> nextAvail;</span><br><span class="line">    <span class="comment">// 可用的 element 数量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> numAvail;       </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设目前需要申请大小为 2K 的内存：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">allocate</span><span class="params">(<span class="keyword">int</span> normCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> ((normCapacity &amp; subpageOverflowMask) != <span class="number">0</span>) &#123; <span class="comment">// &gt;= pageSize</span></span><br><span class="line">        <span class="comment">// 分配 Page</span></span><br><span class="line">        <span class="keyword">return</span> allocateRun(normCapacity);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 分配 Subpage</span></span><br><span class="line">        <span class="keyword">return</span> allocateSubpage(normCapacity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为 2K 小于一个 Page 的大小，所以采用 <code>allocateSubpage()</code> 进行内存分配，具体实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">PoolChunk</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">allocateSubpage</span><span class="params">(<span class="keyword">int</span> normCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Obtain the head of the PoolSubPage pool that is owned by the PoolArena and synchronize on it.</span></span><br><span class="line">    <span class="comment">// This is need as we may add it back and so alter the linked-list structure.</span></span><br><span class="line">    <span class="comment">// 对应 Subpage 池的头节点</span></span><br><span class="line">    PoolSubpage&lt;T&gt; head = arena.findSubpagePoolHead(normCapacity);</span><br><span class="line">    <span class="keyword">synchronized</span> (head) &#123;</span><br><span class="line">        <span class="keyword">int</span> d = maxOrder; <span class="comment">// subpages are only be allocated from pages i.e., leaves</span></span><br><span class="line">        <span class="comment">// 找到一个可分配的 Page</span></span><br><span class="line">        <span class="keyword">int</span> id = allocateNode(d);</span><br><span class="line">        <span class="keyword">if</span> (id &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> id;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// subpages 数组记录了哪些 Page 已经被转化成了 Subpage</span></span><br><span class="line">        <span class="keyword">final</span> PoolSubpage&lt;T&gt;[] subpages = <span class="keyword">this</span>.subpages;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> pageSize = <span class="keyword">this</span>.pageSize;</span><br><span class="line"></span><br><span class="line">        freeBytes -= pageSize;</span><br><span class="line">        <span class="comment">// 从 pageId 到 subpageId 的转化，这是因为 pageId 是从 2048 开始的（叶子节点），而 subpageId 是从 0 开始的</span></span><br><span class="line">        <span class="keyword">int</span> subpageIdx = subpageIdx(id);</span><br><span class="line">        <span class="comment">// 找到 Subpage</span></span><br><span class="line">        PoolSubpage&lt;T&gt; subpage = subpages[subpageIdx];</span><br><span class="line">        <span class="comment">// 如果 subpage == null，表示还没进行从 page 到 subpage 的转化</span></span><br><span class="line">        <span class="keyword">if</span> (subpage == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 创建 subpage</span></span><br><span class="line">            subpage = <span class="keyword">new</span> PoolSubpage&lt;T&gt;(head, <span class="keyword">this</span>, id, runOffset(id), pageSize, normCapacity);</span><br><span class="line">            <span class="comment">// 保存 subpage</span></span><br><span class="line">            subpages[subpageIdx] = subpage;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            subpage.init(head, normCapacity);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 从 subpage 分配内存</span></span><br><span class="line">        <span class="keyword">return</span> subpage.allocate();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先会从 arena 中取出一个 Subpage 池的头节点，关于 Subpage 池我们之后再讲。然后从 Chunk 中找到一个可分配的 Page，Netty 会先检查 Page 是否已被转化成 Subpage，如果没有的话，会先创建 Subpage，然后再从 Subpage 分配内存。</p>
+<p>创建 Subpage 的逻辑如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PoolSubpage(PoolSubpage&lt;T&gt; head, PoolChunk&lt;T&gt; chunk, <span class="keyword">int</span> memoryMapIdx, <span class="keyword">int</span> runOffset, <span class="keyword">int</span> pageSize, elemSize) &#123;</span><br><span class="line">    <span class="comment">// 保存 chunk</span></span><br><span class="line">    <span class="keyword">this</span>.chunk = chunk;</span><br><span class="line">    <span class="comment">// 保存 page 的 id</span></span><br><span class="line">    <span class="keyword">this</span>.memoryMapIdx = memoryMapIdx;</span><br><span class="line">    <span class="comment">// 保存 page 的偏移量</span></span><br><span class="line">    <span class="keyword">this</span>.runOffset = runOffset;</span><br><span class="line">    <span class="comment">// 保存 page 的 size</span></span><br><span class="line">    <span class="keyword">this</span>.pageSize = pageSize;</span><br><span class="line">    <span class="comment">// 创建 bitmap 数组</span></span><br><span class="line">    bitmap = <span class="keyword">new</span> <span class="keyword">long</span>[pageSize &gt;&gt;&gt; <span class="number">10</span>]; <span class="comment">// pageSize / 16 / 64</span></span><br><span class="line">    <span class="comment">// 初始化 Subpage</span></span><br><span class="line">    init(head, elemSize);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先会保存 chunk 和 page 的相关信息，然后创建一个 bitmap 数组。bitmap 数组的大小为 8。这是因为 Subpage 内部最小以 16 字节为单位管理内存，如果以 16 个字节对应 long 中的一位，一个 long 有 64 位，那么需要 8192/16/64 共 8 个 long 描述所有内存段。但这 8 个 long 也不一定全用上，实际用到的 long 的数量会在 <code>init()</code> 方法中计算：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(PoolSubpage&lt;T&gt; head, <span class="keyword">int</span> elemSize)</span> </span>&#123;</span><br><span class="line">    doNotDestroy = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">this</span>.elemSize = elemSize;</span><br><span class="line">    <span class="keyword">if</span> (elemSize != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// element 的数量</span></span><br><span class="line">        maxNumElems = numAvail = pageSize / elemSize;</span><br><span class="line">        nextAvail = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">// maxNumElems/64 表示用到的 long 个数，如果有余数还要加一</span></span><br><span class="line">        bitmapLength = maxNumElems &gt;&gt;&gt; <span class="number">6</span>;</span><br><span class="line">        <span class="keyword">if</span> ((maxNumElems &amp; <span class="number">63</span>) != <span class="number">0</span>) &#123;</span><br><span class="line">            bitmapLength ++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; bitmapLength; i ++) &#123;</span><br><span class="line">            bitmap[i] = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 把 Subpage 放入 Subpage 池中</span></span><br><span class="line">    addToPool(head);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先根据 element 的大小计算 Subpage 要被分成多少段，然后将段数除以 64 向上取整就是所要用到的 long 个数。比如 element 的大小是 1k，那么就要用到 1 个 long。</p>
+<p>然后是把 Subpage 放入到 Subpage 池中。创建好的 Subpage 被分成多个 element，我们只会用到其中的一段，剩下都是未分配的。而这些还有 element 未分配的 Subpage 会被放入到 Arena 的 Subpage 池中。Arena 中按不同内存规格大小分成了两组 Subpage 池，分别是 tinySubpagePools 和 smallSubpagePools：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PoolSubpage&lt;T&gt;[] tinySubpagePools;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> PoolSubpage&lt;T&gt;[] smallSubpagePools;</span><br></pre></td></tr></table></figure>
+<p>从名字可以看出，tinySubpagePools 内部是 tiny 规格大小的 Subpage 池，而 smallSubpagePools 内部是 small 规格大小的 Subpage 池。具体的规格如下：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/Subpage池组.png" width="60%"></p>
+<p>每个方框都代表一个 Subpage 池，内部以链表的形式存放 Subpage。方框中的数字代表 Subpage 的规格。内部结构如下图：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/Subpage池.png" width="60%"></p>
+<p>还未被完全分配的 Subpage 会被放入 Subpage 池中，这样下次用户申请相同规格的内存时就可以直接从 Subpage 池中找到 Subpage 进行分配。被分配完的 Subpage 会被移除。</p>
+<p>下面看看 Subpage 是如何进行内存分配的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">allocate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (elemSize == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> toHandle(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (numAvail == <span class="number">0</span> || !doNotDestroy) &#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 在 bitmap 上找到第一个可用段，然后将该 bit 置为 1</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> bitmapIdx = getNextAvail();</span><br><span class="line">    <span class="keyword">int</span> q = bitmapIdx &gt;&gt;&gt; <span class="number">6</span>;</span><br><span class="line">    <span class="keyword">int</span> r = bitmapIdx &amp; <span class="number">63</span>;</span><br><span class="line">    <span class="keyword">assert</span> (bitmap[q] &gt;&gt;&gt; r &amp; <span class="number">1</span>) == <span class="number">0</span>;</span><br><span class="line">    bitmap[q] |= <span class="number">1L</span> &lt;&lt; r;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (-- numAvail == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// Subpage 被完全分配，从 pool 中移除</span></span><br><span class="line">        removeFromPool();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> toHandle(bitmapIdx);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码会先在 bitmap 上找到第一个可用段，然后将该 bit 置为 1。如果分配完成后，可用的 element 为 0，则从 pool 中将当前 Subpage 移除。</p>
+<p>分配完内存段后则是要返回指向内存段的指针，这个指针由 Page 在 Chunk 中的位置和 element 在 Subpage 中的位置共同组成。具体如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">toHandle</span><span class="params">(<span class="keyword">int</span> bitmapIdx)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0x4000000000000000L</span> | (<span class="keyword">long</span>) bitmapIdx &lt;&lt; <span class="number">32</span> | memoryMapIdx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最高的 4 位是一个握手字段，随后 28 位代表了 element 在 Subpage 中的位置，最后的 32 位代表了 Page 在 Chunk 中的位置。这样我们就可以通过指针在 Chunk 中找到内存段的位置。</p>
+<p>到此，Subpage 中的内存分配就完成了。</p>
+<h2 id="Chunk-管理"><a href="#Chunk-管理" class="headerlink" title="Chunk 管理"></a>Chunk 管理</h2><p>随着 Chunk 中内存的不断分配和释放（内存释放后会先进入 Cache，如果 Cache 满了会归还给 Chunk），会导致很多碎片内存段，大大增加了之后分配一段连续内存的失败率，针对这种情况，Netty 按内存使用率把 Chunk 分成了几个等级，分配时按一定的次序进行分配，减少内存的碎片化。</p>
+<p>Netty 中的 Chunk 按内存使用率被分成了以下几种级别：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">PoolArena</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">PoolArenaMetric</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; q050;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; q025;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; q000;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; qInit;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; q075;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PoolChunkList&lt;T&gt; q100;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个级别的 Chunk 都以链表的形式保存在对应的 PoolChunkList 中，每个级别所对应的内存使用率如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:left">内存使用率（%）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">qInit</td>
+<td style="text-align:left">[0, 25)　　　　　　　　　　　　　　　　　　</td>
+</tr>
+<tr>
+<td style="text-align:left">q000</td>
+<td style="text-align:left">[1,50)</td>
+</tr>
+<tr>
+<td style="text-align:left">q025</td>
+<td style="text-align:left">[25,75)</td>
+</tr>
+<tr>
+<td style="text-align:left">q050</td>
+<td style="text-align:left">[50,100)</td>
+</tr>
+<tr>
+<td style="text-align:left">q075</td>
+<td style="text-align:left">[75,100)</td>
+</tr>
+<tr>
+<td style="text-align:left">q100</td>
+<td style="text-align:left">100</td>
+</tr>
+</tbody>
+</table>
+<p>每种级别都对应了一个内存使用率的区间，当 Chunk 的内存使用率超出当前级别的区间时，会进入更高或更低的级别。我们注意到相邻的 ChunkList 之间在使用率上存在一定的重叠区域，这是为了防止，由于使用率不断变化，导致某个 Chunk 在两个 List 中不停来回跳动的情况，加了这么一段重叠的缓存区域，可以减少跳动的次数。</p>
+<p>而当我们申请内存时，会以 q050-&gt;q025-&gt;q000-&gt;qInit-&gt;q075 的次序申请：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">allocateNormal</span><span class="params">(PooledByteBuf&lt;T&gt; buf, <span class="keyword">int</span> reqCapacity, <span class="keyword">int</span> normCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (q050.allocate(buf, reqCapacity, normCapacity) || q025.allocate(buf, reqCapacity, normCapacity) ||</span><br><span class="line">        q000.allocate(buf, reqCapacity, normCapacity) || qInit.allocate(buf, reqCapacity, normCapacity) ||</span><br><span class="line">        q075.allocate(buf, reqCapacity, normCapacity)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这主要是为了在尽可能减少内存碎片的产生的同时，减少申请的次数。所以以使用率处于中间位置的 q050 作为第一优先级，而如果 q050 中申请失败，说明这次申请的内存可能比较大，会依次向使用率较低的 ChunkList 发起申请。而如果前几个 ChunkList 都申请失败（这种情况大概率是前几个 ChunkList 为空），那么最后会尝试向 q075 申请。</p>
+<h2 id="Cache-机制"><a href="#Cache-机制" class="headerlink" title="Cache 机制"></a>Cache 机制</h2><p>Arena 中分配的内存使用完毕以后，不会立刻归还，而是会在 PoolThreadCache 中缓存起来。当用户下一次申请的时候，会先在 PoolThreadCache 中寻找有没有匹配的内存。</p>
+<p>PoolThreadCache 是线程私有的，内部通过 MemoryRegionCache 的方式缓存内存。MemoryRegionCache 的内部实际上是一个队列。和 Arena 中的 Subpage 池一样，PoolThreadCache 也把内存按不同的规格保存：</p>
+<p><img src="/2019/10/11/netty源码学习笔记——内存分配/cache规格.png" width="70%"></p>
+<p>代码中的定义如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">PoolThreadCache</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;<span class="keyword">byte</span>[]&gt;[] tinySubPageHeapCaches;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;<span class="keyword">byte</span>[]&gt;[] smallSubPageHeapCaches;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;ByteBuffer&gt;[] tinySubPageDirectCaches;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;ByteBuffer&gt;[] smallSubPageDirectCaches;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;<span class="keyword">byte</span>[]&gt;[] normalHeapCaches;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MemoryRegionCache&lt;ByteBuffer&gt;[] normalDirectCaches;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可以看到除了内存规格外，PoolThreadCache 还对 Heap 和 Direct 进行了分类。</p>
+<p>每个 Caches  都是一个 MemoryRegionCache 类型的数组，MemoryRegionCache 的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">abstract</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MemoryRegionCache</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> size;</span><br><span class="line">    <span class="comment">// 通过队列存放内存</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Queue&lt;Entry&lt;T&gt;&gt; queue;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SizeClass sizeClass;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> allocations;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>内部通过队列存放内存，一个队列中保存着相同大小和相同类型（Heap 或 Direct）的内存。实际上队列用 Entry 表示内存，这是 Netty 中表示内存的方式，Netty 可以通过一个 Entry 唯一定位一段内存：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="comment">// 内存所在 Chunk</span></span><br><span class="line">    PoolChunk&lt;T&gt; chunk;</span><br><span class="line">    <span class="comment">// java 底层 ByteBuffer，表示物理内存地址</span></span><br><span class="line">    ByteBuffer nioBuffer;</span><br><span class="line">    <span class="comment">// 指针</span></span><br><span class="line">    <span class="keyword">long</span> handle = -<span class="number">1</span>;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>nioBuffer 代表物理内存的地址，handle 是 Chunk 内部的指针，通过 handle 可以在 Chunk 内部找到当前内存段的信息（偏移量，长度），然后通过这些信息在物理内存中找到最终分配的内存地址。</p>
+<p>最后我们来看一下完整的分配内存的逻辑：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">allocate</span><span class="params">(PoolThreadCache cache, PooledByteBuf&lt;T&gt; buf, <span class="keyword">final</span> <span class="keyword">int</span> reqCapacity)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 规整请求的内存大小</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> normCapacity = normalizeCapacity(reqCapacity);</span><br><span class="line">    <span class="comment">// 如果请求的内存小于一个 Page，走 Subpage 的逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (isTinyOrSmall(normCapacity)) &#123; <span class="comment">// capacity &lt; pageSize</span></span><br><span class="line">        <span class="keyword">int</span> tableIdx;</span><br><span class="line">        PoolSubpage&lt;T&gt;[] table;</span><br><span class="line">        <span class="keyword">boolean</span> tiny = isTiny(normCapacity);</span><br><span class="line">        <span class="comment">// 判断请求的大小是否为 Tiny</span></span><br><span class="line">        <span class="keyword">if</span> (tiny) &#123; <span class="comment">// &lt; 512</span></span><br><span class="line">            <span class="comment">// 先在 PoolThreadCache 中寻找，如果找到直接返回</span></span><br><span class="line">            <span class="keyword">if</span> (cache.allocateTiny(<span class="keyword">this</span>, buf, reqCapacity, normCapacity)) &#123;</span><br><span class="line">                <span class="comment">// was able to allocate out of the cache so move on</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            tableIdx = tinyIdx(normCapacity);</span><br><span class="line">            table = tinySubpagePools;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// small 和 tiny 一样，先在 PoolThreadCache 中寻找，如果找到直接返回</span></span><br><span class="line">            <span class="keyword">if</span> (cache.allocateSmall(<span class="keyword">this</span>, buf, reqCapacity, normCapacity)) &#123;</span><br><span class="line">                <span class="comment">// was able to allocate out of the cache so move on</span></span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            tableIdx = smallIdx(normCapacity);</span><br><span class="line">            table = smallSubpagePools;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 找到 Subpage 池的头节点</span></span><br><span class="line">        <span class="keyword">final</span> PoolSubpage&lt;T&gt; head = table[tableIdx];</span><br><span class="line">        <span class="comment">// 尝试在 Subpage 池中找，如果找到直接返回</span></span><br><span class="line">        <span class="keyword">synchronized</span> (head) &#123;</span><br><span class="line">            <span class="keyword">final</span> PoolSubpage&lt;T&gt; s = head.next;</span><br><span class="line">            <span class="keyword">if</span> (s != head) &#123;</span><br><span class="line">                <span class="keyword">assert</span> s.doNotDestroy &amp;&amp; s.elemSize == normCapacity;</span><br><span class="line">                <span class="keyword">long</span> handle = s.allocate();</span><br><span class="line">                <span class="keyword">assert</span> handle &gt;= <span class="number">0</span>;</span><br><span class="line">                s.chunk.initBufWithSubpage(buf, <span class="keyword">null</span>, handle, reqCapacity);</span><br><span class="line">                incTinySmallAllocation(tiny);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 向 Arena 申请分配内存</span></span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            allocateNormal(buf, reqCapacity, normCapacity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        incTinySmallAllocation(tiny);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果请求的内存大于一个 Page，走 Chunk 的逻辑</span></span><br><span class="line">    <span class="keyword">if</span> (normCapacity &lt;= chunkSize) &#123;</span><br><span class="line">        <span class="comment">// 先在 PoolThreadCache 中寻找，如果找到直接返回</span></span><br><span class="line">        <span class="keyword">if</span> (cache.allocateNormal(<span class="keyword">this</span>, buf, reqCapacity, normCapacity)) &#123;</span><br><span class="line">            <span class="comment">// was able to allocate out of the cache so move on</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 向 Arena 申请分配内存</span></span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            allocateNormal(buf, reqCapacity, normCapacity);</span><br><span class="line">            ++allocationsNormal;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 大于一个 Chunk 的直接分配</span></span><br><span class="line">        allocateHuge(buf, reqCapacity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>整体的代码逻辑比较清晰，概括如下：</p>
+<ul>
+<li>1、对请求的内存大小做规整化处理：大于 512B 时调整为大于等于请求值的 2 的最小幂；小于 512B 时调整为大于等于请求值的 16 的倍数。</li>
+<li>2、当请求内存小于 8K 时，走 Subpage 的逻辑。先从 PoolThreadCache 中找；再从 Subpage 池中找；最后向 Arena 申请分配。</li>
+<li>3、当请求内存大于 8K 小于 16M 时，走 Chunk 的逻辑。先从 PoolThreadCache 中找；再向 Arena 申请分配。</li>
+<li>4、当请求内存大于 16M 时，不走内存池，直接分配。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>内存分配是 Netty 中非常重要的部分，我以 tips 的形式概括一下知识点：</p>
+<ul>
+<li>线程分配内存主要从两个地方分配: PoolThreadCache 和 Arena。其中 PoolThreadCache 线程独享, Arena 为几个线程共享。</li>
+<li>Arena 中以 Chunk（16M）为单位向操作系统申请内存。</li>
+<li>当申请超过一个 Page（8K）大小的内存时，内存分配在 Chunk 中进行，分配的单位是 Page，Chunk 以伙伴算法管理内存。</li>
+<li>当申请小于一个 Page 大小的内存时，内存分配在 SubPage 中进行，Subpage 由 Page 转化过来，内部被等分成多个 element。Subpage 以 bitmap 管理内存。</li>
+<li>未被完全分配的 Subpage 会被放入 Subpage 池中，之后用户请求内存时会先从 Subpage 池中找。</li>
+<li>Subpage 池内部按不同的内存规格大小分类。</li>
+<li>为了减少内存碎片，Arena 中的 Chunk 会按内存使用率分类，按一定的次序从不同内存使用率的 Chunk 中分配内存。</li>
+<li>分配的内存用完后不会立即归还给 Chunk，而是会被放进 PoolThreadCache 中缓存（如果缓存满了会归还给 Chunk）。</li>
+<li>用户申请内存时最先从 PoolThreadCache 中找，PoolThreadCache 内部也会按不同的规格大小分类。</li>
+<li>当请求内存大于 16M 时，不走内存池，直接分配。</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://www.jianshu.com/p/c4bd37a3555b" target="_blank" rel="noopener">深入浅出Netty内存管理 PoolChunk</a><br><a href="https://www.jianshu.com/p/d91060311437" target="_blank" rel="noopener">深入浅出Netty内存管理 PoolSubpage</a><br><a href="https://kkewwei.github.io/elasticsearch_learning/2018/05/23/Netty%E5%86%85%E5%AD%98%E5%AD%A6%E4%B9%A0/" target="_blank" rel="noopener">Netty PoolArea原理探究</a><br><a href="https://coding.imooc.com/class/230.html" target="_blank" rel="noopener">Java读源码之Netty深入剖析</a><br><a href="https://www.jianshu.com/p/15304cd63175" target="_blank" rel="noopener">自顶向下深入分析Netty（十）–JEMalloc分配算法</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/" title="Netty 源码学习笔记——内存分配" target="_blank" rel="external">http://yoursite.com/2019/10/11/netty源码学习笔记——内存分配/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/10/07/netty源码学习笔记——pipeline/" title="Netty 源码学习笔记——pipeline"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
