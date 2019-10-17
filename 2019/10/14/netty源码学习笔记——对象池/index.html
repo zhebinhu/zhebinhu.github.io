@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000"/>
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top"/>
+    
+    
+    <title>
+        
+        Netty 源码学习笔记——对象池 |
+        
+        huzb的博客</title>
+    <meta name="description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
+<meta name="keywords" content="Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty 源码学习笔记——对象池">
+<meta property="og:url" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/recycle结构.png">
+<meta property="og:updated_time" content="2019-10-17T11:54:33.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty 源码学习笔记——对象池">
+<meta name="twitter:description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/recycle结构.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zookeeper/">Zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 14px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 13.83px;">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 13px;">Zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/14/netty源码学习笔记——对象池/" class="title">Netty 源码学习笔记——对象池</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Recycler-的使用"><span class="toc-text">Recycler 的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stack、WeakOrderQueue-介绍"><span class="toc-text">Stack、WeakOrderQueue 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从线程池获取对象"><span class="toc-text">从线程池获取对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#向对象池中存放对象"><span class="toc-text">向对象池中存放对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-netty源码学习笔记——对象池" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Netty 源码学习笔记——对象池
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2019/10/14/netty源码学习笔记——对象池/" class="article-date">
+	  <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Netty/">Netty</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/10/14/netty源码学习笔记——对象池/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 <code>recycle()</code> 方法把它释放掉，实际上就是放回了对象池中。这样做的好处是可以减少创建对象的开销，同时减少 young gc 的频率。</p>
+<p>这时大家可能会好奇，Recycler 内部是怎么实现的呢？让我们进入源码一探究竟。</p>
+<h2 id="Recycler-的使用"><a href="#Recycler-的使用" class="headerlink" title="Recycler 的使用"></a>Recycler 的使用</h2><p>首先来看一下 Recycler 的使用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RecyclerTest</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 创建了一个 Recycler&lt;User&gt; 对象</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Recycler&lt;User&gt; userRecycler = <span class="keyword">new</span> Recycler&lt;User&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="comment">// 实现了 newObject 方法</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> User <span class="title">newObject</span><span class="params">(Handle&lt;User&gt; handle)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> User(handle);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="comment">// 自定义的 User 对象</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span></span>&#123;</span><br><span class="line">        <span class="comment">// 保存了 userRecycler 的 handle</span></span><br><span class="line">        Recycler.Handle&lt;User&gt; handle;</span><br><span class="line">        User(Recycler.Handle&lt;User&gt; handle)&#123;</span><br><span class="line">            <span class="keyword">this</span>.handle = handle;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 通过 handle 回收对象</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">recycle</span><span class="params">()</span></span>&#123;</span><br><span class="line">            handle.recycle(<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">        <span class="comment">// 第一个 User 对象</span></span><br><span class="line">        User user1 = userRecycler.get();</span><br><span class="line">        <span class="comment">// 对象回收</span></span><br><span class="line">        user1.recycle();</span><br><span class="line">        <span class="comment">// 第二个 User 对象</span></span><br><span class="line">        User user2 = userRecycler.get();</span><br><span class="line">        <span class="comment">// 判断两个 User 对象是否是同一个</span></span><br><span class="line">        System.out.println(user1==user2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行结果如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">true</span></span><br></pre></td></tr></table></figure></p>
+<p>首先在使用 Recycler 的时候，要创建一个带泛型的 Recycler 对象，表示专门存放某一类对象的对象池。然后要实现该对象池的 <code>newObject()</code> 方法，方法内部会传入一个 handle，通过 handle 可以控制对象的释放。最后是要在自定义的对象中保存对象池的 handle，然后通过调用 <code>handle.recycle(this)</code> 方法把对象放回对象池。</p>
+<p>我们在测试代码中先从对象池获取了一个 User 对象，接着回收了这个对象，然后又从对象池获取了一个对象，比较发现这两次获取的是同一个对象。说明从对象池中获取的对象是循环利用的。</p>
+<h2 id="Stack、WeakOrderQueue-介绍"><a href="#Stack、WeakOrderQueue-介绍" class="headerlink" title="Stack、WeakOrderQueue 介绍"></a>Stack、WeakOrderQueue 介绍</h2><p>对象池通过 Recycler 里面 Stack、WeakOrderQueue 2 个类来实现。 首先放一张图来展示一下两者的关系：</p>
+<p><img src="/2019/10/14/netty源码学习笔记——对象池/recycle结构.png" width="80%"></p>
+<ul>
+<li>每个线程都拥有自己的对象池, 该对象池结构如上图所示, Stack 作为本线程对象池的核心, 通过 FastThreadLocal 来实现每个线程的本地化。</li>
+<li>本线程 thread1 回收本线程产生的对象时, 会将对象以 DefaultHandle 的形式存放在 Stack 中；其它线程 thread2 也可以回收 thread1 产生的对象，thread2 回收的对象不会立即放回 thread1 的 Stack 中，而是保存在 thread2 内部的一个 WeakOrderQueue 中。这些外部线程的 WeakOrderQueue 以链表的方式和 Stack 关联起来。</li>
+<li>默认情况下一个线程最多持有 2CPU 个 WeakOrderQueue，也就是说一个线程最多可以帮 2CPU 个外部线程的对象池回收对象。可以通过修改 <code>io.netty.recycler.maxDelayedQueuesPerThread</code> 参数的值来修改一个线程最多持有的 WeakOrderQueue 的数量。</li>
+<li>WeakOrderQueue 内部有以 Link 来管理对象。每个 Link 存放的对象是有限的，一个 Link 最多存放 16 个对象。 如果满了则会再产生一个 Link 继续存放。</li>
+<li>当前线程从对象池中拿对象时, 首先从 Stack 中获取，若没有的话，将尝试从 cursor 指向的 WeakOrderQueue 中回收一个 Link 的对象,。如果回收到了就继续从 Stack 中获取对象；如果没有回收到就创建对象。</li>
+<li>一个对象池中最多存放 4K 个对象 , 可以通过 <code>io.netty.recycler.maxCapacity</code> 控制；而 Link 节点中每个 DefaultHandle 数组默认长度 16, 可以通过<code>io.netty.recycler.linkCapacity</code> 控制;</li>
+</ul>
+<h2 id="从线程池获取对象"><a href="#从线程池获取对象" class="headerlink" title="从线程池获取对象"></a>从线程池获取对象</h2><p>通过调用 <code>Recycler.get()</code> 来完成：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Recycler</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">get</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="comment">// 若置为 0, 将 handle 置为 Noop_HANDLE，代表着不被回收</span></span><br><span class="line">    <span class="keyword">if</span> (maxCapacityPerThread == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> newObject((Handle&lt;T&gt;) NOOP_HANDLE);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 获取当前线程对应的 Stack</span></span><br><span class="line">    Stack&lt;T&gt; stack = threadLocal.get();</span><br><span class="line">    <span class="comment">// 从对象池获取对象</span></span><br><span class="line">    DefaultHandle&lt;T&gt; handle = stack.pop();</span><br><span class="line">    <span class="comment">// 若对象池中没有对象,则调用子类的 newObject 方法创建新的对象</span></span><br><span class="line">    <span class="keyword">if</span> (handle == <span class="keyword">null</span>) &#123;</span><br><span class="line">        handle = stack.newHandle();</span><br><span class="line">        handle.value = newObject(handle);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> (T) handle.value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先获取本线程对应的唯一 Stack, 从该 Stack 中获取对象。若 Stack 中没有对象, 则主动调用 newObject 产生一个对象。同时完成了 handle 与对象、Stack 的绑定。</p>
+<p>我们接下来看如何通过 <code>stack.pop()</code> 来从对象池中获取对象：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Recycler.Stack</span><br><span class="line"><span class="function">DefaultHandle&lt;T&gt; <span class="title">pop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 统计着 elements 中存放的对象个数，同时是指向栈顶+1的指针</span></span><br><span class="line">    <span class="keyword">int</span> size = <span class="keyword">this</span>.size;</span><br><span class="line">   <span class="comment">//若 elements 没有可用对象</span></span><br><span class="line">    <span class="keyword">if</span> (size == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 就尝试从别的线程帮着回收的对象中转移一些到 elements 中, 也就是从 WeakOrderQueue 中转移一些数据出来</span></span><br><span class="line">        <span class="keyword">if</span> (!scavenge()) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        size = <span class="keyword">this</span>.size;</span><br><span class="line">    &#125;</span><br><span class="line">    size --;</span><br><span class="line">    <span class="comment">// 将栈顶元素出栈</span></span><br><span class="line">    DefaultHandle ret = elements[size];</span><br><span class="line">    elements[size] = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果 Stack 中有对象，就直接从 Stack 中获取；如果 Stack 中没有对象，就尝试从别的线程帮着回收的对象中转移一些到 Stack。从 Stack 中获取对象的方式很简单，就是将栈顶元素出栈，然后将指针减一。关键是 <code>scavenge()</code> 的逻辑，这个方法会从 WeakOrderQueue 中回收一些对象：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">Recycler.Stack</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">scavenge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//尝试从 WeakOrderQueue 中转移数据到 Stack 中</span></span><br><span class="line">    <span class="keyword">if</span> (scavengeSome()) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果转移失败，会把 cursor 指针重置到 head 节点</span></span><br><span class="line">    prev = <span class="keyword">null</span>;</span><br><span class="line">    cursor = head;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br><span class="line">Recycler.Stack</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">scavengeSome</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="comment">// cursor 指针指向上一次对 WeakorderQueueu 列表的浏览位置，每一次都从上一次的位置继续，这是一种 FIFO 的处理策略</span></span><br><span class="line">    WeakOrderQueue prev;</span><br><span class="line">    WeakOrderQueue cursor = <span class="keyword">this</span>.cursor;</span><br><span class="line">    <span class="comment">// 若游标为 null, 则是第一次从 WeakorderQueueu 链中获取元素</span></span><br><span class="line">    <span class="keyword">if</span> (cursor == <span class="keyword">null</span>) &#123;</span><br><span class="line">        prev = <span class="keyword">null</span>;</span><br><span class="line">        cursor = head;</span><br><span class="line">        <span class="comment">// 若不存在任何 WeakorderQueueu，退出</span></span><br><span class="line">        <span class="keyword">if</span> (cursor == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        prev = <span class="keyword">this</span>.prev;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> success = <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 循环的不停地从 WeakOrderQueue 中找到一个可用的 Link</span></span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="comment">// 从 WeakOrderQueue 中转移数据到 Stack 中，转移成功则跳出</span></span><br><span class="line">        <span class="keyword">if</span> (cursor.transfer(<span class="keyword">this</span>)) &#123;</span><br><span class="line">            success = <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        WeakOrderQueue next = cursor.next;</span><br><span class="line">        <span class="comment">// 如果当前处理的 WeakOrderQueue 所在的线程已经消亡，则尽可能的提取里面的数据，之后从列表中删除这个 WeakOrderQueue。</span></span><br><span class="line">        <span class="comment">// 注意 owner 使用 WeakReference&lt;Thread&gt; 定义, 当线程消亡后, 通过 cursor.owner.get() 自然变为 null</span></span><br><span class="line">        <span class="keyword">if</span> (cursor.owner.get() == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果消亡的线程还有数据，</span></span><br><span class="line">            <span class="keyword">if</span> (cursor.hasFinalData()) &#123;</span><br><span class="line">                <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">                    <span class="comment">// 尽量将该线程对应的 WeakOrderQueue 里面 Link 对应的对象迁移到 Stack 中</span></span><br><span class="line">                    <span class="keyword">if</span> (cursor.transfer(<span class="keyword">this</span>)) &#123;</span><br><span class="line">                        success = <span class="keyword">true</span>;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">           <span class="comment">// 将消亡的那个 WeakOrderQueue 从链中去掉</span></span><br><span class="line">            <span class="keyword">if</span> (prev != <span class="keyword">null</span>) &#123;</span><br><span class="line">                prev.setNext(next);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            prev = cursor;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 将游标指向下一个 WeakOrderQueue</span></span><br><span class="line">        cursor = next;</span><br><span class="line">    &#125; <span class="keyword">while</span> (cursor != <span class="keyword">null</span> &amp;&amp; !success);</span><br><span class="line">    <span class="keyword">this</span>.prev = prev;</span><br><span class="line">    <span class="keyword">this</span>.cursor = cursor;</span><br><span class="line">    <span class="keyword">return</span> success;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里 Netty 会尝试从 cursor 指向的 WeakOrderQueue 中获取对象转移到 Stack，如果获取到了就退出；如果获取不到就将 cursor 移到下一个 WeakOrderQueue，直到找到可回收的对象为止。</p>
+<p>而在移动 cursor 之前，Netty 会检查之前 WeakOrderQueue 所在的线程已经消亡。因为获取不到对象可能是因为当前 WeakOrderQueue 没有对象，也有可能是 WeakOrderQueue 所在的线程已经消亡。而如果 WeakOrderQueue 所在的线程已经消亡，Netty 会尽量将其中的对象转移到 Stack 中。</p>
+<p>我们先来看一下 WeakOrderQueue 中有对象且线程没有消亡的情况下，Netty 是怎么回收对象的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">WeakOrderQueue</span><br><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">transfer</span><span class="params">(Stack&lt;?&gt; dst)</span> </span>&#123;</span><br><span class="line">    Link head = <span class="keyword">this</span>.head.link;</span><br><span class="line">    <span class="comment">// WeakOrderQueue中整个Link链为空, 则直接退出</span></span><br><span class="line">    <span class="keyword">if</span> (head == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 说明 head 已经被读取完了，需要将 head 指向下一个 Link</span></span><br><span class="line">    <span class="keyword">if</span> (head.readIndex == LINK_CAPACITY) &#123;</span><br><span class="line">        <span class="keyword">if</span> (head.next == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.head.link = head = head.next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 获取当前 Link 可读的下标</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> srcStart = head.readIndex;</span><br><span class="line">    <span class="comment">// 获取当前 Link 可写的下标</span></span><br><span class="line">    <span class="keyword">int</span> srcEnd = head.get();</span><br><span class="line">    <span class="comment">// 总共可读长度</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> srcSize = srcEnd - srcStart;</span><br><span class="line">    <span class="keyword">if</span> (srcSize == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 获取 Stack 的栈顶位置</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> dstSize = dst.size;</span><br><span class="line">    <span class="comment">// 计算回收后 Stack 的栈顶位置</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> expectedCapacity = dstSize + srcSize;</span><br><span class="line">    <span class="comment">// 如果回收后会超过 Stack 当前容量</span></span><br><span class="line">    <span class="keyword">if</span> (expectedCapacity &gt; dst.elements.length) &#123;</span><br><span class="line">        <span class="comment">// 将 Stack 扩容</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> actualCapacity = dst.increaseCapacity(expectedCapacity);</span><br><span class="line">        srcEnd = min(srcStart + actualCapacity - dstSize, srcEnd);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (srcStart != srcEnd) &#123;</span><br><span class="line">        <span class="keyword">final</span> DefaultHandle[] srcElems = head.elements;</span><br><span class="line">        <span class="keyword">final</span> DefaultHandle[] dstElems = dst.elements;</span><br><span class="line">        <span class="keyword">int</span> newDstSize = dstSize;</span><br><span class="line">        <span class="comment">// 每个元素都开始从源迁移到目的地</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = srcStart; i &lt; srcEnd; i++) &#123;</span><br><span class="line">            DefaultHandle element = srcElems[i];</span><br><span class="line">            <span class="keyword">if</span> (element.recycleId == <span class="number">0</span>) &#123;</span><br><span class="line">                element.recycleId = element.lastRecycledId;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (element.recycleId != element.lastRecycledId) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"recycled already"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            srcElems[i] = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">// 为了防止 Stack 扩张太快, 实际每 8 个初次回收的对象中只回收 1 个，7 个都被丢弃了</span></span><br><span class="line">            <span class="keyword">if</span> (dst.dropHandle(element)) &#123;</span><br><span class="line">                <span class="comment">// Drop the object.</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            element.stack = dst;</span><br><span class="line">            dstElems[newDstSize ++] = element;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (srcEnd == LINK_CAPACITY &amp;&amp; head.next != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// Add capacity back as the Link is GCed.</span></span><br><span class="line">            <span class="keyword">this</span>.head.reclaimSpace(LINK_CAPACITY);</span><br><span class="line">            <span class="keyword">this</span>.head.link = head.next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        head.readIndex = srcEnd;</span><br><span class="line">        <span class="keyword">if</span> (dst.size == newDstSize) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        dst.size = newDstSize;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// The destination stack is full already.</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>每次回收时 Netty 会回收一个 Link 的对象。一个 Link 内部有两个指针，读指针和写指针，读指针指向上次回收的位置，而写指针指向 Link 的尾端，这两个指针中间的对象就是可回收对象。Netty 会先统计出 Link 内部可回收对象的数量，如果超出 Stack 剩余容量，会先把 Stack 扩容。然后依次将对象从 Link 转移到 Stack。转移的时候为了防止 Stack 扩张太快，Netty 会谨慎地回收从未被回收过的对象，具体来说，每 8 个从未被回收过的对象中只会选择一个进行回收。这主要是为了防止应用程序因为某些原因创建了大量一次性对象而使对象池过度扩张。</p>
+<p>回到上层逻辑，如果 WeakOrderQueue 对应的线程消亡了，Netty 会尽量将该 WeakOrderQueue 里面的对象迁移到 Stack 中，我们看看这是怎么实现的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 如果消亡的线程还有数据</span></span><br><span class="line"><span class="keyword">if</span> (cursor.hasFinalData()) &#123;</span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        <span class="comment">// 尽量将该线程对应的 WeakOrderQueue 里面 Link 对应的对象迁移到 Stack 中</span></span><br><span class="line">        <span class="keyword">if</span> (cursor.transfer(<span class="keyword">this</span>)) &#123;</span><br><span class="line">            success = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当判断消亡的线程内还有数据时，Netty 会通过一个 for 循环不断调用 <code>transfer()</code> 方法，这个方法我们刚才分析过，内部会回收一个 Link 的对象。所以在 for 循环中 Netty 会不断回收 WeakOrderQueue 中 Link 链上的所有 Link，直到某次回收失败。</p>
+<p>那么是如何判断消亡的线程内还有数据呢？答案很简单，只要看 WeakOrderQueue 中 tail 节点的 Link 的读指针是不是指向 Link 的末端就行：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">boolean</span> <span class="title">hasFinalData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> tail.readIndex != tail.get();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当尾 Link 的读指针指向末尾的时候，说明尾 Link 内的数据已经被回收完了；而如果尾 Link 内的数据被回收完了，那整个 WeakOrderQueue 内部的数据也被回收完了。</p>
+<p>到此，从线程池获取对象的逻辑就结束了。</p>
+<h2 id="向对象池中存放对象"><a href="#向对象池中存放对象" class="headerlink" title="向对象池中存放对象"></a>向对象池中存放对象</h2><p>调用 <code>handle.recycle()</code> 可以向对象池中存放对象：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">DefaultHandle</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">recycle</span><span class="params">(Object object)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 有效性检验</span></span><br><span class="line">    <span class="keyword">if</span> (object != value) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"object does not belong to handle"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Stack&lt;?&gt; stack = <span class="keyword">this</span>.stack;</span><br><span class="line">    <span class="keyword">if</span> (lastRecycledId != recycleId || stack == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"recycled already"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 向 Stack 存放对象</span></span><br><span class="line">    stack.push(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在一些有效性检验之后，最终会调用 <code>stack.push()</code> 往 Stack 中存放对象：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Recycler.Stack</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(DefaultHandle&lt;?&gt; item)</span> </span>&#123;</span><br><span class="line">    Thread currentThread = Thread.currentThread();</span><br><span class="line">    <span class="comment">// 如果是本线程回收</span></span><br><span class="line">    <span class="keyword">if</span> (threadRef.get() == currentThread) &#123;</span><br><span class="line">        <span class="comment">// 存放到 Stack 中</span></span><br><span class="line">        pushNow(item);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果是外部线程回收，存放到 WeakOrderQueue 中</span></span><br><span class="line">        pushLater(item, currentThread);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果是本线程回收的对象，直接放进 Stack 中；如果是外部线程回收的对象，就存放到外部线程的 WeakOrderQueue 中。</p>
+<p>我们先来看本线程回收的逻辑：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">Recycler.Stack</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">pushNow</span><span class="params">(DefaultHandle&lt;?&gt; item)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 检验有效性</span></span><br><span class="line">    <span class="keyword">if</span> ((item.recycleId | item.lastRecycledId) != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"recycled already"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    item.recycleId = item.lastRecycledId = OWN_THREAD_ID;</span><br><span class="line">    <span class="comment">// 指向栈顶</span></span><br><span class="line">    <span class="keyword">int</span> size = <span class="keyword">this</span>.size;</span><br><span class="line">    <span class="comment">// 如果超过 Stack 最大容量直接丢弃；</span></span><br><span class="line">    <span class="comment">// 如果是初次回收的对象会丢弃 7/8</span></span><br><span class="line">    <span class="keyword">if</span> (size &gt;= maxCapacity || dropHandle(item)) &#123;</span><br><span class="line">        <span class="comment">// Hit the maximum capacity or should drop - drop the possibly youngest object.</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果对象池已满则扩容，扩展为当前 2 倍大小</span></span><br><span class="line">    <span class="keyword">if</span> (size == elements.length) &#123;</span><br><span class="line">        elements = Arrays.copyOf(elements, min(size &lt;&lt; <span class="number">1</span>, maxCapacity));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    elements[size] = item;</span><br><span class="line">    <span class="keyword">this</span>.size = size + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>本线程回收的对象最后会进入 Stack 中，Stack 内部是一个数组，通过栈顶指针控制，对象最后会放入栈顶指针指向的位置。如果超过了对象池最大大小，对象会被直接丢弃；如果超过了当前对象池大小，对象池会扩容。另外本线程回收时和从 WeakOrderQueue 转移对象一样，会对初次回收的对象做检查，丢弃其中的 7/8，这同样是为了防止 Stack 扩张过快。</p>
+<p>回到上层逻辑，除了本线程回收外，Netty 的对象池还允许外部线程回收，回收的对象不会直接放入 Stack 中，而是放在外部线程的 WeakOrderQueue 中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">Recycler.Stack</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">pushLater</span><span class="params">(DefaultHandle&lt;?&gt; item, Thread thread)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// DELAYED_RECYCLED 里存放了当前线程帮所有外部 Stack 回收的 WeakOrderQueue 的映射关系</span></span><br><span class="line">    Map&lt;Stack&lt;?&gt;, WeakOrderQueue&gt; delayedRecycled = DELAYED_RECYCLED.get();</span><br><span class="line">    <span class="comment">// 获取当前 Stack 对应的 WeakOrderQueue</span></span><br><span class="line">    WeakOrderQueue queue = delayedRecycled.get(<span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 如果没有获取到 WeakOrderQueue，说明当前线程第一次帮该 Stack 回收对象</span></span><br><span class="line">    <span class="keyword">if</span> (queue == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 每个线程最多能帮 maxDelayedQueues（2CPU）个外部 Stack 回收对象，超过数量回收失败</span></span><br><span class="line">        <span class="keyword">if</span> (delayedRecycled.size() &gt;= maxDelayedQueues) &#123;</span><br><span class="line">            <span class="comment">// Add a dummy queue so we know we should drop the object</span></span><br><span class="line">            <span class="comment">// 插入一个特殊的 WeakOrderQueue，下次回收时看到 WeakOrderQueue.DUMMY 就说明该线程无法帮该 Stack 回收</span></span><br><span class="line">            delayedRecycled.put(<span class="keyword">this</span>, WeakOrderQueue.DUMMY);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Check if we already reached the maximum number of delayed queues and if we can allocate at all.</span></span><br><span class="line">        <span class="comment">// 别的线程最多帮这个 Stack 回收 2K 个对象，检查是否超过数量，如果没有超过，就向这个 Stack 头插法新建 WeakOrderQueue 对象</span></span><br><span class="line">        <span class="keyword">if</span> ((queue = WeakOrderQueue.allocate(<span class="keyword">this</span>, thread)) == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// drop object</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        delayedRecycled.put(<span class="keyword">this</span>, queue);</span><br><span class="line">    <span class="comment">// 看到 WeakOrderQueue.DUMMY 就说明该线程无法帮该 Stack 回收，直接返回</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (queue == WeakOrderQueue.DUMMY) &#123;</span><br><span class="line">        <span class="comment">// drop object</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 向 WeakOrderQueue 对应的 Link 存放对象</span></span><br><span class="line">    queue.add(item);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>每个线程内部都维护着一个 DELAYED_RECYCLED 的线程私有变量，这是一个 Map 记录着当前线程帮所有外部 Stack 回收的 WeakOrderQueue 的映射关系。回收时线程会先从 Map 中获取当前 Stack 对应的 WeakOrderQueue，如果获取到了就直接存放对象；如果没有获取到，会尝试创建一个 WeakOrderQueue。但 WeakOrderQueue 不能无限创建，它受到以下条件约束：1）本线程最多能创建的 WeakOrderQueue 数量，默认是 2CPU 个，也就是说一个线程最多帮 2CPU 个外部 Stack 回收对象；2）该 Stack 可以存放在外部线程的最大对象数，默认是 2K，也就是说，一个 Stack 最多能在外部线程存放 2K 个对象。超过这两条限制，当前线程将无法创建 WeakOrderQueue。</p>
+<p>如果可以回收，线程会调用 <code>weakOrderQueue.add()</code> 方法存放对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Recycler.WeakOrderQueue</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">add</span><span class="params">(DefaultHandle&lt;?&gt; handle)</span> </span>&#123;</span><br><span class="line">    handle.lastRecycledId = id;</span><br><span class="line">    <span class="comment">// 获取尾 Link</span></span><br><span class="line">    Link tail = <span class="keyword">this</span>.tail;</span><br><span class="line">    <span class="keyword">int</span> writeIndex;</span><br><span class="line">    <span class="comment">// 若尾 Link 已经写满了，那么我们再新建一个 Link 存放对象</span></span><br><span class="line">    <span class="keyword">if</span> ((writeIndex = tail.get()) == LINK_CAPACITY) &#123;</span><br><span class="line">        <span class="comment">// 新建 Link 之前要判断是否超过了对应 Stack 可以存放在外部线程的最大对象数</span></span><br><span class="line">        <span class="keyword">if</span> (!reserveSpace(availableSharedCapacity, LINK_CAPACITY)) &#123;</span><br><span class="line">            <span class="comment">// Drop it.</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// We allocate a Link so reserve the space</span></span><br><span class="line">        <span class="keyword">this</span>.tail = tail = tail.next = <span class="keyword">new</span> Link();</span><br><span class="line">        writeIndex = tail.get();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 存放对象</span></span><br><span class="line">    tail.elements[writeIndex] = handle;</span><br><span class="line">    <span class="comment">// 将对象指向的 Stack 置为 null，标记这是一个存放在外部的对象</span></span><br><span class="line">    handle.stack = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// we lazy set to ensure that setting stack to null appears before we unnull it in the owning thread;</span></span><br><span class="line">    <span class="comment">// this also means we guarantee visibility of an element in the queue if we see the index updated</span></span><br><span class="line">    <span class="comment">// 将 tail 内部的对象数量+1。</span></span><br><span class="line">    <span class="comment">// 为了和 handle.stack 保持一致，这里 tail 这个 AtomicInteger 变量会调用 lazySet 修改数值。因为 handle.stack 并不是一个 volatile 变量。</span></span><br><span class="line">    <span class="comment">// （基础知识：AtomicInteger.set 会刷新缓存行，而 AtomicInteger.lazySet 不会）</span></span><br><span class="line">    tail.lazySet(writeIndex + <span class="number">1</span>);  <span class="comment">//https://github.com/netty/netty/issues/8215</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>向 WeakOrderQueue 对应的 Link 存放对象时，会先获取该 WeakOrderQueue 的尾 Link，如果尾 Link 没有放满，就放到尾 Link 中；如果尾 Link 放满了，就创建一个 Link 再放。新建 Link 时会判断是否超过了对应 Stack 可以存放在外部线程的最大对象数，如果超过了就直接返回。</p>
+<p>到此，向对象池中存放对象的逻辑就结束了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>对象池是 Netty 中重要的组成部分，但也可以独立于 Netty 使用。和前几章一样，我们以 tips 的形式总结一下对象池的要点：</p>
+<ul>
+<li>对象池有两部分组成：由当前线程保存的 Stack 和在其它线程中的 weakOrderQueue</li>
+<li>Stack 底层是一个数组，通过一个栈顶指针实现栈的功能；weakOrderQueue 内部是一个 Link 数组，每个 Link 可以存放 16 个对象</li>
+<li>每次获取对象时，先从 Stack 中找，Stack 中没有对象，则从 weakOrderQueue 中转移一个 Link 的对象到 Stack 中，再返回给用户</li>
+<li>回收对象时，如果是由 Stack 所在线程回收，则对象直接存入 Stack；如果是由外部线程回收，则把对象放在外部线程中和 Stack 关联的 weakOrderQueue 中，等需要时再转移到 Stack 中</li>
+<li>从 weakOrderQueue 中转移对象时，如果 weakOrderQueue 关联的线程已经消亡，会把 weakOrderQueue 中的所有对象转移到 Stack 中</li>
+<li>在不超出最大容量的情况下，Stack 的容量不够时会扩容，扩容是一个单向的过程，扩容后不会缩容，因此 Stack 会谨慎回收那些还没被回收过的新对象，具体是每 8 个回收一个，防止大量的一次性对象让 Stack 扩张过快</li>
+</ul>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://kkewwei.github.io/elasticsearch_learning/2019/01/16/Netty%E5%AF%B9%E8%B1%A1%E5%9B%9E%E6%94%B6%E6%B1%A0Recycler%E5%8E%9F%E7%90%86%E8%AF%A6%E8%A7%A3/" target="_blank" rel="noopener">Netty对象回收池Recycler原理详解</a></p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/" title="Netty 源码学习笔记——对象池" target="_blank" rel="external">http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码学习笔记——内存分配"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
