@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/哨兵%202.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/集群-握手.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis高可用和分布式/集群-主从.png">
-<meta property="og:updated_time" content="2019-03-11T13:28:18.259Z">
+<meta property="og:updated_time" content="2019-10-21T11:49:42.318Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 复制、哨兵和集群">
 <meta name="twitter:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
@@ -306,7 +306,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、主从复制"><span class="toc-text">一、主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步"><span class="toc-text">同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步"><span class="toc-text">部分重同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令传播"><span class="toc-text">命令传播</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Sentinel（哨兵）"><span class="toc-text">二、Sentinel（哨兵）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、集群"><span class="toc-text">三、集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#故障转移"><span class="toc-text">故障转移</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、主从复制"><span class="toc-text">一、主从复制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步"><span class="toc-text">同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步（2-8）"><span class="toc-text">部分重同步（2.8）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步（4-0）"><span class="toc-text">部分重同步（4.0）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令传播"><span class="toc-text">命令传播</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Sentinel（哨兵）"><span class="toc-text">二、Sentinel（哨兵）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、集群"><span class="toc-text">三、集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#故障转移"><span class="toc-text">故障转移</span></a></li></ol></li></ol>
     </nav>
   </div>
 </aside>
@@ -366,13 +366,16 @@
 <li>3）主服务器把记录在缓冲区的命令发送给从服务器，从服务器执行这些命令，同步完成。</li>
 </ul>
 <p>但是这种同步方式会带来一个断线后重复值效率低的问题：如果从服务器短暂掉线后重连主服务器，主从之间不得不重新同步所有数据，这是没有必要的，因为从服务器仍然保留了大部分数据。Redis 2.8 推出了部分重同步的方式解决了这个问题。</p>
-<h3 id="部分重同步"><a href="#部分重同步" class="headerlink" title="部分重同步"></a>部分重同步</h3><p>部分重同步用于处理断线后复制的情况。Redis 部分重同步的实现由以下三个部分构成：</p>
+<h3 id="部分重同步（2-8）"><a href="#部分重同步（2-8）" class="headerlink" title="部分重同步（2.8）"></a>部分重同步（2.8）</h3><p>部分重同步用于处理断线后复制的情况。Redis 部分重同步的实现由以下三个部分构成：</p>
 <ul>
-<li>主服务器和从服务器的复制偏移量：复制偏移量表示当前从服务器从主服务器中接收了多少字节的数据。</li>
-<li>主服务器的复制积压缓冲区：复制积压缓冲区以 FIFO 的形式保存了最近的写命令。</li>
-<li>服务器运行 id：用于标识服务器</li>
+<li>复制偏移量 (offset)：复制偏移量表示当前从服务器从主服务器中接收了多少字节的数据。</li>
+<li>复制积压缓冲区：复制积压缓冲区以 FIFO 的形式保存了最近的写命令。</li>
+<li>服务器 id (runid)：用于唯一标识服务器。</li>
 </ul>
-<p>当从服务器断线重连之后，会向主服务器发送一个<code>PSYNC &lt;runid&gt; &lt;offset&gt;</code>的命令，offset 即当前从服务器的复制偏移量，runid 是从服务器记录的掉线之前的主服务器 id。主服务器在收到 PSYNC 后，会首先对比自己的 runid 和传过来的 runid 是否一致，如果一致，说明这台从服务器之前和自己同步过数据，然后根据 offset 的差值把复制积压缓冲区的数据同步给从服务器。这样就实现了增量更新。</p>
+<p>当 slave 初次复制 master 时，master 会将自己的 runid 发给 slave 进行保存，而当 slave 断线重连之后，会向 master 发送一个<code>PSYNC &lt;runid&gt; &lt;offset&gt;</code>的命令，offset 即当前 slave 的复制偏移量，runid 是 slave 记录的掉线之前的 master 的 runid。master 在收到 PSYNC 后，会首先对比自己的 runid 和传过来的 runid 是否一致，如果一致，说明这个 slave 之前和自己同步过数据，然后根据 offset 的差值把复制积压缓冲区的数据同步给 slave。这样就实现了增量更新。</p>
+<h3 id="部分重同步（4-0）"><a href="#部分重同步（4-0）" class="headerlink" title="部分重同步（4.0）"></a>部分重同步（4.0）</h3><p>2.8 版本推出的部分重同步我们称为 psync1，它解决了网络闪断的问题。但它无法解决 master 更替和 slave 重启的问题：1）当 master 更替以后，主节点的 runid 会发生变化，其它 slave 切换过去时，由于 runid 不同，无法进行部分重同步；2）slave 重启时之后，原先保存的 runid 和复制偏移量都会丢失，无法进行部分重同步。针对以上两个问题，redis 在 4.0 版本优化了部分重同步的策略，称为 psync2。</p>
+<p>psync2 把 psync1 中由 slave 保存的 master 节点的 id 记为 replid，同时又增加了一个 replid2 字段，这个字段表示这个节点关联的上一个 master 的 id。对于从节点来说，replid 和 replid2 分别代表上一个和当前关联的主节点的 id，而对于主节点来说，replid 是自己的 id，而 replid2 是上一个主节点的 id。当主节点切换以后，原先主节点的从节点切换到新的主节点上时，新的主节点会判断从节点的 replid 是否等于自己的 replid2，如果相等，说明这两个节点曾经属于同一个主节点，那么就可以尝试部分重同步（当然还需要新的 master 在还是 slave 的时候就开启了复制积压缓冲区功能）。</p>
+<p>对于 slave 重启的问题，psync2 也做了优化。当 redis 关闭时，replid 和复制偏移量会被保存进 rdb 文件，重启时，redis 会读取这两个值，然后和主节点进行部分重同步。</p>
 <h3 id="命令传播"><a href="#命令传播" class="headerlink" title="命令传播"></a>命令传播</h3><p>在同步完成之后，主从服务器就进入了命令传播阶段。在这个阶段，主服务器发生写操作后，会把相应的命令发送给从服务器执行，这样主从之间就保持了数据一致性。</p>
 <p>从服务器也会向主服务器发送命令<code>REPLCONF ACK &lt;replication_offset&gt;</code>，这是一个心跳检测命令，每隔 1 秒就会发一次，它有以下两个作用：</p>
 <ul>
