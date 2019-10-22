@@ -20,25 +20,25 @@
     
     <title>
         
-        Netty 源码学习笔记——对象池 |
+        Netty 源码浅析——对象池 |
         
         huzb的博客</title>
     <meta name="description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
 <meta name="keywords" content="Netty">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty 源码学习笔记——对象池">
-<meta property="og:url" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/index.html">
+<meta property="og:title" content="Netty 源码浅析——对象池">
+<meta property="og:url" content="http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/recycle结构.png">
-<meta property="og:updated_time" content="2019-10-17T11:54:33.149Z">
+<meta property="og:image" content="http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/recycle结构.png">
+<meta property="og:updated_time" content="2019-10-22T12:27:05.441Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty 源码学习笔记——对象池">
+<meta name="twitter:title" content="Netty 源码浅析——对象池">
 <meta name="twitter:description" content="为了提高程序的性能，Netty 中实现了一个轻量级的对象池 Recycler。Recycler 在 Netty 里面使用是非常频繁的，我们在创建 PooledDirectByteBuf 的时候，不是每次都会创建一个新对象，而是先在预先创建好的对象池中去取；而当我们不用 PooledDirectByteBuf 对象的时候，可以通过 recycle() 方法把它释放掉，实际上就是放回了对象池中。这样做">
-<meta name="twitter:image" content="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/recycle结构.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/recycle结构.png">
     <!-- Canonical links -->
-    <link rel="canonical" href="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/index.html">
+    <link rel="canonical" href="http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/index.html">
     
     
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -220,10 +220,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/14/netty源码学习笔记——对象池/" class="title">Netty 源码学习笔记——对象池</a>
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
               </p>
             </div>
           </li>
@@ -235,7 +235,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
@@ -250,7 +250,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码浅析——pipeline</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
@@ -265,7 +265,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码浅析——新连接接入</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
@@ -280,7 +280,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码浅析——NioEventLoop</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
@@ -317,7 +317,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Netty 源码学习笔记——对象池
+      Netty 源码浅析——对象池
     </h1>
   
 
@@ -325,8 +325,8 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2019/10/14/netty源码学习笔记——对象池/" class="article-date">
-	  <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+	<a href="/2019/10/17/netty源码学习笔记——对象池/" class="article-date">
+	  <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
 	</a>
 </span>
         
@@ -346,7 +346,7 @@
 	</span>
 
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/10/14/netty源码学习笔记——对象池/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2019/10/17/netty源码学习笔记——对象池/#comments" class="article-comment-link">评论</a></span>
         
       </div>
     </div>
@@ -359,7 +359,7 @@
 <p>首先在使用 Recycler 的时候，要创建一个带泛型的 Recycler 对象，表示专门存放某一类对象的对象池。然后要实现该对象池的 <code>newObject()</code> 方法，方法内部会传入一个 handle，通过 handle 可以控制对象的释放。最后是要在自定义的对象中保存对象池的 handle，然后通过调用 <code>handle.recycle(this)</code> 方法把对象放回对象池。</p>
 <p>我们在测试代码中先从对象池获取了一个 User 对象，接着回收了这个对象，然后又从对象池获取了一个对象，比较发现这两次获取的是同一个对象。说明从对象池中获取的对象是循环利用的。</p>
 <h2 id="Stack、WeakOrderQueue-介绍"><a href="#Stack、WeakOrderQueue-介绍" class="headerlink" title="Stack、WeakOrderQueue 介绍"></a>Stack、WeakOrderQueue 介绍</h2><p>对象池通过 Recycler 里面 Stack、WeakOrderQueue 2 个类来实现。 首先放一张图来展示一下两者的关系：</p>
-<p><img src="/2019/10/14/netty源码学习笔记——对象池/recycle结构.png" width="80%"></p>
+<p><img src="/2019/10/17/netty源码学习笔记——对象池/recycle结构.png" width="80%"></p>
 <ul>
 <li>每个线程都拥有自己的对象池, 该对象池结构如上图所示, Stack 作为本线程对象池的核心, 通过 FastThreadLocal 来实现每个线程的本地化。</li>
 <li>本线程 thread1 回收本线程产生的对象时, 会将对象以 DefaultHandle 的形式存放在 Stack 中；其它线程 thread2 也可以回收 thread1 产生的对象，thread2 回收的对象不会立即放回 thread1 的 Stack 中，而是保存在 thread2 内部的一个 WeakOrderQueue 中。这些外部线程的 WeakOrderQueue 以链表的方式和 Stack 关联起来。</li>
@@ -411,7 +411,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/" title="Netty 源码学习笔记——对象池" target="_blank" rel="external">http://yoursite.com/2019/10/14/netty源码学习笔记——对象池/</a>
+      <a href="http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/" title="Netty 源码浅析——对象池" target="_blank" rel="external">http://yoursite.com/2019/10/17/netty源码学习笔记——对象池/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -459,7 +459,7 @@
     
     
     <li class="next">
-      <a href="/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码学习笔记——内存分配"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码浅析——内存分配"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

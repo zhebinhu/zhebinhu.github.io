@@ -20,13 +20,13 @@
     
     <title>
         
-        Netty 源码学习笔记——内存分配 |
+        Netty 源码浅析——内存分配 |
         
         huzb的博客</title>
     <meta name="description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
 <meta name="keywords" content="Netty">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty 源码学习笔记——内存分配">
+<meta property="og:title" content="Netty 源码浅析——内存分配">
 <meta property="og:url" content="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
@@ -39,9 +39,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/Subpage池组.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/Subpage池.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/cache规格.png">
-<meta property="og:updated_time" content="2019-10-13T13:32:30.546Z">
+<meta property="og:updated_time" content="2019-10-22T12:27:19.506Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty 源码学习笔记——内存分配">
+<meta name="twitter:title" content="Netty 源码浅析——内存分配">
 <meta name="twitter:description" content="我们都知道堆外内存的使用是 Netty 高效的重要原因。堆外内存可以减少一次堆内到堆外的数据拷贝，因此高效。但堆外内存无法由 GC 直接管控。另一方面，堆内内存虽然可以由 GC 直接管控，但分配和回收内存都会占用系统的资源。所以在这种情况下，Netty 选择了手动管理内存，这一章我们就来看看 Netty 是如何管理内存的。 内存规格介绍Netty 中以块分配内存，而不同规格大小的内存块的分配逻辑是">
 <meta name="twitter:image" content="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/内存规格.png">
     <!-- Canonical links -->
@@ -227,10 +227,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/14/netty源码学习笔记——对象池/" class="title">Netty 源码学习笔记——对象池</a>
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
               </p>
             </div>
           </li>
@@ -242,7 +242,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
@@ -257,7 +257,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码浅析——pipeline</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
@@ -272,7 +272,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码浅析——新连接接入</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
@@ -287,7 +287,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码浅析——NioEventLoop</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
@@ -324,7 +324,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Netty 源码学习笔记——内存分配
+      Netty 源码浅析——内存分配
     </h1>
   
 
@@ -501,7 +501,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码学习笔记——内存分配" target="_blank" rel="external">http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/</a>
+      <a href="http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码浅析——内存分配" target="_blank" rel="external">http://yoursite.com/2019/10/13/netty源码学习笔记——内存分配/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -548,12 +548,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2019/10/14/netty源码学习笔记——对象池/" title="Netty 源码学习笔记——对象池"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/2019/10/17/netty源码学习笔记——对象池/" title="Netty 源码浅析——对象池"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2019/10/07/netty源码学习笔记——pipeline/" title="Netty 源码学习笔记——pipeline"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/10/07/netty源码学习笔记——pipeline/" title="Netty 源码浅析——pipeline"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

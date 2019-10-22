@@ -20,22 +20,22 @@
     
     <title>
         
-        Netty 源码学习笔记——NioEventLoop |
+        Netty 源码浅析——NioEventLoop |
         
         huzb的博客</title>
     <meta name="description" content="NioEventLoop 是 Netty 的核心组件。我们在服务端启动时，会用服务端 Channel 绑定一个 NioEventLoop，那么 NioEventLoop 里面到底在干些什么事？Netty 是如何保证事件循环的高效轮询和任务的及时执行？又是如何优雅地 fix 掉 jdk 的 nio bug 的呢？让我们深入源码一探究竟。 NioEventLoop 概述我们先对 NioEventLoo">
 <meta name="keywords" content="Netty">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty 源码学习笔记——NioEventLoop">
+<meta property="og:title" content="Netty 源码浅析——NioEventLoop">
 <meta property="og:url" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="NioEventLoop 是 Netty 的核心组件。我们在服务端启动时，会用服务端 Channel 绑定一个 NioEventLoop，那么 NioEventLoop 里面到底在干些什么事？Netty 是如何保证事件循环的高效轮询和任务的及时执行？又是如何优雅地 fix 掉 jdk 的 nio bug 的呢？让我们深入源码一探究竟。 NioEventLoop 概述我们先对 NioEventLoo">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/空轮询.png">
-<meta property="og:updated_time" content="2019-09-27T15:17:38.132Z">
+<meta property="og:updated_time" content="2019-10-22T12:26:39.340Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty 源码学习笔记——NioEventLoop">
+<meta name="twitter:title" content="Netty 源码浅析——NioEventLoop">
 <meta name="twitter:description" content="NioEventLoop 是 Netty 的核心组件。我们在服务端启动时，会用服务端 Channel 绑定一个 NioEventLoop，那么 NioEventLoop 里面到底在干些什么事？Netty 是如何保证事件循环的高效轮询和任务的及时执行？又是如何优雅地 fix 掉 jdk 的 nio bug 的呢？让我们深入源码一探究竟。 NioEventLoop 概述我们先对 NioEventLoo">
 <meta name="twitter:image" content="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/nioEventLoop生命周期.png">
     <!-- Canonical links -->
@@ -221,10 +221,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/14/netty源码学习笔记——对象池/" class="title">Netty 源码学习笔记——对象池</a>
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
               </p>
             </div>
           </li>
@@ -236,7 +236,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
@@ -251,7 +251,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码浅析——pipeline</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
@@ -266,7 +266,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码浅析——新连接接入</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
@@ -281,7 +281,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码浅析——NioEventLoop</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
@@ -318,7 +318,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Netty 源码学习笔记——NioEventLoop
+      Netty 源码浅析——NioEventLoop
     </h1>
   
 
@@ -511,7 +511,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/" title="Netty 源码学习笔记——NioEventLoop" target="_blank" rel="external">http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/</a>
+      <a href="http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/" title="Netty 源码浅析——NioEventLoop" target="_blank" rel="external">http://yoursite.com/2019/09/27/netty源码学习笔记——NioEventLoop/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -558,12 +558,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2019/10/03/netty源码学习笔记——新连接接入/" title="Netty 源码学习笔记——新连接接入"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/2019/10/03/netty源码学习笔记——新连接接入/" title="Netty 源码浅析——新连接接入"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2019/09/16/netty源码学习笔记——服务器启动流程/" title="Netty 源码学习笔记——服务器启动流程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/09/16/netty源码学习笔记——服务器启动流程/" title="Netty 源码浅析——服务器启动流程"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     

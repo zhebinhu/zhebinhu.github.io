@@ -20,13 +20,13 @@
     
     <title>
         
-        Netty 源码学习笔记——pipeline |
+        Netty 源码浅析——pipeline |
         
         huzb的博客</title>
     <meta name="description" content="在创建 Netty-Channel 的时候，我们会创建若干个组件，其中最重要的就是 pipeline 了。pipeline 可以看作是 Netty 的大动脉，所有对 Channel 的读写都要流过 pipeline，而 pipeline 也是 Netty 事件驱动的关键所在。 pipeline 初始化pipeline 在创建 Channel 的时候被创建：12345678AbstractChann">
 <meta name="keywords" content="Netty">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Netty 源码学习笔记——pipeline">
+<meta property="og:title" content="Netty 源码浅析——pipeline">
 <meta property="og:url" content="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="在创建 Netty-Channel 的时候，我们会创建若干个组件，其中最重要的就是 pipeline 了。pipeline 可以看作是 Netty 的大动脉，所有对 Channel 的读写都要流过 pipeline，而 pipeline 也是 Netty 事件驱动的关键所在。 pipeline 初始化pipeline 在创建 Channel 的时候被创建：12345678AbstractChann">
@@ -37,9 +37,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/inbound.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/inbound.png">
 <meta property="og:image" content="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/异常传播.png">
-<meta property="og:updated_time" content="2019-10-07T12:52:21.130Z">
+<meta property="og:updated_time" content="2019-10-22T12:26:49.776Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Netty 源码学习笔记——pipeline">
+<meta name="twitter:title" content="Netty 源码浅析——pipeline">
 <meta name="twitter:description" content="在创建 Netty-Channel 的时候，我们会创建若干个组件，其中最重要的就是 pipeline 了。pipeline 可以看作是 Netty 的大动脉，所有对 Channel 的读写都要流过 pipeline，而 pipeline 也是 Netty 事件驱动的关键所在。 pipeline 初始化pipeline 在创建 Channel 的时候被创建：12345678AbstractChann">
 <meta name="twitter:image" content="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/上下文.png">
     <!-- Canonical links -->
@@ -225,10 +225,10 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/14/netty源码学习笔记——对象池/" class="title">Netty 源码学习笔记——对象池</a>
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
               </p>
               <p class="item-date">
-                <time datetime="2019-10-14T12:31:56.000Z" itemprop="datePublished">2019-10-14</time>
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
               </p>
             </div>
           </li>
@@ -240,7 +240,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码学习笔记——内存分配</a>
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
@@ -255,7 +255,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码学习笔记——pipeline</a>
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码浅析——pipeline</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
@@ -270,7 +270,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码学习笔记——新连接接入</a>
+                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码浅析——新连接接入</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
@@ -285,7 +285,7 @@
                 
               </p>
               <p class="item-title">
-                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码学习笔记——NioEventLoop</a>
+                <a href="/2019/09/27/netty源码学习笔记——NioEventLoop/" class="title">Netty 源码浅析——NioEventLoop</a>
               </p>
               <p class="item-date">
                 <time datetime="2019-09-27T13:17:49.000Z" itemprop="datePublished">2019-09-27</time>
@@ -322,7 +322,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Netty 源码学习笔记——pipeline
+      Netty 源码浅析——pipeline
     </h1>
   
 
@@ -568,7 +568,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/" title="Netty 源码学习笔记——pipeline" target="_blank" rel="external">http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/</a>
+      <a href="http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/" title="Netty 源码浅析——pipeline" target="_blank" rel="external">http://yoursite.com/2019/10/07/netty源码学习笔记——pipeline/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -615,12 +615,12 @@
   <ul class="pager pull-left">
     
     <li class="prev">
-      <a href="/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码学习笔记——内存分配"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+      <a href="/2019/10/13/netty源码学习笔记——内存分配/" title="Netty 源码浅析——内存分配"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
     </li>
     
     
     <li class="next">
-      <a href="/2019/10/03/netty源码学习笔记——新连接接入/" title="Netty 源码学习笔记——新连接接入"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2019/10/03/netty源码学习笔记——新连接接入/" title="Netty 源码浅析——新连接接入"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
