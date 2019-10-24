@@ -31,13 +31,14 @@
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="HTTP1.1 在应用层以纯文本的形式进行通信。每次通信都要带完整的 HTTP 的头，而且不考虑 pipeline 模式的话，每次都是一去一回。这样在实时性、并发性上都存在问题。http2.0 通过首部压缩、多路复用、二进制分帧、服务端推送等方式获得了更高的并发和更低的延迟。 首部压缩HTTP 2.0 将原来每次都要携带的大量请求头中的 key value 保存在服务器和客户端两端，对相同的头只">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/二进制帧.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义流量控制.png">
-<meta property="og:updated_time" content="2019-03-09T07:40:24.255Z">
+<meta property="og:updated_time" content="2019-10-24T05:22:12.792Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP2.0 和 QUIC">
 <meta name="twitter:description" content="HTTP1.1 在应用层以纯文本的形式进行通信。每次通信都要带完整的 HTTP 的头，而且不考虑 pipeline 模式的话，每次都是一去一回。这样在实时性、并发性上都存在问题。http2.0 通过首部压缩、多路复用、二进制分帧、服务端推送等方式获得了更高的并发和更低的延迟。 首部压缩HTTP 2.0 将原来每次都要携带的大量请求头中的 key value 保存在服务器和客户端两端，对相同的头只">
-<meta name="twitter:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png">
+<meta name="twitter:image" content="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/二进制帧.png">
     <!-- Canonical links -->
     <link rel="canonical" href="http://yoursite.com/2019/02/01/HTTP2-0和QUIC/index.html">
     
@@ -304,7 +305,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#首部压缩"><span class="toc-text">首部压缩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#多路复用"><span class="toc-text">多路复用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二进制分帧"><span class="toc-text">二进制分帧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务端推送"><span class="toc-text">服务端推送</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#QUIC"><span class="toc-text">QUIC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#机制一：自定义连接机制"><span class="toc-text">机制一：自定义连接机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制二：自定义重传机制"><span class="toc-text">机制二：自定义重传机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#无阻塞的多路复用"><span class="toc-text">无阻塞的多路复用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义流量控制"><span class="toc-text">自定义流量控制</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#首部压缩"><span class="toc-text">首部压缩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#多路复用"><span class="toc-text">多路复用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二进制分帧"><span class="toc-text">二进制分帧</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务端推送"><span class="toc-text">服务端推送</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#QUIC"><span class="toc-text">QUIC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#机制一：自定义连接机制"><span class="toc-text">机制一：自定义连接机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#机制二：自定义重传机制"><span class="toc-text">机制二：自定义重传机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#无阻塞的多路复用"><span class="toc-text">无阻塞的多路复用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义流量控制"><span class="toc-text">自定义流量控制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
     </nav>
   </div>
 </aside>
@@ -358,9 +359,16 @@
 <h2 id="首部压缩"><a href="#首部压缩" class="headerlink" title="首部压缩"></a>首部压缩</h2><p>HTTP 2.0 将原来每次都要携带的大量请求头中的 key value 保存在服务器和客户端两端，对相同的头只发送索引表中的索引。</p>
 <p>如果首部发生变化了，那么只需要发送变化了数据在 Headers 帧里面，新增或修改的首部帧会被追加到“首部表”。首部表在 HTTP 2.0 的连接存续期内始终存在,由客户端和服务器共同渐进地更新 。</p>
 <h2 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h2><p>原先的 http 会为每一个请求建立一个 tcp 连接。但由于<strong>客户端对单个域名的允许的最大连接数有限</strong>，以及<strong>三次握手</strong>和<strong>慢启动</strong>等问题，导致效率很低。pipeline 模式是一个比较好的解决办法，但同样会带来<strong>队头阻塞</strong>问题：同时发出的请求必须按顺序接收，如果第一个请求被阻塞了，则后面的请求即使处理完毕了，也需要等待。</p>
+<p><strong>为什么 pipeline 需要等待？</strong></p>
+<blockquote>
+<p>pipeline 要求服务端按照请求发送的顺序返回响应（FIFO），原因很简单，HTTP 请求和响应并没有序号标识，无法将乱序的响应与请求关联起来。</p>
+</blockquote>
 <p>http2.0 的多路复用完美解决了这个问题。一个 request 对应一个 stream 并分配一个 id，这样一个连接上可以有多个 stream，每个 stream 的 frame 可以随机的混杂在一起，接收方可以根据 stream id 将 frame 再归属到各自不同的 request 里面。</p>
 <p>http2.0 还可以为每个 stream 设置优先级（Priority）和依赖（Dependency）。优先级高的 stream 会被 server 优先处理和返回给客户端，stream 还可以依赖其它的 sub streams。优先级和依赖都是可以动态调整的。动态调整在有些场景下很有用，假想用户在用你的 app 浏览商品的时候，快速的滑动到了商品列表的底部，但前面的请求先发出，如果不把后面的请求优先级设高，用户当前浏览的图片要到最后才能下载完成，而如果设置了优先级，则可以先加载后面的商品，体验会好很多。</p>
-<h2 id="二进制分帧"><a href="#二进制分帧" class="headerlink" title="二进制分帧"></a>二进制分帧</h2><p>HTTP 1.x 在应用层以纯文本的形式进行通信，而 HTTP 2.0 将所有的传输信息分割为更小的消息和帧，并对它们采用二进制格式编码。二进制格式的好处在于解析更快，而且文本的表现形式有多样性，要做到健壮性考虑的场景必然很多，二进制则不同，只认 0 和 1 的组合，因此健壮性更好。</p>
+<h2 id="二进制分帧"><a href="#二进制分帧" class="headerlink" title="二进制分帧"></a>二进制分帧</h2><p>http2.0 采用二进制格式传输数据，而非 http1.x 的文本格式，二进制协议解析起来更高效。http1.x 的请求和响应报文，都是由起始行、首部和实体正文（可选）组成，各部分之间以文本换行符分隔。http2.0 将请求和响应数据分割为更小的帧，并且它们采用二进制编码，解析的速度更快。</p>
+<p>对于一个帧来说，有固定固定帧格式，其中帧首部规定了帧最多只能带 64KB 的数据，还包括了帧类型和流标识符等。另外，帧中还可以填充一些额外的数据，最多 255 字节，保证数据安全性。下面是一个帧结构：</p>
+<p><img src="/2019/02/01/HTTP2-0和QUIC/二进制帧.png"></p>
+<p>将消息拆成多个数据帧之后，会大大缓解 HTTP 队首阻塞的情况。但是与 tcp 层的队首阻塞并无直接关系。同时，改以帧为传输单位后，使得对报文无论是解析和差错检测方面都变得更加容易，因为对纯文本的解析还需要考虑到空格，空行，换行等问题。另外，也还消除了并行处理和发送请求及响应时对多个连接的依赖。</p>
 <h2 id="服务端推送"><a href="#服务端推送" class="headerlink" title="服务端推送"></a>服务端推送</h2><p>服务端可以在发送页面 HTML 时主动推送其它资源，而不用等到浏览器解析到相应位置，发起请求再响应。例如服务端可以主动把 JS 和 CSS 文件推送给客户端，而不需要客户端解析 HTML 时再发送这些请求。</p>
 <p>服务端可以主动推送，客户端也有权利选择是否接收。如果服务端推送的资源已经被浏览器缓存过，浏览器可以通过发送 RST_STREAM 帧来拒收。主动推送也遵守同源策略，服务器不会随便推送第三方资源给客户端。</p>
 <h2 id="QUIC"><a href="#QUIC" class="headerlink" title="QUIC"></a>QUIC</h2><p>HTTP2.0 虽然大大增加了并发性，但还是有问题的。因为 HTTP2.0 也是基于 TCP 协议的，TCP 协议在处理包时是有严格顺序的。</p>
@@ -371,13 +379,14 @@
 <h3 id="机制二：自定义重传机制"><a href="#机制二：自定义重传机制" class="headerlink" title="机制二：自定义重传机制"></a>机制二：自定义重传机制</h3><p>TCP 为了保证可靠性，通过使用序号和应答机制，来解决顺序问题和丢包问题。</p>
 <p>任何一个序号的包发过去，都要在一定的时间内得到应答，否则一旦超时，就会重发。超时时间是通过采样往返时间 RTT 不断调整的。这就会带来一个采样不准确的问题。例如：发送一个包，序号为 100，发现没有返回，于是再发送一个 100，过一阵返回一个 ACK101。这个时候客户端知道这个包肯定收到了，但往返时间是多少呢？是 ACK 达到的时间减去后一个 100 发送的时间，还是减去前一个 100 发送的时间呢？</p>
 <p>QUIC 也有个序列号，是递增的。任何一个序列号的包只发送一次，下次就要加一了。例如，发送一个包，序号是 100，发现没有返回；再次发送的时候，序号就是 101 了；如果返回的 ACK100，就是对第一个包的响应，如果返回 ACK101 就是对第二个包的响应，RTT 计算相对准确。</p>
-<p>但是这里有一个问题，就是这么知道包 100 和包 101 发送的是同样的内容呢？QUIC 定义了一个 stream offset 的概念。QUIC 既然面向连接，也就像 TCP 一样，是一个数据流，发送的数据在这个数据流里面有个偏移量 stream offset，可以通过 stream offset 查看数据发送到了哪里，这样只要这个 stream offset 的包没有来，就要重发；如果来了，按照 stream offset 拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png" width="70%" length="70%"></p>
+<p>但是这里有一个问题，就是怎么知道包 100 和包 101 发送的是同样的内容呢？QUIC 定义了一个 stream offset 的概念。QUIC 既然面向连接，也就像 TCP 一样，是一个数据流，发送的数据在这个数据流里面有个偏移量 stream offset，可以通过 stream offset 查看数据发送到了哪里，这样只要这个 stream offset 的包没有来，就要重发；如果来了，按照 stream offset 拼接，还是能够拼成一个流。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义消息重传.png" width="70%" length="70%"></p>
 <h3 id="无阻塞的多路复用"><a href="#无阻塞的多路复用" class="headerlink" title="无阻塞的多路复用"></a>无阻塞的多路复用</h3><p>有了自定义的连接和重传机制，我们可以解决上面 HTTP2.0 的多路复用问题。</p>
 <p>同 HTTP2.0 一样，同一条 QUIC 连接上可以创建多个 stream，来发送多个 HTTP 请求。但是，QUIC 是基于 UDP 的，一个连接上的多个 stream 之间没有依赖。这样，假如 stream2 丢了一个 UDP 包，后面跟着 stream3 的一个 UDP 包，虽然 stream2 的那个包需要重传，但是 stream3 的包无需等待，就可以发给用户。</p>
 <h3 id="自定义流量控制"><a href="#自定义流量控制" class="headerlink" title="自定义流量控制"></a>自定义流量控制</h3><p>TCP 的流量控制是通过滑动窗口协议。QUIC 的流量控制也是通过 window_update，来告诉对端它可以接受的字节数。但是 QUIC 的窗口是适应自己的多路复用机制的，不但在一个连接上控制窗口，还在一个连接中的每个 stream 控制窗口。</p>
 <p>在 TCP 协议中，接受端的窗口的起始点是下一个要接收并且 ACK 的包，即使后来的包都到了，放在缓存里，窗口也不能右移，因为 TCP 的 ACK 机制是基于系列号的累计应答，一旦 ACK 了一个系列号，就说明前面的都到了，所以只要前面的没到，后面的到了也不能 ACK，就会导致后面的到了，也有可能超时重传，浪费带宽。</p>
 <p>QUIC 的 ACK 是基于 offset 的，每个 offset 的包来了，进了缓存，就可以应答，应答后就不会重发，中间的空档会等待到来或者重发即可，而窗口的起始位置为当前收到的最大 offset，从这个 offset 到当前的 stream 所能容纳的最大缓存，是真正的窗口大小。显然，这样更加准确。<br><img src="/2019/02/01/HTTP2-0和QUIC/自定义流量控制.png"></p>
 <p>另外，还有整个连接的窗口，需要对于所有的 stream 的窗口做一个统计。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://cloud.tencent.com/developer/article/1509279" target="_blank" rel="noopener">白话http队头阻塞</a><br><a href="https://jiaolonghuang.github.io/2015/08/16/http2/" target="_blank" rel="noopener">HTTP2学习(四)—HTTP2的新特性</a></p>
 
       
     </div>
