@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/分桶策略.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/选举流程.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/事务流程.png">
-<meta property="og:updated_time" content="2019-10-17T11:02:13.265Z">
+<meta property="og:updated_time" content="2019-11-12T17:35:59.580Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Zookeeper 学习笔记">
 <meta name="twitter:description" content="一、简介是一个分布式协调服务的开源框架。主要用来解决分布式集群中应用系统的一致性问题。 本质上是一个分布式的小文件存储系统，提供基于类似文件系统的目录树方式的数据存储。并且可以对树中的节点进行有效管理，从而用来维护和监控你存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理。诸如：统一命名服务、分布式配置管理、分布式消息队列、分布式锁、分布式协调等功能。 二、主要应用及">
@@ -436,7 +436,7 @@
 <p>什么时候会出现已经提交的事务请求被丢失呢？</p>
 <p>当 Leader 收到超过半数 Follower 的 ACK 后，就向各个 Follower 广播 COMMIT 命令，同时也会在本地执行 COMMIT 并向连接的客户端返回成功。但是如果在部分 Follower 在收到 COMMIT 命令前 Leader 就挂了，导致剩下的服务器并没有执行到这条消息。</p>
 <p>那么如何解决这个问题呢？</p>
-<p>1、选举拥有 proposal 最大值（即 zxid 最大）的节点作为新的 Leader。由于所有事务提案被 COMMIT 之前必须有合法数量的 Follower ACK，即必须有合法数量的服务器的事务日志上记录了该事务提案，因此，zxid 最大也就是数据最新的节点保存了所有被 COMMIT 的事务提案。<br>2、新的 Leader 将本地事务日志中没有提交的 proposal 提交（这是为了确保已经在 Leader 上提交的事务不丢失，因为可能存在 Leader 刚提交了一个事务，但尚未发出任何 COMMIT 就挂掉的情况）。<br>2、新的 Leader 会为每一个 Follower 服务器都准备一个队列，并将那些没有被各 Follower 服务器同步的事务以 Proposal 消息的形式逐个发送给各个 Follower，并在每一个 proposal 消息后面紧跟一个 COMMIT，以表示该事务被提交。</p>
+<p>1、选举拥有 Proposal 的 zxid 超过半数的节点作为新的 Leader。由于所有事务提案被 COMMIT 之前必须有超过半数的 Follower ACK，即必须有超过半数的服务器的事务日志上记录了该事务提案，因此，Proposal 的 zxid 超过半数的节点保存了所有被 COMMIT 的事务提案（此时这个提案在节点中不一定以 COMMIT 的形式记录，也可能是以 Proposal 的形式记录）。<br>2、新的 Leader 将本地事务日志中没有提交的 proposal 提交（这是为了确保已经在 Leader 上提交的事务不丢失，因为可能存在 Leader 刚提交了一个事务，但尚未发出任何 COMMIT 就挂掉的情况）。<br>2、新的 Leader 会为每一个 Follower 服务器都准备一个队列，并将那些没有被各 Follower 服务器同步的事务以 Proposal 消息的形式逐个发送给各个 Follower，并在每一个 Proposal 消息后面紧跟一个 COMMIT，以表示该事务被提交。</p>
 <p>什么时候会出现只在 Leader 服务器上被提出的事务又出现呢？</p>
 <p>当挂掉的 Leader 服务器作为 Follower 重新连接时，此时该服务器中可能存在一些只在自己本地被提出的事务，这些事务的 zxid 可能和新 Leader 生成的事务 ID 相同，很显然它们的内容不同。当新 Leader 提交新的事务时，由于 zxid 相同，会出现旧的 Leader 服务器中把之前只在自己本地出现过的事务提交的情况。导致了数据的不一致。</p>
 <p>解决方案：</p>

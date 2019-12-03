@@ -31,7 +31,7 @@
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="JDK1.6 以后 JVM 对 synchronize 锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了 CAS 操作，其实 Java 中 java.util.concurrent 包的实现也是差不多建立在 CAS 之上，可见 CAS 在 Java 同步领域的重要性。 CAS 是 Compare and Swap 的简写形式，可翻译为：比较并交换。用于在硬件层面上提供">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-24T05:31:24.896Z">
+<meta property="og:updated_time" content="2019-11-27T05:00:55.469Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS 原理和缺陷">
 <meta name="twitter:description" content="JDK1.6 以后 JVM 对 synchronize 锁机制作了不少优化，加入了偏向锁和自旋锁，在锁的底层实现中或多或少的都借助了 CAS 操作，其实 Java 中 java.util.concurrent 包的实现也是差不多建立在 CAS 之上，可见 CAS 在 Java 同步领域的重要性。 CAS 是 Compare and Swap 的简写形式，可翻译为：比较并交换。用于在硬件层面上提供">
@@ -361,7 +361,7 @@
 <ul>
 <li>Lock 前缀指令可以通过对总线或者处理器内部缓存加锁，使得其他处理器无法读写该指令要访问的内存区域，因此能保存指令执行的原子性。</li>
 <li>Lock 前缀指令将禁止该指令与之前和之后的读和写指令重排序。</li>
-<li>Lock 前缀指令将会把写缓冲区中的所有数据立即刷新到主内存中。</li>
+<li>Lock 前缀指令将会把写缓冲区中的所有数据立即刷新到主内存中（多核处理器中，每个 cpu 会通过嗅探总线上传播的数据来检查自己的缓存是否过期，当一个 cpu 刷新自己的数据到内存时，其它 cpu 会自动过期自己的缓存）。</li>
 </ul>
 <p>上面的第 1 点保证了 CAS 操作是一个原子操作，第 2 点和第 3 点所具有的内存屏障效果，保证了 CAS 同时具有 volatile 读和 volatile 写的内存语义（不过一般还是认为 CAS 只具有原子性而不具有可见性，因为底层的处理器平台可能不同）。</p>
 <p><strong>关于总线锁定和缓存锁定</strong></p>
