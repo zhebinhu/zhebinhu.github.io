@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis复制、哨兵和集群/哨兵%202.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis复制、哨兵和集群/集群-握手.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/23/Redis复制、哨兵和集群/集群-主从.png">
-<meta property="og:updated_time" content="2020-01-12T08:20:43.650Z">
+<meta property="og:updated_time" content="2020-01-12T08:37:44.955Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis 复制、哨兵和集群">
 <meta name="twitter:description" content="Redis 可以单机部署，但会带来单点问题和性能瓶颈。为此 Redis 提供了主从复制、哨兵和集群的方式来解决这些问题。 一、主从复制主从复制可以将两台或者多台服务器之间的数据同步，这样在主服务器下线后，从服务器可以继续对外提供服务，保证了系统的高可用；另外主从复制也可以进行读写分离，主服务器只提供写操作或少量的读，把多余读请求通过负载均衡算法分流到单个或多个从服务器上。 Redis 的复制功能">
@@ -411,7 +411,7 @@
 <p>Redis 集群中每个节点都有一个专门用于节点间通信的端口，就是自己提供服务的端口号+10000，比如 7001，那么用于节点间通信的就是 17001 端口。同时每个节点内部会维护一份集群节点名单，来保存集群中其它节点的信息（套接字、创建时间、节点状态、ip、端口号、主从标记、槽信息等）。节点之间会通过 TCP 发送消息，消息的内容包括故障信息，节点的增加和移除，哈希槽等。</p>
 <p>Gossip 协议包含多种消息，包括 MEET，PING，PONG 和 FAIL 等等。他们的发送时机和传达内容如下：</p>
 <ul>
-<li>MEET：MEET 消息相当于一个握手消息。我们可以通过向节点 A 发送 <code>CLUSTER MEET &lt;ip&gt; &lt;port&gt;</code> 命令让其将另一个节点 B 添加到集群中。节点 A 在收到命令后会向节点 B 发送一个 MEET 消息，之后会触发握手，握手之后节点 A 和节点 B 会更新自己内部的集群节点名单，然后节点 A 会将节点 B 的信息通过 Gossip 协议传播给集群中的其它节点，让其它节点也与节点 B 进行握手，最终，经过一段时间之后，节点 B 会被集群中的所有节点认识。</li>
+<li>MEET：MEET 消息相当于一个握手消息。我们可以通过向节点 A 发送 <code>CLUSTER MEET &lt;ip&gt; &lt;port&gt;</code> 命令让其将另一个节点 B 添加到集群中。节点 A 在收到命令后会向节点 B 发送一个 MEET 消息，之后会触发握手，握手之后节点 A 和节点 B 会将对方添加进自己内部的集群节点名单，然后节点 A 会将节点 B 的信息通过 Gossip 协议传播给集群中的其它节点，让其它节点也与节点 B 进行握手，最终，经过一段时间之后，节点 B 会被集群中的所有节点认识。</li>
 <li>PING：PING 消息相当于心跳消息。每个节点都会频繁给其他节点发送 PING 消息，其中包含自己的状态还有自己维护的集群元数据。每个节点每秒会执行 10 次 PING，每次会选择 5 个最久没有通信的其他节点。节点在 PING 时会带上自己和 1/10 个（最少 3 个，最多总节点-2 个）其它节点的信息。</li>
 <li>PONG：PONG 消息相当于一个响应消息，一般用于收到 PING 或 MEET 之后进行回复。PONG 消息内部也会包含节点自身的信息。</li>
 <li>FAIL：节点在发出 PING 超过一段时间后没有收到对方的 PONG，就会判断对方下线，此时会发送 FAIL 消息给其它主节点，告诉它们指定的节点下线了。当某个主节点发现集群中有超过半数主节点认为某个主节点疑似下线，它就会把这个主节点标记为下线，并广播 FAIL 给集群中全部其它的节点（主节点+从节点）。</li>
