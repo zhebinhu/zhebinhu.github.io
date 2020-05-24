@@ -20,13 +20,13 @@
     
     <title>
         
-        第五届阿里中间件性能挑战赛复赛总结 |
+        第五届阿里中间件性能挑战赛总结 |
         
         huzb的博客</title>
     <meta name="description" content="历时一个月的阿里中间件性能挑战赛终于告一段落，起初只是想在实习的碎片时间找点事做，不知不觉竟走完了整个比赛。比赛的过程不可谓不波折，中途几次想要退赛都被队友劝了回来，排行榜上的名次也是起起落落最终定格在第六名。当然名次是次要的，比赛过程中和大佬们切磋交流，拓宽眼界，才是无价的收获。 这篇文章记录了这次比赛中我的方案和有效的优化点，欢迎大家拍砖交流。代码地址：第五届阿里中间件性能挑战赛复赛第6名代码">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
-<meta property="og:title" content="第五届阿里中间件性能挑战赛复赛总结">
+<meta property="og:title" content="第五届阿里中间件性能挑战赛总结">
 <meta property="og:url" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/index.html">
 <meta property="og:site_name" content="huzb的博客">
 <meta property="og:description" content="历时一个月的阿里中间件性能挑战赛终于告一段落，起初只是想在实习的碎片时间找点事做，不知不觉竟走完了整个比赛。比赛的过程不可谓不波折，中途几次想要退赛都被队友劝了回来，排行榜上的名次也是起起落落最终定格在第六名。当然名次是次要的，比赛过程中和大佬们切磋交流，拓宽眼界，才是无价的收获。 这篇文章记录了这次比赛中我的方案和有效的优化点，欢迎大家拍砖交流。代码地址：第五届阿里中间件性能挑战赛复赛第6名代码">
@@ -36,9 +36,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/t压缩.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/a压缩.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/定位t.png">
-<meta property="og:updated_time" content="2019-10-14T03:28:09.648Z">
+<meta property="og:updated_time" content="2020-05-24T15:21:45.609Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="第五届阿里中间件性能挑战赛复赛总结">
+<meta name="twitter:title" content="第五届阿里中间件性能挑战赛总结">
 <meta name="twitter:description" content="历时一个月的阿里中间件性能挑战赛终于告一段落，起初只是想在实习的碎片时间找点事做，不知不觉竟走完了整个比赛。比赛的过程不可谓不波折，中途几次想要退赛都被队友劝了回来，排行榜上的名次也是起起落落最终定格在第六名。当然名次是次要的，比赛过程中和大佬们切磋交流，拓宽眼界，才是无价的收获。 这篇文章记录了这次比赛中我的方案和有效的优化点，欢迎大家拍砖交流。代码地址：第五届阿里中间件性能挑战赛复赛第6名代码">
 <meta name="twitter:image" content="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/初赛赛题.png">
     <!-- Canonical links -->
@@ -307,7 +307,7 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题介绍"><span class="toc-text">赛题介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题背景"><span class="toc-text">赛题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#要求"><span class="toc-text">要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试环境"><span class="toc-text">测试环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#评测指标和规模"><span class="toc-text">评测指标和规模</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题分析"><span class="toc-text">赛题分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复赛思路"><span class="toc-text">复赛思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件读写"><span class="toc-text">文件读写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据压缩"><span class="toc-text">数据压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引设计"><span class="toc-text">索引设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据分区"><span class="toc-text">数据分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#比赛感悟"><span class="toc-text">比赛感悟</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、初赛部分"><span class="toc-text">一、初赛部分</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题介绍"><span class="toc-text">赛题介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初赛思路"><span class="toc-text">初赛思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#初赛方案"><span class="toc-text">初赛方案</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、复赛部分"><span class="toc-text">二、复赛部分</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题介绍-1"><span class="toc-text">赛题介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题背景"><span class="toc-text">赛题背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#要求"><span class="toc-text">要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试环境"><span class="toc-text">测试环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#评测指标和规模"><span class="toc-text">评测指标和规模</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#赛题分析"><span class="toc-text">赛题分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#复赛思路"><span class="toc-text">复赛思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件读写"><span class="toc-text">文件读写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据压缩"><span class="toc-text">数据压缩</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引设计"><span class="toc-text">索引设计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据分区"><span class="toc-text">数据分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#比赛感悟"><span class="toc-text">比赛感悟</span></a></li></ol></li></ol>
     </nav>
   </div>
 </aside>
@@ -321,7 +321,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      第五届阿里中间件性能挑战赛复赛总结
+      第五届阿里中间件性能挑战赛总结
     </h1>
   
 
@@ -358,9 +358,26 @@
       
         <p>历时一个月的阿里中间件性能挑战赛终于告一段落，起初只是想在实习的碎片时间找点事做，不知不觉竟走完了整个比赛。比赛的过程不可谓不波折，中途几次想要退赛都被队友劝了回来，排行榜上的名次也是起起落落最终定格在第六名。当然名次是次要的，比赛过程中和大佬们切磋交流，拓宽眼界，才是无价的收获。</p>
 <p>这篇文章记录了这次比赛中我的方案和有效的优化点，欢迎大家拍砖交流。代码地址：<a href="https://github.com/zhebinhu/mqrace2019" target="_blank" rel="noopener">第五届阿里中间件性能挑战赛复赛第6名代码留存</a></p>
-<div style="display: none"><br><br>## 一、初赛部分<br><br>### 赛题介绍<br><br>首先来看初赛的赛题：<a href="https://code.aliyun.com/middlewarerace2019/adaptive-loadbalance?spm=5176.12281978.0.0.562d1556TCjPhT" target="_blank" rel="noopener">阿里巴巴2019中间件性能挑战赛-自适应负载均衡（初赛）赛题</a><br><br>&gt; 实现一套自适应负载均衡机制，要求能够自动根据服务处理能力变化动态最优化分配请求保证较低响应时间，较高吞吐量。<br><br>评测环境的架构如下图所示：<br><br><img src="/2019/09/05/第五届阿里中间件性能挑战赛总结/初赛赛题.png"><br><br>- 所有程序均在不同的 docker 容器中运行,每个容器都独占运行在不同的物理机上；<br>- Gateway 负责将请求转发至 Provider；<br>- Provider 处理请求返回响应；<br>- Provider 按照 CPU 核数和内存大小分为 Small、Medium、Large 三个规格；<br>- 选手需要设计实现 Gateway 选择 Provider 的 load balance 算法。<br><br>其中，每个 Provider 的服务能力（处理请求的速率）都会动态变化：1）三个 Provider 的总处理能力会分别在小于/约等于/大于请求量三个状态变动；2）三个 Provider 任意一个的处理能力都小于总请求量。<br><br>### 初赛思路<br><br>初赛官方给了一个示例程序，里面是一个 1:1:1 的随机路由：<br><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserLoadBalance</span> <span class="keyword">implements</span> <span class="title">LoadBalance</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">select</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br><br>实际上这个方案的 QPS 蛮高的了，在线上能够跑到 113w。但很明显 1:1:1 不是一个合理的比例，因为每台 Provider 的配置和参数都不一样。我们按照题目中给的三个 provider 的最大线程数分别为 200、450、650 的比例调整了初始权重，然后又根据每台 Provider 的实时连接数动态调整权重，最终形成了初赛的方案。<br><br>### 初赛方案<br><br>时间仓促，初赛的方案只做了一版，是令牌桶+权重法的形式：在 Gateway 中为每个 Provider 维护一个令牌桶，桶中的初始令牌数分别是 200、450、650，代表了三个 Provider 的最大线程数，当一个请求打到某个 Provider 上时会带走对应桶中的一块令牌，返回时归还令牌。Gateway 会按照每个桶内的剩余令牌数的比例分配下一个请求，如果所有桶中都没有令牌，就拒绝当前请求。<br><br>这个方案可以跑到 127w，基本上跑完就到了初赛截止的日期，所以我们没有对这个方案做更多的优化。现在想来，200:450:650 的比例也不一定是最合理的，因为实际评测环境中，服务器的可用线程数是定期变化的，如果能有反馈机制实时反映服务器当前的最大处理能力，效果可能会更好一些。<br><br>## 二、复赛部分<br></div>
-
-<h3 id="赛题介绍"><a href="#赛题介绍" class="headerlink" title="赛题介绍"></a>赛题介绍</h3><p>复赛的赛题：<a href="https://code.aliyun.com/middlewarerace2019/mqrace2019?spm=5176.12281978.0.0.562d1556S6zzxp" target="_blank" rel="noopener">实现一个进程内基于队列的消息持久化存储引擎</a></p>
+<h2 id="一、初赛部分"><a href="#一、初赛部分" class="headerlink" title="一、初赛部分"></a>一、初赛部分</h2><h3 id="赛题介绍"><a href="#赛题介绍" class="headerlink" title="赛题介绍"></a>赛题介绍</h3><p>首先来看初赛的赛题：<a href="https://code.aliyun.com/middlewarerace2019/adaptive-loadbalance?spm=5176.12281978.0.0.562d1556TCjPhT" target="_blank" rel="noopener">阿里巴巴2019中间件性能挑战赛-自适应负载均衡（初赛）赛题</a></p>
+<blockquote>
+<p>实现一套自适应负载均衡机制，要求能够自动根据服务处理能力变化动态最优化分配请求保证较低响应时间，较高吞吐量。</p>
+</blockquote>
+<p>评测环境的架构如下图所示：</p>
+<p><img src="/2019/09/05/第五届阿里中间件性能挑战赛总结/初赛赛题.png"></p>
+<ul>
+<li>所有程序均在不同的 docker 容器中运行,每个容器都独占运行在不同的物理机上；</li>
+<li>Gateway 负责将请求转发至 Provider；</li>
+<li>Provider 处理请求返回响应；</li>
+<li>Provider 按照 CPU 核数和内存大小分为 Small、Medium、Large 三个规格；</li>
+<li>选手需要设计实现 Gateway 选择 Provider 的 load balance 算法。</li>
+</ul>
+<p>其中，每个 Provider 的服务能力（处理请求的速率）都会动态变化：1）三个 Provider 的总处理能力会分别在小于/约等于/大于请求量三个状态变动；2）三个 Provider 任意一个的处理能力都小于总请求量。</p>
+<h3 id="初赛思路"><a href="#初赛思路" class="headerlink" title="初赛思路"></a>初赛思路</h3><p>初赛官方给了一个示例程序，里面是一个 1:1:1 的随机路由：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserLoadBalance</span> <span class="keyword">implements</span> <span class="title">LoadBalance</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">select</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> invokers.get(ThreadLocalRandom.current().nextInt(invokers.size()));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上这个方案的 QPS 蛮高的了，在线上能够跑到 113w。但很明显 1:1:1 不是一个合理的比例，因为每台 Provider 的配置和参数都不一样。我们按照题目中给的三个 provider 的最大线程数分别为 200、450、650 的比例调整了初始权重，然后又根据每台 Provider 的实时连接数动态调整权重，最终形成了初赛的方案。</p>
+<h3 id="初赛方案"><a href="#初赛方案" class="headerlink" title="初赛方案"></a>初赛方案</h3><p>时间仓促，初赛的方案只做了一版，是令牌桶+权重法的形式：在 Gateway 中为每个 Provider 维护一个令牌桶，桶中的初始令牌数分别是 200、450、650，代表了三个 Provider 的最大线程数，当一个请求打到某个 Provider 上时会带走对应桶中的一块令牌，返回时归还令牌。Gateway 会按照每个桶内的剩余令牌数的比例分配下一个请求，如果所有桶中都没有令牌，就拒绝当前请求。</p>
+<p>这个方案可以跑到 127w，基本上跑完就到了初赛截止的日期，所以我们没有对这个方案做更多的优化。现在想来，200:450:650 的比例也不一定是最合理的，因为实际评测环境中，服务器的可用线程数是定期变化的，如果能有反馈机制实时反映服务器当前的最大处理能力，效果可能会更好一些。</p>
+<h2 id="二、复赛部分"><a href="#二、复赛部分" class="headerlink" title="二、复赛部分"></a>二、复赛部分</h2><h3 id="赛题介绍-1"><a href="#赛题介绍-1" class="headerlink" title="赛题介绍"></a>赛题介绍</h3><p>复赛的赛题：<a href="https://code.aliyun.com/middlewarerace2019/mqrace2019?spm=5176.12281978.0.0.562d1556S6zzxp" target="_blank" rel="noopener">实现一个进程内基于队列的消息持久化存储引擎</a></p>
 <h3 id="赛题背景"><a href="#赛题背景" class="headerlink" title="赛题背景"></a>赛题背景</h3><p>Apache RocketMQ 作为的一款分布式的消息中间件，历年双十一承载了万亿级的消息流转，为业务方提供高性能低延迟的稳定可靠的消息服务。随着业务的逐步发展和云上的输出，各种依赖消息作为输入输出的流计算场景层出不穷，这些都给 RocketMQ 带来了新的挑战。请实现一个进程内消息持久化存储引擎，可支持简单的聚合计算，如指定时间窗口的内对于消息属性某些字段的求和、求平均等。</p>
 <h3 id="要求"><a href="#要求" class="headerlink" title="要求"></a>要求</h3><p>实现一个进程内消息持久化存储引擎，要求包含以下功能：</p>
 <ul>
@@ -438,7 +455,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/" title="第五届阿里中间件性能挑战赛复赛总结" target="_blank" rel="external">http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/</a>
+      <a href="http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/" title="第五届阿里中间件性能挑战赛总结" target="_blank" rel="external">http://yoursite.com/2019/09/05/第五届阿里中间件性能挑战赛总结/</a>
     </li>
     
     <li class="post-copyright-license">
