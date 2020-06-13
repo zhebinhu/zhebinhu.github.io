@@ -1,5 +1,5 @@
 ﻿---
-title: Netty 源码学习笔记——NioEventLoop
+title: Netty 源码浅析——NioEventLoop
 tags: 
 	- Netty
 toc: true
@@ -837,7 +837,7 @@ final class SelectedSelectionKeySet extends AbstractSet<SelectionKey> {
 ```java
 NioEventLoop
 private void processSelectedKeysOptimized() {
-    for (int i = 0;; i ++) {
+    for (int i = 0;i < selectedKeys.size; i ++) {
         // 1. 取出 IO 事件以及对应的 Channel（5-7）
         final SelectionKey k = selectedKeys.keys[i];
         selectedKeys[i] = null;

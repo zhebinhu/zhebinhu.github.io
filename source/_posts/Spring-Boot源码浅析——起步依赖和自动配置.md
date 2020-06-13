@@ -3,7 +3,6 @@ title: Spring Boot 源码浅析——起步依赖和自动配置
 date: 2019-07-04 15:28:45
 tags: 
 	- Spring
-	- Java
 toc: true
 ---
 从根本上来讲 Spring Boot 就是一些库的集合，是一个基于“约定优于配置”的原则，快速搭建应用的框架。本质上依然是 Spring，在这之上帮我们省去了很多样板化的配置，使得我们能够更专注于应用程序功能的开发。
@@ -169,7 +168,7 @@ Spring Boot 默认扫描启动类所在的包下的主类与子类的所有组�
 特别关注红框框起来的两个接口：ImportSelector 和 DeferredImportSelector。Spring 允许用户在配置类中使用 @Import 自行导入所需的类，而 @Import 有四种用法：
 - 1、导入一个普通类。
 - 2、导入一个标记了 @Configuration 的类，将该类以实例工厂的方式导入标记 @Bean 的方法的返回值。
-- 3、导入一个 ImportBeanDefinitionRegistrar 的子类，该类可以获取到当前配置类（@Import 所在的类一定是配置类）的元数据信息，比如类全名和所在的包名，然后进行一些自定义的 bean 注册（上文的 @AutoConfigurationPackage 和我们熟知的 @ComponentScan 都是通过这种方式实现的）。
+- 3、导入一个 ImportBeanDefinitionRegistrar 的子类，该类可以获取到当前配置类（@Import 所在的类一定是配置类）的元数据信息，比如类全名和所在的包名，然后进行一些自定义的 bean 注册（上文的 @AutoConfigurationPackage 就是通过这种方式实现的）。
 - 4、**导入一个 ImportSelector 的子类**，该类的 selectImports 方法返回一个类全名的数组，根据返回的类全名会注册相应的 bean。
 
 **自动配置导入依赖包的中的类所用的方法就是 ImportSelector 这种方法。**

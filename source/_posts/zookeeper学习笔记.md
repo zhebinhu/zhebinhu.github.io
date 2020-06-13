@@ -90,9 +90,9 @@ ZAB 协议需要保证每一个消息严格的因果关系，因此 Leader 服�
 
 那么如何解决这个问题呢？
 
-1、选举拥有 proposal 最大值（即 zxid 最大）的节点作为新的 Leader。由于所有事务提案被 COMMIT 之前必须有合法数量的 Follower ACK，即必须有合法数量的服务器的事务日志上记录了该事务提案，因此，zxid 最大也就是数据最新的节点保存了所有被 COMMIT 的事务提案。
+1、选举拥有 Proposal 的 zxid 超过半数的节点作为新的 Leader。由于所有事务提案被 COMMIT 之前必须有超过半数的 Follower ACK，即必须有超过半数的服务器的事务日志上记录了该事务提案，因此，Proposal 的 zxid 超过半数的节点保存了所有被 COMMIT 的事务提案（此时这个提案在节点中不一定以 COMMIT 的形式记录，也可能是以 Proposal 的形式记录）。
 2、新的 Leader 将本地事务日志中没有提交的 proposal 提交（这是为了确保已经在 Leader 上提交的事务不丢失，因为可能存在 Leader 刚提交了一个事务，但尚未发出任何 COMMIT 就挂掉的情况）。
-2、新的 Leader 会为每一个 Follower 服务器都准备一个队列，并将那些没有被各 Follower 服务器同步的事务以 Proposal 消息的形式逐个发送给各个 Follower，并在每一个 proposal 消息后面紧跟一个 COMMIT，以表示该事务被提交。
+3、新的 Leader 会为每一个 Follower 服务器都准备一个队列，并将那些没有被各 Follower 服务器同步的事务以 Proposal 消息的形式逐个发送给各个 Follower，并在每一个 Proposal 消息后面紧跟一个 COMMIT，以表示该事务被提交。
 
 什么时候会出现只在 Leader 服务器上被提出的事务又出现呢？
 
@@ -207,7 +207,7 @@ ZAB 协议需要保证每一个消息严格的因果关系，因此 Leader 服�
 4）请求放入 toBeAppley 队列：提议获得超过半数 ACK 后，会被放入 toBeAppley 队列，该队列会按顺序提交其中的事务。
 5） 广播 Commit 消息：向所有的 Follower 和 Observer 广播提交消息。
 
-### 8.3 .Commit 流程
+### 8.3 Commit 流程
 
 1）请求交给 CommitProcessor，存储到 queuedRequests 中
 2）处理线程从 queuedRequests 中取出，并将 nextPending 标记为当前的 Request
@@ -215,7 +215,7 @@ ZAB 协议需要保证每一个消息严格的因果关系，因此 Leader 服�
 4）投票通过，将 reques t添加到 committedRequests 中
 5）提交请求，committedRequests 中取出开始处理，为确保有序性，会与 nextPending 进行比较
 
-### 8.4 事物应用
+### 8.4 事务应用
 
 1）变更添加到内存中
 2）加入commitProposal队列，便于后续集群间数据同步。

@@ -1,7 +1,6 @@
 ﻿---
 title: Spring 源码浅析——事件和异步事件
 tags: 
-	- Java
 	- Spring
 toc: true
 date: 2019-03-13 21:47:24
@@ -143,7 +142,7 @@ private class ListenerRetriever {
     //..
 }
 ```
-这些注册在 applicationListenerBeans 的监听器的名字会在广播器获取监听器的时候通过 getBean 的方式加入到 applicationListeners。
+这些注册在 applicationListenerBeans 的 beanNames 会在之后的第一次发布事件的时候（最迟发生在容器创建完成时，会传播一个 ContextRefreshedEvent 事件）通过 getBean 的方式加入到 applicationListeners。
 
 ### 2.3 发布事件
 ```java

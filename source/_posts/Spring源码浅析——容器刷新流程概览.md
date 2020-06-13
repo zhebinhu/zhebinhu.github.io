@@ -1,8 +1,7 @@
 ﻿---
 title: Spring 源码浅析——容器刷新流程概览
 tags: 
-- Spring
-- Java
+	- Spring
 toc: true
 date: 2019-03-03 17:08:49
 ---
@@ -37,8 +36,7 @@ public void refresh() throws BeansException, IllegalStateException {
     synchronized (this.startupShutdownMonitor) {
         // 准备工作，记录下容器的启动时间、标记“已启动”状态、检验配置文件格式
         prepareRefresh();
-        // ClassPathXmlApplicationContext 会在这里解析 xml 配置；AnnotationConfigApplicationContext 的解析发在初始化，这里只是简单的获取
-        // 这里的解析是指把配置信息都提取出来了，保存在了一个 Map<String,BeanDefinition> 中
+        // 获取 Spring 容器
         ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
         // 设置 BeanFactory 的类加载器，添加几个 BeanPostProcessor，手动注册几个特殊的 bean 等
         prepareBeanFactory(beanFactory);
@@ -47,6 +45,7 @@ public void refresh() throws BeansException, IllegalStateException {
             postProcessBeanFactory(beanFactory);
             //=======以上是 BeanFactory 的预准备工作=======
             // 调用 BeanFactoryPostProcessor 各个实现类的 postProcessBeanFactory(factory) 方法
+            // SpringBoot 会在这里扫描 @Component 注解和进行自动配置
             invokeBeanFactoryPostProcessors(beanFactory);
             // 注册和创建 BeanPostProcessor 的实现类（注意和之前的 BeanFactoryPostProcessor 的区别）
             registerBeanPostProcessors(beanFactory);
@@ -188,7 +187,11 @@ BeanFactory 获取之后并不能马上使用，还要在 BeanFactory 中做一�
 
 ## 5、调用 BeanFactory 后置处理器
 
-调用 BeanFactoryPostProcessor 的 postProcessBeanFactory(beanFactory) 方法，它允许在 beanFactory 准备完成之后对 beanFactory 进行一些修改，比如在 bean 初始化之前对 beanFactory 中的 beanDefinition 进行修改。篇幅有限就不展开了。
+调用 BeanDefinitionRegistryPostProcessor 的 `postProcessBeanDefinitionRegistry(registry)` 方法和 BeanFactoryPostProcessor 的 `postProcessBeanFactory(beanFactory)` 方法，它允许在 beanFactory 准备完成之后对 beanFactory 进行一些修改，比如在 bean 初始化之前对 beanFactory 中的 beanDefinition 进行修改。@ComponentScan 和 @EnableAutoConfiguration 这两个注解都是在这里实现的。
+
+这里有个非常重要的后置处理器：ConfigurationClassPostProcessor，它的作用是在这里解析 @Configuration 标签。@PropertySource、@ComponentScan、@Import、@ImportResource、@Bean 这些注解都和 @Configuration 相关，都会在这里被解析。我们常用的 @Component 注解和 SpringBoot 的自动配置，都是在这里被实现。ConfigurationClassPostProcessor 会以我们在 Spring 启动时传入的启动类作为解析 @Configuration 的根节点（SpringApplication.run(**SpringTest.class**,args);），递归地扫描其它 @Configuration 节点，最终把所有用户自定义的 bean 以 Map&lt;beanName,beanDefinition&gt; 的形式保存在容器中。
+
+相关博客：[Spring源码解析 – @Configuration配置类及注解Bean的解析](https://www.cnblogs.com/ashleyboy/p/9667485.html)
 
 ## 6、注册各类 Bean 后置处理器
 

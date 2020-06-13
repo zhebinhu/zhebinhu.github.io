@@ -41,7 +41,7 @@ page(2,4), offset 64, value 2    # 二级索引
 
 <img src="./redo-undo和binlog/binlog和redo.png"/>
 
-T1、T2、T3 表示事务的记录。*T1、*T2、*T3表示事务提交时的日志。T1 的提交发生在 T2之后，但 T2 提交时会把已经记录的 T1 相关的部分刷到磁盘。那么 redo log 何时刷入磁盘呢？具体有三个时机：
+T1、T2、T3 表示事务的记录。\*T1、\*T2、\*T3 表示事务提交时的日志。T1 的提交发生在 T2 之后，但 T2 提交时会把已经记录的 T1 相关的部分刷到磁盘。那么 redo log 何时刷入磁盘呢？具体有三个时机：
 - 有事务提交时
 - 当 log buffer 中有一半的内存空间已经被使用时
 - checkpoint 时（checkpoint 会将内存中的部分脏页刷入磁盘，要确保脏页在刷入磁盘之前对应的 redo log 已经刷盘完成）
@@ -84,7 +84,7 @@ T0、T1、T2 表示创建 undo log 的事务。undo log 中保存的是每一行
 ## 5、崩溃恢复过程
 
 1、启动开始时检测是否发生崩溃
-2、定位到最近的一个 checkpoint
+2、定位到最近的一个 checkpoint，该 checkpoint 之前的脏页已全部刷入磁盘
 3、定位在这个 checkpoint 时 flush 到磁盘的数据页，检查 checksum。如果不正确，说明这个页在上次写入是不完整的，从 doublewrite buffer 里把正确的页读出来，更新到 buffer 中的页
 4、分析 redo log，标识出未提交事务（事务提交之后会清除 undo log，undo log 中记录了事务的ID。通过检查是否存在对应的 undo log 可以知道事务的提交状态）
 5、顺序执行 redo，跳过页 LSN 大于当前 LSN 的页（通过 redo log 也可以恢复 undo log）
@@ -107,21 +107,22 @@ Binlog 在 2PC 中充当了事务的协调者（Transaction Coordinator）。由
 
 1、准备阶段（Storage Engine（InnoDB） Transaction Prepare Phase）
 
-此时SQL已经成功执行，并生成xid信息及redo和undo的内存日志。然后调用prepare方法完成第一阶段，papare方法实际上什么也没做，将事务状态设为TRX_PREPARED，并将redo log刷磁盘。
+此时 SQL 已经成功执行，并生成 xid 信息及 redo 和 undo 的内存日志。然后调用 prepare 方法完成第一阶段，papare 方法实际上什么也没做，将事务状态设为 TRX_PREPARED，并将 redo log 刷磁盘。
 
-2、提交阶段(Storage Engine（InnoDB）Commit Phase)
+2、提交阶段（Storage Engine（InnoDB）Commit Phase）
 
-2.1 记录协调者日志，即Binlog日志。
+2.1 记录协调者日志，即 Binlog 日志。
 
-如果事务涉及的所有存储引擎的prepare都执行成功，则调用TC_LOG_BINLOG::log_xid方法将SQL语句写到binlog（write()将binary log内存日志数据写入文件系统缓存，fsync()将binary log文件系统缓存日志数据永久写入磁盘）。此时，事务已经铁定要提交了。否则，调用ha_rollback_trans方法回滚事务，而SQL语句实际上也不会写到binlog。
+如果事务涉及的所有存储引擎的 prepare 都执行成功，则调用 TC_LOG_BINLOG::log_xid 方法将 SQL 语句写到 binlog（write() 将 binary log 内存日志数据写入文件系统缓存，fsync() 将 binary log 文件系统缓存日志数据永久写入磁盘）。此时，事务已经铁定要提交了。否则，调用 ha_rollback_trans 方法回滚事务，而 SQL 语句实际上也不会写到 binlog。
 
-2.2 告诉引擎做commit。
+2.2 告诉引擎做 commit。
 
-3、最后，调用引擎的commit完成事务的提交。会清除undo信息，刷redo日志，将事务设为TRX_NOT_STARTED状态。
+3、最后，调用引擎的 commit 完成事务的提交。会清除 undo 信息，刷 redo 日志，将事务设为 TRX_NOT_STARTED 状态。
 
 由上面的二阶段提交流程可以看出，一旦步骤 2 中的操作完成，就确保了事务的提交，即使在执行步骤 3 时数据库发送了宕机。此外需要注意的是，每个步骤都需要进行一次 fsync 操作才能保证上下两层数据的一致性。步骤 2 的 fsync 参数由 sync_binlog=1 控制，步骤 3 的 fsync 由参数 innodb_flush_log_at_trx_commit=1 控制，俗称“双1”，是保证日志一致性的根本。
 
-事务的两阶段提交协议保证了无论在任何情况下，事务要么同时存在于存储引擎和 binlog 中，要么两个里面都不存在，这就保证了主库与从库之间数据的一致性。如果数据库系统发生崩溃，当数据库系统重新启动时会进行崩溃恢复操作，存储引擎中处于 prepare 状态的事务会去查询该事务是否也同时存在于 binlog 中，如果存在就在存储引擎内部提交该事务（因为此时从库可能已经获取了对应的 binlog 内容），如果 binlog 中没有该事务，就回滚该事务。例如：当崩溃发生在第一步和第二步之间时，明显处于 prepare 状态的事务还没来得及写入到 binlog 中，所以该事务会在存储引擎内部进行回滚，这样该事务在存储引擎和 binlog 中都不会存在；当崩溃发生在第二步和第三步之间时，处于 prepare 状态的事务存在于 binlog 中，那么该事务会在存储引擎内部进行提交，这样该事务就同时存在于存储引擎和 binlog 中。
+事务的两阶段提交协议保证了无论在任何情况下，事务要么同时存在于存储引擎和 binlog 中，要么两个里面都不存在，这就保证了主库与从库之间数据的一致性。如果数据库系统发生崩溃，当数据库系统重新启动时会进行崩溃恢复操作。存储引擎维持了状态为 prepare 的事务链表，这些处于 prepare 状态的事务会去查询该事务是否也同时存在于 binlog 中，如果存在就在存储引擎内部提交该事务（因为此时从库可能已经获取了对应的 binlog 内容），如果 binlog 中没有该事务，就回滚该事务。例如：当崩溃发生在第一步和第二步之间时，明显处于 prepare 状态的事务还没来得及写入到 binlog 中，所以该事务会在存储引擎内部进行回滚，这样该事务在存储引擎和 binlog 中都不会存在；当崩溃发生在第二步和第三步之间时，处于 prepare 状态的事务存在于 binlog 中，那么该事务会在存储引擎内部进行提交，这样该事务就同时存在于存储引擎和 binlog 中。
 
 ## 7、参考资料
-[MySQL 中Redo与Binlog顺序一致性问题](https://www.cnblogs.com/mao3714/p/8734838.html)
+[MySQL 中 Redo 与 Binlog 顺序一致性问题](https://www.cnblogs.com/mao3714/p/8734838.html)
+[MySQL binlog 和 redo 的组提交](http://blog.itpub.net/29654823/viewspace-2153565/)

@@ -2,7 +2,6 @@
 title: Spring 源码浅析——解决循环依赖
 tags: 
 	- Spring
-	- Java
 toc: true
 date: 2019-03-11 12:40:01
 ---
@@ -457,6 +456,60 @@ protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, 
 }
 ```
 我们可以看到对于一般的对象，返回的就是传入的早期对象，但是对于内部有被 AOP 增强的方法的对象，会使用后置处理器返回一个代理对象。
+
+如果在解决循环依赖时生成了代理对象，那么 AbstractAutoProxyCreator  会把原对象放入一个 Map 中，这个 Map 的作用是防止同类对象被重复动态代理：
+```java
+AbstractAutoProxyCreator
+public Object getEarlyBeanReference(Object bean, String beanName) {
+    Object cacheKey = getCacheKey(bean.getClass(), beanName);
+    // 以 beanName 为 key，原生 bean 为 value，存入 Map 中
+    this.earlyProxyReferences.put(cacheKey, bean);
+    // 返回动态代理后的对象
+    return wrapIfNecessary(bean, beanName, cacheKey);
+}
+AbstractAutoProxyCreator
+public Object postProcessAfterInitialization(@Nullable Object bean, String beanName) {
+    if (bean != null) {
+        Object cacheKey = getCacheKey(bean.getClass(), beanName);
+        // 如果 Map 中存有了原生 bean 对象，说明这个对象已经被动态代理过，这里不会重复动态代理
+        // 为什么这里要用 remove 而不是 comtains？因为循环依赖只会重复一次
+        if (this.earlyProxyReferences.remove(cacheKey) != bean) {
+            return wrapIfNecessary(bean, beanName, cacheKey);
+        }
+    }
+    return bean;
+}
+
+AbstractAutowireCapableBeanFactory
+protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final @Nullable Object[] args)
+        throws BeanCreationException {
+    //...
+    Object exposedObject = bean;
+    try {
+        populateBean(beanName, mbd, instanceWrapper);
+        // 不会被重复动态代理，这里返回的是原生对象
+        exposedObject = initializeBean(beanName, exposedObject, mbd);
+    }
+
+    if (earlySingletonExposure) {
+        // 拿到的是缓存中保存的动态代理后的对象
+        Object earlySingletonReference = getSingleton(beanName, false);
+        if (earlySingletonReference != null) {
+            // 这里的条件成立，然后会把引用指向缓存中保存的动态代理后的对象
+            if (exposedObject == bean) {
+                exposedObject = earlySingletonReference;
+            }
+        //...
+        }
+    }
+
+    //...
+
+    return exposedObject;
+}
+```
+在 A->B->A 这种循环依赖的情况下，第二个 A 会被首先动态代理，然后第一个 A 不会再次被动态代理，而是从缓存中拿到动态代理后的第二个 A 作为自己新的引用。
+
 ## 4、总结
 本篇文章主要分析了 Spring 如何解决循环依赖的问题。是通过三级缓存的方式，在对象实例化之后但还没有填充属性之前，提前暴露出早期的对象，之后有对象需要的话，可以从缓存中获取到这个早期对象，避免了无止境的循环依赖。同时我们也分析了为什么要使用三级缓存而不是二级缓存，是因为对于内部有被 AOP 增强的方法的对象，需要返回的不是实例化后的对象，而是在此基础上的代理对象。这就需要有一级缓存来存这些代理对象。
 ## 5、参考

@@ -1,5 +1,5 @@
 ﻿---
-title: Netty 源码学习笔记——服务器启动流程
+title: Netty 源码浅析——服务器启动流程
 tags: 
 	- Netty
 toc: true
@@ -195,8 +195,8 @@ Netty 使用 reactor 方式处理连接，一个线程会处理多条连接，�
 
 - 配置 ServerBootstrap：初始化启动类，设置相关参数；
 - 创建服务端 Channel：调用 jdk 底层的 open() 方法创建 jdk 底层的 Channel，然后 Netty 将其封装成自己的 Channel；
-- 初始化服务端 Channel：创建完 Channel 之后会基于此 Channel 做一些初始化操作，比如设置一些属性、添加一些逻辑处理器等；
-- 注册 Selector：将 jdk 底层的 Channel 注册到 EventLoop 的 Selector 上面，并将 Netty 自己的 Channel 作为 attachment 绑定在 jdk 底层的 Channel 上，这样从  Selector 上拿到 jdk 底层的 Channel 后可以通过 attachment 拿到 Netty 自己的 Channel；
+- 初始化服务端 Channel：创建完 Channel 之后会基于此 Channel 做一些初始化操作，比如设置一些属性、设置 jdk 底层的 Channel 为非阻塞模式、添加一些逻辑处理器等；
+- 注册 Selector：为 Channel 选择一个 EventLoop，将 jdk 底层的 Channel 注册到 EventLoop 的 Selector 上面，并将 Netty 自己的 Channel 作为 attachment 绑定在 jdk 底层的 Channel 上，这样从  Selector 上拿到 jdk 底层的 Channel 后可以通过 attachment 拿到 Netty 自己的 Channel；
 - 端口绑定：将 jdk 底层的 Channel 绑定到本地的端口上面，结束后使用 fireChannelActive 通知 Pipeline 里的 ChannelHandle，执行其 channelActive 方法；
 
 由于注册阶段是异步的，绑定阶段会与之同时进行，因此注册阶段完毕后会判断绑定阶段是否结束从而触发 channelActive。
@@ -308,7 +308,7 @@ private static ServerSocketChannel newSocket(SelectorProvider provider) {
 }
 ```
 
-在原生的 jdk nio 编程中，我们会用 `selectorProvider.open()` 的方式获取服务端的 ServerSocketChannel，那么在 Netty 中也一样。SelectorProvider 是 Java 提供的 NIO 的抽象类，会根据操作系统类型和版本确定具体的实现类：如果 Linux 内核版本>=2.6 则具体的实现类为 EPollSelectorProvider，否则为默认的 PollSelectorProvider。
+在原生的 jdk nio 编程中，我们会用 `ServerSocketChannel.open()` 的方式获取服务端的 ServerSocketChannel，实际上是调用了 `SelectorProvider.provider().openServerSocketChannel()`，那么在 Netty 中也一样。SelectorProvider 是 Java 提供的 NIO 的抽象类，会根据操作系统类型和版本确定具体的实现类：如果 Linux 内核版本>=2.6 则具体的实现类为 EPollSelectorProvider，否则为默认的 PollSelectorProvider。
 
 创建完 jdk 底层的 Channel 后，NioServerSocketChannel 会调用父类的构造方法创建三个重要的成员变量，id、unsafe 和 pipeline：
 
@@ -559,7 +559,8 @@ protected void doRegister() throws Exception {
     boolean selected = false;
     for (;;) {
         try {
-            selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this); // 调用 jdk 底层的 register() 注册
+            // 调用 jdk 底层的 register() 注册
+            selectionKey = javaChannel().register(eventLoop().unwrappedSelector(), 0, this); 
             return;
         } catch (CancelledKeyException e) {
             //...
