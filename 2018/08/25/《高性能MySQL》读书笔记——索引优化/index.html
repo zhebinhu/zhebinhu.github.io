@@ -33,7 +33,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/联合索引数据结构.png">
 <meta property="og:image" content="http://yoursite.com/2018/08/25/《高性能MySQL》读书笔记——索引优化/聚簇索引.jpeg">
-<meta property="og:updated_time" content="2019-03-08T14:00:09.625Z">
+<meta property="og:updated_time" content="2020-09-01T04:47:18.834Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="《高性能 MySQL》读书笔记——索引优化">
 <meta name="twitter:description" content="索引是数据库得以高效的关键，以最常见的 B+Tree 索引为例，至少有以下三个优点：1）索引大大减少了服务器需要扫描的数据量；2）索引可以帮助服务器避免排序和临时表；3）索引可以将随机 I/O 变为顺序 I/O。因此，如何使用索引也成了高效 MySQL 重要的一部分。 一、MySQL 中的索引1、B-Tree 索引B-Tree 和其变体 B+Tree 是绝大部分数据库引擎默认使用的数据结构，我们">
@@ -453,6 +453,7 @@
 <h3 id="7、字符串不加单引号"><a href="#7、字符串不加单引号" class="headerlink" title="7、字符串不加单引号"></a>7、字符串不加单引号</h3><blockquote>
 <p>SELECT * FROM order WHERE pay_method = 123;</p>
 </blockquote>
+<p>这个原因是不加单引号时，是字符串跟数字的比较，它们类型不匹配，MySQL 会做隐式的类型转换，把它们转换为浮点数再做比较。而类型转换是一个函数，MySQL 不支持带有函数的索引查询，所以不会走索引。</p>
 <h3 id="8、当全表扫描速度比索引速度快时，mysql-会使用全表扫描，此时索引失效"><a href="#8、当全表扫描速度比索引速度快时，mysql-会使用全表扫描，此时索引失效" class="headerlink" title="8、当全表扫描速度比索引速度快时，mysql 会使用全表扫描，此时索引失效"></a>8、当全表扫描速度比索引速度快时，mysql 会使用全表扫描，此时索引失效</h3><p>一个有意思的例子是 IN 的索引失效。MySQL 优化器对开销代价的估算方法有两种：index dive 和 index statistics。前者统计速度慢但是能得到精准的值，后者统计速度快但是数据未必精准。老版本的 MySQL 默认使用 index dive 这种统计方式，但在 IN() 组合条件过多的时候会发生很多问题。查询优化可能需要花很多时间，并消耗大量内存。因此新版本 MySQL 在组合数超过一定的数量（eq_range_index_dive_limit）就会使用 index statistics 统计。而 index statistics 统计的结果不精确，因此可能会出现 IN 不走索引的情况。此时可以尝试通过增加 eq_range_index_dive_limit 的值（5.6 中默认是 10，5.7 中默认是 200）让 IN 语句走索引。</p>
 <h2 id="四、高性能索引策略"><a href="#四、高性能索引策略" class="headerlink" title="四、高性能索引策略"></a>四、高性能索引策略</h2><h3 id="1、使用前缀索引"><a href="#1、使用前缀索引" class="headerlink" title="1、使用前缀索引"></a>1、使用前缀索引</h3><p>在对一个比较长的字符串建立索引的时候，把字符串所有字符放入索引是比较低效的做法。前文对字符串做哈希是一种方式。也可以使用字符串的前缀做索引。比如</p>
 <blockquote>
