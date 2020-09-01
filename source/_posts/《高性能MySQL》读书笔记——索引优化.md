@@ -131,6 +131,8 @@ InnoDB 存储引擎官方文档显示，启用 AHI 后,读取和写入速度可�
 
 > SELECT * FROM order WHERE pay_method = 123;
 
+这个原因是不加单引号时，是字符串跟数字的比较，它们类型不匹配，MySQL 会做隐式的类型转换，把它们转换为浮点数再做比较。而类型转换是一个函数，MySQL 不支持带有函数的索引查询，所以不会走索引。
+
 ### 8、当全表扫描速度比索引速度快时，mysql 会使用全表扫描，此时索引失效
 
 一个有意思的例子是 IN 的索引失效。MySQL 优化器对开销代价的估算方法有两种：index dive 和 index statistics。前者统计速度慢但是能得到精准的值，后者统计速度快但是数据未必精准。老版本的 MySQL 默认使用 index dive 这种统计方式，但在 IN() 组合条件过多的时候会发生很多问题。查询优化可能需要花很多时间，并消耗大量内存。因此新版本 MySQL 在组合数超过一定的数量（eq_range_index_dive_limit）就会使用 index statistics 统计。而 index statistics 统计的结果不精确，因此可能会出现 IN 不走索引的情况。此时可以尝试通过增加 eq_range_index_dive_limit 的值（5.6 中默认是 10，5.7 中默认是 200）让 IN 语句走索引。
