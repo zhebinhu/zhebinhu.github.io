@@ -23,7 +23,7 @@
         
         huzb的博客</title>
     <meta name="description" content="随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。 限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，">
-<meta name="keywords" content="Hystrix,Sentinel">
+<meta name="keywords" content="Sentinel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="常见限流算法与开源实现">
 <meta property="og:url" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/index.html">
@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/漏桶法.png">
 <meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/令牌桶.png">
 <meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/滑动窗口.png">
-<meta property="og:updated_time" content="2020-09-05T08:43:06.144Z">
+<meta property="og:updated_time" content="2020-09-05T09:15:17.352Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="常见限流算法与开源实现">
 <meta name="twitter:description" content="随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。 限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，">
@@ -183,7 +183,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hystrix/">Hystrix</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -193,7 +193,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Hystrix/" style="font-size: 13px;">Hystrix</a> <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -334,7 +334,7 @@
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Hystrix/">Hystrix</a>, <a class="article-tag-link" href="/tags/Sentinel/">Sentinel</a>
+	<a class="article-tag-link" href="/tags/Sentinel/">Sentinel</a>
   </span>
 
 
