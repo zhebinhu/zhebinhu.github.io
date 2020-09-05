@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000">
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top">
+    
+    
+    <title>
+        
+        常见限流算法与开源实现 |
+        
+        huzb的博客</title>
+    <meta name="description" content="随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。 限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，">
+<meta name="keywords" content="Hystrix,Sentinel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见限流算法与开源实现">
+<meta property="og:url" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。 限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/漏桶法.png">
+<meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/令牌桶.png">
+<meta property="og:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/滑动窗口.png">
+<meta property="og:updated_time" content="2020-09-05T08:43:06.144Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常见限流算法与开源实现">
+<meta name="twitter:description" content="随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。 限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，">
+<meta name="twitter:image" content="http://yoursite.com/2020/09/03/常见限流算法和开源实现/漏桶法.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2020/09/03/常见限流算法和开源实现/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hystrix/">Hystrix</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Hystrix/" style="font-size: 13px;">Hystrix</a> <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/09/03/常见限流算法和开源实现/" class="title">常见限流算法与开源实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" class="title">Spring Boot 源码浅析——内嵌容器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-30T14:46:18.000Z" itemprop="datePublished">2019-10-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/07/netty源码学习笔记——pipeline/" class="title">Netty 源码浅析——pipeline</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-07T05:38:47.000Z" itemprop="datePublished">2019-10-07</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏桶法"><span class="toc-text">漏桶法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#令牌桶"><span class="toc-text">令牌桶</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#滑动窗口"><span class="toc-text">滑动窗口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hystrix-中的限流"><span class="toc-text">hystrix 中的限流</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-常见限流算法和开源实现" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      常见限流算法与开源实现
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/09/03/常见限流算法和开源实现/" class="article-date">
+	  <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Hystrix/">Hystrix</a>, <a class="article-tag-link" href="/tags/Sentinel/">Sentinel</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/09/03/常见限流算法和开源实现/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>随着微服务的流行，服务之间的稳定性也变得越来越重要。在一个复杂的服务网络中，如果一个服务节点被流量打垮，那么很可能会造成其他多个服务都不可用的连锁事件。因此在微服务中，如何把流量控制在系统能够承受的范围内，不让过大的流量直接把服务打垮，是确保系统稳定性的重要部分。</p>
+<p>限流是一种常见的控制流量的方法。当流量超过服务处理能力时，超过的部分会被限流组件拦截。被拦截的请求可能被丢弃，也可能做降级处理，总之，都会比直接打崩系统好。常见的限流算法有：漏桶法、令牌桶和滑动窗口，分别适用于不同的场景。除此之外，还有些开源组件中的限流实现，也会在下文一并讲解。</p>
+<h2 id="漏桶法"><a href="#漏桶法" class="headerlink" title="漏桶法"></a>漏桶法</h2><p><img src="/2020/09/03/常见限流算法和开源实现/漏桶法.png" width="50%"></p>
+<p>漏桶算法概念如下：</p>
+<ul>
+<li>请求到来时，将每个请求放入“漏桶”进行存储；</li>
+<li>“漏桶”以固定速率向外“漏”出请求来执行；</li>
+<li>如果请求进入的速率大于“漏”出的速率，则“漏桶”中的请求会越来越多；当“漏桶”满了的时候，多余的请求会被直接丢弃。</li>
+</ul>
+<p>漏桶算法多使用队列实现，服务的请求会存到队列中，服务的提供方则按照固定的速率从队列中取出请求并执行，过多的请求则放在队列中排队或直接拒绝。</p>
+<p>漏桶算法的特点是流量的消费速率取决于“漏桶”向外“漏”水的速率，这种方式的好处是能保证系统的压力处于一个比较平稳的水位，缺点是当短时间内有大量的突发请求时，即便此时服务器没有任何负载，每个请求也都得在队列中等待一段时间才能被响应。</p>
+<h2 id="令牌桶"><a href="#令牌桶" class="headerlink" title="令牌桶"></a>令牌桶</h2><p><img src="/2020/09/03/常见限流算法和开源实现/令牌桶.png" width="60%"></p>
+<p>令牌桶算法概念如下：</p>
+<ul>
+<li>令牌以固定速率生成，生成的令牌放入令牌桶中存放，如果令牌桶满了则多余的令牌会直接丢弃；</li>
+<li>当请求到达时，会尝试从令牌桶中取令牌，取到了令牌的请求可以执行，取不到令牌的请求会被阻塞或者直接丢弃。</li>
+</ul>
+<p>令牌桶算法的特点是会将用不到的令牌先存起来，这种方式的好处是能应对突发流量，缺点是流量进入的速率无法被控制，短期内系统的压力可能会有比较大的变化。</p>
+<h2 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h2><p>漏桶法和令牌桶能够控制某个时间周期内进入系统的最大请求数，但会面临一个临界值的问题：假设我们将漏桶法和令牌桶的时间周期设置为 1s，那么这两者可以确保 [0s,1s) 和 [1s,2s) 这两个时间周期内通过的请求数，但无法确保 [0.2s,1.2s) 内的请求数。要控制任意一个连续时间内通过的请求数，就需要使用滑动窗口算法：</p>
+<p><img src="/2020/09/03/常见限流算法和开源实现/滑动窗口.png" width="60%"></p>
+<p>我们可以看上图，整个 1s 被划分成 5 个格子，每个格子代表 200ms。[0.8s,1s) 到达的 80 个请求落在蓝色的格子中，而 [1s,1.2s) 到达的请求会落在红色的格 子中。当时间到达 1s 时，我们的窗口会往右移动一格，那么此时时间窗口内的总请求数量一共是 150 个，超过了限定的 100 个，所以超出的 50 个请求会被丢弃。</p>
+<p>从上面可以看出，当滑动窗口的格子划分的越多，那么滑动窗口的滑动就越平滑，限流的统计就会越精确。</p>
+<h2 id="hystrix-中的限流"><a href="#hystrix-中的限流" class="headerlink" title="hystrix 中的限流"></a>hystrix 中的限流</h2>
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2020/09/03/常见限流算法和开源实现/" title="常见限流算法与开源实现" target="_blank" rel="external">http://yoursite.com/2020/09/03/常见限流算法和开源实现/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" title="Spring Boot 源码浅析——内嵌容器"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <!-- <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script> -->
+  <script src="//geektutu.github.io/hexo-theme-geektutu/js/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    accessToken: '67dae45dd170aa59e679ea5ba783dc4444c21d92',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+
+      
+
+
+
+
+
+
+
+</body>
+</html>

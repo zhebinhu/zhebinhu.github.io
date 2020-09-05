@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html lang=zh>
-<head>
+<head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
     
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
     <meta name="renderer" content="webkit">
-    <meta http-equiv="Cache-Control" content="no-transform"/>
-    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="format-detection" content="telephone=no,email=no,adress=no">
     <!-- Color theme for statusbar -->
-    <meta name="theme-color" content="#000000"/>
+    <meta name="theme-color" content="#000000">
     <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
-    <meta http-equiv="window-target" content="_top"/>
+    <meta http-equiv="window-target" content="_top">
     
     
     <title>
@@ -24,7 +23,7 @@
         
         huzb的博客</title>
     <meta name="description" content="一、简介是一个分布式协调服务的开源框架。主要用来解决分布式集群中应用系统的一致性问题。 本质上是一个分布式的小文件存储系统，提供基于类似文件系统的目录树方式的数据存储。并且可以对树中的节点进行有效管理，从而用来维护和监控你存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理。诸如：统一命名服务、分布式配置管理、分布式消息队列、分布式锁、分布式协调等功能。 二、主要应用及">
-<meta name="keywords" content="分布式,Zookeeper">
+<meta name="keywords" content="分布式,zookeeper">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Zookeeper 学习笔记">
 <meta property="og:url" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/index.html">
@@ -35,7 +34,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/分桶策略.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/选举流程.png">
 <meta property="og:image" content="http://yoursite.com/2019/07/14/zookeeper学习笔记/事务流程.png">
-<meta property="og:updated_time" content="2020-06-14T15:05:14.514Z">
+<meta property="og:updated_time" content="2020-09-04T07:51:14.590Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Zookeeper 学习笔记">
 <meta name="twitter:description" content="一、简介是一个分布式协调服务的开源框架。主要用来解决分布式集群中应用系统的一致性问题。 本质上是一个分布式的小文件存储系统，提供基于类似文件系统的目录树方式的数据存储。并且可以对树中的节点进行有效管理，从而用来维护和监控你存储的数据的状态变化。通过监控这些数据状态的变化，从而可以达到基于数据的集群管理。诸如：统一命名服务、分布式配置管理、分布式消息队列、分布式锁、分布式协调等功能。 二、主要应用及">
@@ -185,7 +184,7 @@
   <div class="widget">
     <h3 class="widget-title">标签</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Zookeeper/">Zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hystrix/">Hystrix</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -195,7 +194,7 @@
   <div class="widget">
     <h3 class="widget-title">标签云</h3>
     <div class="widget-body tagcloud">
-      <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/Zookeeper/" style="font-size: 13px;">Zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+      <a href="/tags/Hystrix/" style="font-size: 13px;">Hystrix</a> <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
     </div>
   </div>
 
@@ -204,7 +203,7 @@
   <div class="widget">
     <h3 class="widget-title">归档</h3>
     <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -216,6 +215,21 @@
     <div class="widget-body">
       <ul class="recent-post-list list-unstyled no-thumbnail">
         
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/09/03/常见限流算法和开源实现/" class="title">常见限流算法与开源实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+              </p>
+            </div>
+          </li>
+          
           <li>
             
             <div class="item-inner">
@@ -276,21 +290,6 @@
             </div>
           </li>
           
-          <li>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                
-              </p>
-              <p class="item-title">
-                <a href="/2019/10/03/netty源码学习笔记——新连接接入/" class="title">Netty 源码浅析——新连接接入</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2019-10-03T06:33:27.000Z" itemprop="datePublished">2019-10-03</time>
-              </p>
-            </div>
-          </li>
-          
       </ul>
     </div>
   </div>
@@ -336,7 +335,7 @@
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link" href="/tags/Zookeeper/">Zookeeper</a>, <a class="article-tag-link" href="/tags/分布式/">分布式</a>
+	<a class="article-tag-link" href="/tags/zookeeper/">zookeeper</a>, <a class="article-tag-link" href="/tags/分布式/">分布式</a>
   </span>
 
 
@@ -445,9 +444,9 @@
 <h3 id="6-1-会话状态"><a href="#6-1-会话状态" class="headerlink" title="6.1 会话状态"></a>6.1 会话状态</h3><p>会话主要有以下状态：CONNECTING、CONNECTED、RECONNECTING、RECONNECTED、CLOSE。一旦客户端和服务器建立连接，客户端状态就变更为 CONNECTED。当网络发生闪断或是其它原因，客户端与服务器之间的连接会出现断开情况，此时客户端会自动进行重连操作，同时客户端状态变为 CONNECTING，直到重新连接上后，客户端状态又会再次转变成 CONNECTED。如果出现会话超时、权限检查失败或是客户端主动退出的情况，客户端的状态会变成 CLOSE。</p>
 <h3 id="6-2-会话建立"><a href="#6-2-会话建立" class="headerlink" title="6.2 会话建立"></a>6.2 会话建立</h3><p>每次创建链接时，服务端即分配一个 SessionID，是一个 64 值，高 8 位 服务器 id，后 56 位是通过当前时间获得的一个随机值。会话在服务端会交给 SessionTracker 管理。SessionTracker 负责会话的创建、管理和清理等工作。每一个会话在 SessionTracker 内部都保留了三份，具体如下;</p>
 <ul>
-<li>sessionsById：这是一个 HashMap<long,sessionimpl> 类型的数据结构，用于根据 sessionID 来管理 Session 实体。</long,sessionimpl></li>
-<li>sessionsWithTimeout：这是一个 ConcurrentHashMap<long,integer> 类型的数据结构，用于根据 sessionID 来管理会话的超时时间。</long,integer></li>
-<li>sessionSets：这是一个 HashMap<long,sessionset> 类型的数据结构，用于根据会话超时时间来归档会话。</long,sessionset></li>
+<li>sessionsById：这是一个 HashMap&lt;Long,SessionImpl&gt; 类型的数据结构，用于根据 sessionID 来管理 Session 实体。</li>
+<li>sessionsWithTimeout：这是一个 ConcurrentHashMap&lt;Long,Integer&gt; 类型的数据结构，用于根据 sessionID 来管理会话的超时时间。</li>
+<li>sessionSets：这是一个 HashMap&lt;Long,SessionSet&gt; 类型的数据结构，用于根据会话超时时间来归档会话。</li>
 </ul>
 <p>会话创建共分为以下几步：</p>
 <ol>
