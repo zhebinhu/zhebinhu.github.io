@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000">
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top">
+    
+    
+    <title>
+        
+        计算广告基础 |
+        
+        huzb的博客</title>
+    <meta name="description" content="一、基本概念和名词解释广告平台 诉求：追求最大的广告收入 需要关注的： 广告主生态平衡 竞价的公平性，广告主的留存等 广告资源的全局分配    用户 诉求：只看到自己感兴趣的广告 反馈：广告点击、app 停留时长、不感兴趣等  广告主 诉求：追求广告的推广效果 分类： 品牌广告主：追求品牌的曝光和触达，间接影响用户，如可口可乐、三星、苹果等 效果广告主：追求用户的直接反馈（下载、购买、咨询等）如：">
+<meta name="keywords" content="广告">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计算广告基础">
+<meta property="og:url" content="http://yoursite.com/2020/02/08/计算广告基础/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="一、基本概念和名词解释广告平台 诉求：追求最大的广告收入 需要关注的： 广告主生态平衡 竞价的公平性，广告主的留存等 广告资源的全局分配    用户 诉求：只看到自己感兴趣的广告 反馈：广告点击、app 停留时长、不感兴趣等  广告主 诉求：追求广告的推广效果 分类： 品牌广告主：追求品牌的曝光和触达，间接影响用户，如可口可乐、三星、苹果等 效果广告主：追求用户的直接反馈（下载、购买、咨询等）如：">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2020/02/08/计算广告基础/广告计划和广告组、广告创意.png">
+<meta property="og:updated_time" content="2020-06-13T10:47:23.025Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计算广告基础">
+<meta name="twitter:description" content="一、基本概念和名词解释广告平台 诉求：追求最大的广告收入 需要关注的： 广告主生态平衡 竞价的公平性，广告主的留存等 广告资源的全局分配    用户 诉求：只看到自己感兴趣的广告 反馈：广告点击、app 停留时长、不感兴趣等  广告主 诉求：追求广告的推广效果 分类： 品牌广告主：追求品牌的曝光和触达，间接影响用户，如可口可乐、三星、苹果等 效果广告主：追求用户的直接反馈（下载、购买、咨询等）如：">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/08/计算广告基础/广告计划和广告组、广告创意.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2020/02/08/计算广告基础/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/广告/">广告</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.83px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.67px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.5px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/广告/" style="font-size: 13px;">广告</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/09/03/常见限流算法和开源实现/" class="title">常见限流算法与开源实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/02/08/计算广告基础/" class="title">计算广告基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-02-08T06:41:32.000Z" itemprop="datePublished">2020-02-08</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" class="title">Spring Boot 源码浅析——内嵌容器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-30T14:46:18.000Z" itemprop="datePublished">2019-10-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/13/netty源码学习笔记——内存分配/" class="title">Netty 源码浅析——内存分配</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-13T04:40:00.000Z" itemprop="datePublished">2019-10-13</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、基本概念和名词解释"><span class="toc-text">一、基本概念和名词解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#广告平台"><span class="toc-text">广告平台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用户"><span class="toc-text">用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告主"><span class="toc-text">广告主</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#预算和出价"><span class="toc-text">预算和出价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#受众与定向"><span class="toc-text">受众与定向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告计划和广告组、广告创意"><span class="toc-text">广告计划和广告组、广告创意</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#投放（send）和展示（show）"><span class="toc-text">投放（send）和展示（show）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#点击与转化"><span class="toc-text">点击与转化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ROI-与转化成本"><span class="toc-text">ROI 与转化成本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告收入与-CPM"><span class="toc-text">广告收入与 CPM</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、广告的售卖方式"><span class="toc-text">二、广告的售卖方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#品牌广告"><span class="toc-text">品牌广告</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#效果广告"><span class="toc-text">效果广告</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#竞价方式-——-展示出价（CPM）"><span class="toc-text">竞价方式 —— 展示出价（CPM）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#竞价方式-——-点击出价（CPC）"><span class="toc-text">竞价方式 —— 点击出价（CPC）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#竞价方式-——-转化出价（CPA）"><span class="toc-text">竞价方式 —— 转化出价（CPA）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#竞价方式-——-oCPC-oCPM"><span class="toc-text">竞价方式 —— oCPC/oCPM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计费方式-——-广义一价（GFP）"><span class="toc-text">计费方式 —— 广义一价（GFP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计费方式-——-广义二价（GSP）"><span class="toc-text">计费方式 —— 广义二价（GSP）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#计费方式-——-VCG"><span class="toc-text">计费方式 —— VCG</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、广告投放的核心问题"><span class="toc-text">三、广告投放的核心问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#广告定向-amp-过滤"><span class="toc-text">广告定向 &amp; 过滤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告-Ranking"><span class="toc-text">广告 Ranking</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告模型-——-ctr-amp-cvr-预估"><span class="toc-text">广告模型 —— ctr&amp;cvr 预估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#用户体验"><span class="toc-text">用户体验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#广告主预算控制与-Budget-Pacing"><span class="toc-text">广告主预算控制与 Budget Pacing</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：怎样提升广告收入？"><span class="toc-text">思考：怎样提升广告收入？</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-计算广告基础" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      计算广告基础
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2020/02/08/计算广告基础/" class="article-date">
+	  <time datetime="2020-02-08T06:41:32.000Z" itemprop="datePublished">2020-02-08</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/广告/">广告</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2020/02/08/计算广告基础/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="一、基本概念和名词解释"><a href="#一、基本概念和名词解释" class="headerlink" title="一、基本概念和名词解释"></a>一、基本概念和名词解释</h2><h3 id="广告平台"><a href="#广告平台" class="headerlink" title="广告平台"></a>广告平台</h3><ul>
+<li>诉求：追求最大的广告收入</li>
+<li>需要关注的：<ul>
+<li>广告主生态平衡</li>
+<li>竞价的公平性，广告主的留存等</li>
+<li>广告资源的全局分配</li>
+</ul>
+</li>
+</ul>
+<h3 id="用户"><a href="#用户" class="headerlink" title="用户"></a>用户</h3><ul>
+<li>诉求：只看到自己感兴趣的广告</li>
+<li>反馈：广告点击、app 停留时长、不感兴趣等</li>
+</ul>
+<h3 id="广告主"><a href="#广告主" class="headerlink" title="广告主"></a>广告主</h3><ul>
+<li>诉求：追求广告的推广效果</li>
+<li>分类：<ul>
+<li>品牌广告主：追求品牌的曝光和触达，间接影响用户，如可口可乐、三星、苹果等</li>
+<li>效果广告主：追求用户的直接反馈（下载、购买、咨询等）如：游戏团队花钱推广等。主要关注 ROI</li>
+</ul>
+</li>
+</ul>
+<h3 id="预算和出价"><a href="#预算和出价" class="headerlink" title="预算和出价"></a>预算和出价</h3><ul>
+<li>预算：总共能花多少钱</li>
+<li>出价：决定自己愿意为一个流量付出多少钱，出价不一定是针对流量，而是针对特定目标（投放、展示、点击、转化等）</li>
+<li>典型出价：<ul>
+<li>10 元钱 1000 个展示</li>
+<li>2 角钱一个点击</li>
+<li>5 元钱一次应用下载（转化）</li>
+<li>100 元一次用户提交个人信息（转化）</li>
+</ul>
+</li>
+</ul>
+<h3 id="受众与定向"><a href="#受众与定向" class="headerlink" title="受众与定向"></a>受众与定向</h3><ul>
+<li>广告主对有效受众（Audience）的预先筛选：如剃须刀定向男性，裙子定向女性</li>
+<li>平台挖掘用户特征并打上各类标签<ul>
+<li>年龄、性别</li>
+<li>兴趣标签</li>
+<li>关键词</li>
+<li>地理位置</li>
+<li>手机型号、版本等</li>
+</ul>
+</li>
+</ul>
+<h3 id="广告计划和广告组、广告创意"><a href="#广告计划和广告组、广告创意" class="headerlink" title="广告计划和广告组、广告创意"></a>广告计划和广告组、广告创意</h3><p><img src="/2020/02/08/计算广告基础/广告计划和广告组、广告创意.png"></p>
+<h3 id="投放（send）和展示（show）"><a href="#投放（send）和展示（show）" class="headerlink" title="投放（send）和展示（show）"></a>投放（send）和展示（show）</h3><ul>
+<li>用户在头条上进行一次刷新，会触发一次对内容和广告的请求（request）。</li>
+<li>Ad Engine 根据各种信息，选出一条或多条最合适的广告，返回给客户端。称为广告的投放（Send）</li>
+<li>用户看到一次广告，叫做广告的展示（Show）</li>
+<li>Send 和 Show 的区别和联系<ul>
+<li>都可以作为广告的一次触达</li>
+<li>Ad Engine 能够控制广告的 Send，无法控制 Show</li>
+<li>一次广告的 Send 可能对应多次 Show，也可能对应 0 次 Show</li>
+<li>有 Show 一定有 Send</li>
+<li>信息流整体 Show/Send 比例（SSR）大约 1.7 左右，详情页 0.5 左右</li>
+</ul>
+</li>
+</ul>
+<h3 id="点击与转化"><a href="#点击与转化" class="headerlink" title="点击与转化"></a>点击与转化</h3><ul>
+<li>对大部分广告来说，对广告产生兴趣后的第一个动作是点击广告（Click），进入落地页（landing page）</li>
+<li>进入落地页后，根据广告类型引导用户进行进一步动作。如：下载应用、提交包含姓名电话的表单、拨打电话等。这些后续的动作统称为转化（Convert）。</li>
+<li>点击率（Click Through Rate，CTR）= 用户看到广告后点击的概率 = click / send（或 click / show）</li>
+<li>转化率（ConVersion Rate，CVR）= 用户进入落地页后进行转化动作的概率 = convert / click</li>
+</ul>
+<h3 id="ROI-与转化成本"><a href="#ROI-与转化成本" class="headerlink" title="ROI 与转化成本"></a>ROI 与转化成本</h3><ul>
+<li>收益率（Return On Investment，ROI）是广告主的产出投入比，ROI 越高，广告主越愿意在广告平台投放广告。也是广告平台优化广告主效果的核心目标之一。</li>
+<li>转化成本：广告主平均获得每个转化花费的广告费。随着转化的深度变深，转化成本由几元（下载应用）到几百上千元（电话拨打）不等。</li>
+<li>一般用转化成本间接衡量与优化广告主 ROI。转化成本越低，ROI 越高。</li>
+</ul>
+<h3 id="广告收入与-CPM"><a href="#广告收入与-CPM" class="headerlink" title="广告收入与 CPM"></a>广告收入与 CPM</h3><ul>
+<li>广告平台最终的追求是最大的广告收入</li>
+<li>广告收入 = 广告投放量 * 单位广告投放量收入</li>
+<li>千次广告投放收入（Cost Per Mille，CPM）代表平均投放 1000 次广告平台能获取的收入。</li>
+<li>广告平台收入提升主要两种手段：<ul>
+<li>增加广告投放量，引入新流量位置</li>
+<li>提升分配的合理性，提升 CPM</li>
+</ul>
+</li>
+</ul>
+<h2 id="二、广告的售卖方式"><a href="#二、广告的售卖方式" class="headerlink" title="二、广告的售卖方式"></a>二、广告的售卖方式</h2><h3 id="品牌广告"><a href="#品牌广告" class="headerlink" title="品牌广告"></a>品牌广告</h3><ul>
+<li>追求品牌的曝光和触达</li>
+<li>根据定向和溢价分为两种<ul>
+<li>CPT（cost per time）：包断时段内整个位置，高溢价</li>
+<li>GD（guaranteed delivery）：购买特定数量，较高溢价</li>
+</ul>
+</li>
+<li>通过溢价，做到对高质量流量的触达</li>
+<li>越来越看重效果（主要是点击率和互动率）</li>
+</ul>
+<h3 id="效果广告"><a href="#效果广告" class="headerlink" title="效果广告"></a>效果广告</h3><ul>
+<li>也称竞价（RTB）广告</li>
+<li>每个流量对每个广告主的价值不一样</li>
+<li>需要进行广告竞价（Ads auction）</li>
+<li>每个广告主为此次流量出价，出价高的人获胜，根据特定规则进行计价</li>
+<li>当到达计费点时扣费</li>
+<li>竞价排序按照这次投放对平台的<strong>预期收益</strong>（千次投放收益）（eCPM = estimated cost per mille）进行排序</li>
+</ul>
+<h3 id="竞价方式-——-展示出价（CPM）"><a href="#竞价方式-——-展示出价（CPM）" class="headerlink" title="竞价方式 —— 展示出价（CPM）"></a>竞价方式 —— 展示出价（CPM）</h3><ul>
+<li>按千次展示竞价，按展示计费</li>
+<li>eCPM = cpm_bid（千次展示的出价）</li>
+</ul>
+<h3 id="竞价方式-——-点击出价（CPC）"><a href="#竞价方式-——-点击出价（CPC）" class="headerlink" title="竞价方式 —— 点击出价（CPC）"></a>竞价方式 —— 点击出价（CPC）</h3><ul>
+<li>按点击竞价，按点击计费</li>
+<li>eCPM = cpc_bid（单次点击的出价） * pctr（预估点击率） * 1000</li>
+</ul>
+<h3 id="竞价方式-——-转化出价（CPA）"><a href="#竞价方式-——-转化出价（CPA）" class="headerlink" title="竞价方式 —— 转化出价（CPA）"></a>竞价方式 —— 转化出价（CPA）</h3><ul>
+<li>按转化竞价，按转化计费</li>
+<li>eCPM = cpa_bid（单次转化的出价） * pctr（预估点击率） * pcvr（预估转化率） * 1000</li>
+</ul>
+<blockquote>
+<p><strong>Q1：pctr 和 pcvr 都是预估的值，如果预估偏低会怎么样？偏高会怎么样？</strong><br>预估偏低可能会使得原先排在第一位的广告没有排到第一，原先第二位的广告排到了第一，此时我们投放的是原先排第二位的广告。但在广告物料充足的情况下，第一第二位不会相差太多，这种情况下的损失是可以接受的。<br>预估偏高可能会使原先排在靠后的广告排到了第一，但这条广告实际没有这么多的收益，此时相当于我们投放了一条原先排位靠后的广告，这种情况下的损失就会很大。</p>
+</blockquote>
+<blockquote>
+<p><strong>Q2：既然 pctr 和 pcvr 都可能预估不准，那我们为什么还要做 cpc 和 cpa？</strong><br>因为 cpc 和 cpa 的单价更高。假设广告主给出的一次展示/点击/转化的价格分别是 5/6/8 元，那么 1000 次请求下，按照 cpm 收费最多只能赚 5000 元，而按 cpc 和 cpa 收费最多可以赚 6000/8000 元。在物料足够丰富的情况下，如果我们能对每个流量进行精准的投递，就能获得比 cpm 更高的收益。</p>
+</blockquote>
+<h3 id="竞价方式-——-oCPC-oCPM"><a href="#竞价方式-——-oCPC-oCPM" class="headerlink" title="竞价方式 —— oCPC/oCPM"></a>竞价方式 —— oCPC/oCPM</h3><ul>
+<li>CPM 的缺点：<ul>
+<li>转化事件依赖广告主回传，广告主可能作弊</li>
+<li>平台需要承担预估不准的风险</li>
+</ul>
+</li>
+<li>oCPC：<ul>
+<li>广告主按照转化竞价，按点击计费</li>
+<li>竞价：eCPM = cpa_bid * pctr * pcvr * 1000；</li>
+<li>计费：cost（单次点击计费） = eCPM / 1000 / pctr</li>
+</ul>
+</li>
+<li>oCPM：<ul>
+<li>广告主按照转化竞价，按投放计费</li>
+<li>竞价：eCPM = cpa_bid * pctr * pcvr * 1000</li>
+<li>计费：cost（单次投放计费） = eCPM / 1000</li>
+</ul>
+</li>
+<li>在广告主不作弊，以及平台点击率，转化率预估准确的前提下，CPA/oCPC/oCPM 的效果没有区别</li>
+<li>从 CPA 到 oCPC 到 oCPM，平台承担风险变小，广告主风险变大</li>
+<li>现状：CPA（中小广告主）+ oCPM（其他）</li>
+</ul>
+<h3 id="计费方式-——-广义一价（GFP）"><a href="#计费方式-——-广义一价（GFP）" class="headerlink" title="计费方式 —— 广义一价（GFP）"></a>计费方式 —— 广义一价（GFP）</h3><ul>
+<li>cost（计费） = eCPM（出价）</li>
+<li>可类比常见的拍卖，价高者得，出多少钱就是多少钱</li>
+</ul>
+<h3 id="计费方式-——-广义二价（GSP）"><a href="#计费方式-——-广义二价（GSP）" class="headerlink" title="计费方式 —— 广义二价（GSP）"></a>计费方式 —— 广义二价（GSP）</h3><ul>
+<li>GFP 的缺点：广告主会有向下探价的动力。比如广告主用 10 元拍下了一条广告，虽然拍下了，但心里会想，是不是 9.5 元一样也能拍下这条广告，那么下一次广告主就会出 9.5 元，直到拍不到这条为止。如果所有的广告主都那么做，那么大家都会不停下探价格，最后压低了广告的价格。</li>
+<li>GSP：第一名获胜之后，按第二名的出价计费</li>
+<li>杜绝了广告主向下探价的动机，只要能获胜，就不用担心是不是多出了钱</li>
+</ul>
+<h3 id="计费方式-——-VCG"><a href="#计费方式-——-VCG" class="headerlink" title="计费方式 —— VCG"></a>计费方式 —— VCG</h3><ul>
+<li>GSP 只适用于一个广告位的情况，实际情况下可能有多个广告位同时拍卖，此时我们要用一种更通用的方式来计算</li>
+<li>描述：根据广告参与竞价后，对其它广告造成的损失，来计费</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">广告主</th>
+<th style="text-align:center">Bid1</th>
+<th style="text-align:center">Bid2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">A</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">6</td>
+</tr>
+<tr>
+<td style="text-align:center">B</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">4</td>
+</tr>
+<tr>
+<td style="text-align:center">C</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">1</td>
+</tr>
+</tbody>
+</table>
+<p>A 不参加竞价，B 和 C 的总效用为 8 + 1 = 9 元。<br>A 如果参加竞价，B 和 C 的总效用为 4 + 0 = 4 元。<br>A 参加竞价，导致 B 和 C 的社会总效用损失了 9 - 4 = 5 元，因此 A 需要支付 5 元。</p>
+<ul>
+<li>只有一个广告位的情况下，VCG 和 GSP 是一样的。</li>
+<li>目前整体是 GSP，但在信息流上是 VCG</li>
+</ul>
+<h2 id="三、广告投放的核心问题"><a href="#三、广告投放的核心问题" class="headerlink" title="三、广告投放的核心问题"></a>三、广告投放的核心问题</h2><h3 id="广告定向-amp-过滤"><a href="#广告定向-amp-过滤" class="headerlink" title="广告定向 &amp; 过滤"></a>广告定向 &amp; 过滤</h3><ul>
+<li>给定每个广告的受众选择，在每个流量过来时，快速在数十万的广告库中检索出定向了这个流量的广告。</li>
+<li>根据各类需求，对广告进行过滤。</li>
+<li>目前 20W 广告，检索 + 过滤时间约为 20ms</li>
+<li>使用倒排 + Bitmap 优化检索效率</li>
+</ul>
+<h3 id="广告-Ranking"><a href="#广告-Ranking" class="headerlink" title="广告 Ranking"></a>广告 Ranking</h3><ul>
+<li>目标：计算各类广告（cpc/ocpc/cpa/cpm等）的预期收益（eCPM），选出对平台最大的一个</li>
+<li>核心是广告的 ctr/cvr 预估</li>
+<li>ranking 时可能会有其他的目标，如用户体验、广告主生态等</li>
+<li>sort_eCPM = eCPM + hidden_cost（隐藏收益，包括用户体验、广告主生态收益等）</li>
+</ul>
+<h3 id="广告模型-——-ctr-amp-cvr-预估"><a href="#广告模型-——-ctr-amp-cvr-预估" class="headerlink" title="广告模型 —— ctr&amp;cvr 预估"></a>广告模型 —— ctr&amp;cvr 预估</h3><ul>
+<li>问题抽象：给定一定的样本（用户是否点击了这个广告），预估一个用户对一个广告的点击率</li>
+<li>作用：在线广告的核心模块，最终决定整体投放效果</li>
+<li>特点：特征维度极多，数据量极大，在线学习，样本不均衡</li>
+<li>常见模型：LR、FM、FFM、NN</li>
+<li>常用学习方法：SGD，FTRL</li>
+<li>推荐一篇paper：<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/41159.pdf" target="_blank" rel="noopener">Ad Click Prediction:a View from the Trenches</a></li>
+<li>粗排与精排</li>
+</ul>
+<h3 id="用户体验"><a href="#用户体验" class="headerlink" title="用户体验"></a>用户体验</h3><ul>
+<li>用户的核心诉求：<ul>
+<li>少看广告</li>
+<li>少看低质量广告</li>
+</ul>
+</li>
+<li>AdLoad：全平台控制一个能出广告的总数 广告 send &lt;= 文章send * 8%</li>
+<li>频控：少看重复广告</li>
+<li>Dislike（不感兴趣）：用户反馈不喜欢广告后给反馈</li>
+<li>Staytime（落地页停留时长）：减少标题党</li>
+<li>混排：文章质量高，广告就排后面点</li>
+</ul>
+<h3 id="广告主预算控制与-Budget-Pacing"><a href="#广告主预算控制与-Budget-Pacing" class="headerlink" title="广告主预算控制与 Budget Pacing"></a>广告主预算控制与 Budget Pacing</h3><ul>
+<li>拆分广告主需求：<ul>
+<li>优先跑量：保证转化成本稳定，量越大越好。需要动态根据转化成本调价。</li>
+<li>优先低成本：保证每天预算花完，成本越低越好。Budget Pacing 可以使得同样花完预算的情况下取得最低的转化成本。</li>
+</ul>
+</li>
+</ul>
+<h3 id="思考：怎样提升广告收入？"><a href="#思考：怎样提升广告收入？" class="headerlink" title="思考：怎样提升广告收入？"></a>思考：怎样提升广告收入？</h3><ul>
+<li>引入更多的流量：增加广告位</li>
+<li>让用户看到更想点击、转化的广告：改进模型、增加特征</li>
+<li>让广告主提升付费意愿：提供更精准的定向，做更深的转化、反作弊等</li>
+<li>增加广告主满意度：提升投放稳定性，满足广告主的真实需求</li>
+<li>性能优化：（省下来的钱当赚的）</li>
+</ul>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2020/02/08/计算广告基础/" title="计算广告基础" target="_blank" rel="external">http://yoursite.com/2020/02/08/计算广告基础/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2020/09/03/常见限流算法和开源实现/" title="常见限流算法与开源实现"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" title="Spring Boot 源码浅析——内嵌容器"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <!-- <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script> -->
+  <script src="//geektutu.github.io/hexo-theme-geektutu/js/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    accessToken: '67dae45dd170aa59e679ea5ba783dc4444c21d92',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
