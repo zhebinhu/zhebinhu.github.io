@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000">
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top">
+    
+    
+    <title>
+        
+        我的Java自学之路（校招攻略） |
+        
+        huzb的博客</title>
+    <meta name="description" content="毕业答辩完成。趁着入职之前有空，想把我自己在学校自学 Java 的学习经历和一些求职经验写下来，一方面能给学弟学妹们一些启发，一方面也是我自己的一个阶段性总结。 我在去年参加了春招和秋招，秋招是拿到了阿里 A+ 的offer，春招则是拿到了阿里、腾讯、字节、美团、快手的实习 offer。作为一个实验室方向和工作毫无关联，并且几乎从零开始的 Java 选手，我想我的自学经历也许能帮到很多朋友。为什么">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我的Java自学之路（校招攻略）">
+<meta property="og:url" content="http://yoursite.com/2021/06/06/我的Java自学之路（校招攻略）/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="毕业答辩完成。趁着入职之前有空，想把我自己在学校自学 Java 的学习经历和一些求职经验写下来，一方面能给学弟学妹们一些启发，一方面也是我自己的一个阶段性总结。 我在去年参加了春招和秋招，秋招是拿到了阿里 A+ 的offer，春招则是拿到了阿里、腾讯、字节、美团、快手的实习 offer。作为一个实验室方向和工作毫无关联，并且几乎从零开始的 Java 选手，我想我的自学经历也许能帮到很多朋友。为什么">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2021-06-21T12:42:31.469Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我的Java自学之路（校招攻略）">
+<meta name="twitter:description" content="毕业答辩完成。趁着入职之前有空，想把我自己在学校自学 Java 的学习经历和一些求职经验写下来，一方面能给学弟学妹们一些启发，一方面也是我自己的一个阶段性总结。 我在去年参加了春招和秋招，秋招是拿到了阿里 A+ 的offer，春招则是拿到了阿里、腾讯、字节、美团、快手的实习 offer。作为一个实验室方向和工作毫无关联，并且几乎从零开始的 Java 选手，我想我的自学经历也许能帮到很多朋友。为什么">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2021/06/06/我的Java自学之路（校招攻略）/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> Chengdu, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">13</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算广告/">计算广告</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 13.86px;">Java</a> <a href="/tags/Linux/" style="font-size: 13px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.71px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.57px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.43px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.14px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.14px;">收藏</a> <a href="/tags/计算广告/" style="font-size: 13px;">计算广告</a> <a href="/tags/计算机网络/" style="font-size: 13.29px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2021/06/06/我的Java自学之路（校招攻略）/" class="title">我的Java自学之路（校招攻略）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-06-06T12:12:18.000Z" itemprop="datePublished">2021-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/09/03/常见限流算法和开源实现/" class="title">常见限流算法与开源实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/02/08/计算广告基础/" class="title">计算广告基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-02-08T06:41:32.000Z" itemprop="datePublished">2020-02-08</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" class="title">Spring Boot 源码浅析——内嵌容器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-30T14:46:18.000Z" itemprop="datePublished">2019-10-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/17/netty源码学习笔记——对象池/" class="title">Netty 源码浅析——对象池</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-17T12:31:56.000Z" itemprop="datePublished">2019-10-17</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#计算机基础"><span class="toc-text">计算机基础</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发知识"><span class="toc-text">开发知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#项目-实习"><span class="toc-text">项目/实习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#笔面试经验"><span class="toc-text">笔面试经验</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#面经"><span class="toc-text">面经</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-我的Java自学之路（校招攻略）" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      我的Java自学之路（校招攻略）
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/06/06/我的Java自学之路（校招攻略）/" class="article-date">
+	  <time datetime="2021-06-06T12:12:18.000Z" itemprop="datePublished">2021-06-06</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/06/06/我的Java自学之路（校招攻略）/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>毕业答辩完成。趁着入职之前有空，想把我自己在学校自学 Java 的学习经历和一些求职经验写下来，一方面能给学弟学妹们一些启发，一方面也是我自己的一个阶段性总结。</p>
+<p>我在去年参加了春招和秋招，秋招是拿到了阿里 A+ 的offer，春招则是拿到了阿里、腾讯、字节、美团、快手的实习 offer。作为一个实验室方向和工作毫无关联，并且几乎从零开始的 Java 选手，我想我的自学经历也许能帮到很多朋友。为什么说“几乎”从零呢？因为我本科确实上过计算机的课程，但研究生开学的时候，已经把这些知识都忘了…忘到什么程度呢？研一上课，我发现我已经不知道进程和线程是什么了…但后来还是通过自学把这些课程补回来了（其实我觉得就找工作而言，自学会比跟着学校里的课程上课更高效一点）。</p>
+<p>我把我的学习路线分为几个阶段，分别是：<strong>计算机基础、开发知识、项目/实习和笔面试经验。</strong></p>
+<h2 id="计算机基础"><a href="#计算机基础" class="headerlink" title="计算机基础"></a>计算机基础</h2><p>这里的计算机基础指的是算法与数据结构、操作系统、计算机网络和计算机体系结构四大基础课程。这是每一个计算机从业者必学的。</p>
+<p><strong>算法与数据结构</strong>，因为我本科上过课，所以研究生以后没有学，如果有没学过的，可以看下《大话数据结构》这本书，不用看太仔细，了解概念即可。看完以后开始刷题，先刷《剑指 offer》，再刷 leetcode，然后如果目标是找工作的话，leetcode hard 不用刷，刷 medium 和 easy 即可。</p>
+<p><strong>操作系统</strong>，这门课非常重要，我推荐先通过西电的《计算机操作系统》教材（有人可能会推荐 CSAPP，这本书我看过，但从学习效率的角度我不是很推荐这种大部头…）去了解操作系统的各种概念，然后通过《linux 内核设计与实现》或者极客时间的《趣谈 Linux 操作系统》去深入 Linux 系统，Java 选手如果能在面试中聊一些 Linux 底层的知识的话，会给面试官留下很好的印象哦。</p>
+<p><strong>计算机网络</strong>，同样是非常重要的课，我自己比较喜欢极客时间的《趣谈网络协议》，然后这里有本经典的教材《计算机网络自顶向下方法》，这本书我同样也看过，同样也是大部头，对程序员来说，这本书的知识量其实是溢出了的，有兴趣的同学可以深读，只为找工作的话，主要还是看HTTP、HTTPS、DNS、TCP、UDP、网络层，其它的了解概念即可。学完这门课，可以问自己一个问题：从浏览器里输入一个网址，到最后网页呈现在你面前，中间发生了什么。如果你能滔滔不绝地讲几分钟的话，那就说明计算机网络已经学到位啦。</p>
+<p><strong>计算机体系结构</strong>，对找工作来说，这门课的优先级相比前三门没有那么高。如果本学院有开相关课程的话，直接跟着课程走就行，面试不会超过课程的难度…如果本学院没有开相关课程，也可以看网课，比如 b 站就有清华大学的网课。</p>
+<h2 id="开发知识"><a href="#开发知识" class="headerlink" title="开发知识"></a>开发知识</h2><p>开发知识的话我总结一下有 Java、数据库、Redis、消息队列、分布式、spring、netty、rpc 这些。</p>
+<p><strong>对于 Java 而言</strong>，入门先学会 Java 怎么用，目标是用 Java 搭一个 web 服务器，这个教程网上有很多，由于我的路线比较诡异，是从 Android 开发进入到 Java 开发的，因此这里就不带歪大伙了…入门之后推荐两本书《深入理解 Java 虚拟机》和《Java 并发编程的艺术》，这两本书需要细读、多读，常看常新。我一直觉得如果讲 Java 的书搞个名人堂的话，这两本绝对是殿堂级选手。</p>
+<p>然后是<strong>数据库</strong>，我推荐《高性能 MySQL》和《MySQL 技术内幕：innodb 存储引擎》这两本书。《高性能 MySQL》讲优化，这本书同样也是大部头，而且面向数据库运维人员，因此对开发来讲不需要全部都读，个人心得看第一、四、五、六章即可。《MySQL 技术内幕：innodb 存储引擎》讲原理，个人心得看前七章就足够了。数据库这一块还有很多前沿知识，比如热门的 tidb，leveldb，oceanbase，这些知识更多来自博客，如果大家能在面试中聊一下 tidb 或者讲一下 lsm-tree，那面试官的好感度直接拉满。</p>
+<p>接着是<strong>Redis</strong>，这块有本讲得非常好的书《Redis 设计与实现》，这本书不厚，整本都可以细读，看完在 Redis 这块基本不会有什么问题。</p>
+<p><strong>消息队列</strong>，我推荐极客时间的《消息队列高手课》，然后还有 rocketmq 和 kafka 的官方文档。kafka 这个框架很神奇，网上有很多博客，但有不少是过时的，比如最新版的 kafka 已经去掉对 zookeeper 的依赖了，但很多博客没有及时更新。所以有能力的还是尽量去看官方 wiki。</p>
+<p><strong>分布式</strong>，这一块我推荐《大型网站技术架构》和《从 paxos 到 zookeeper》两本书，分别是从广度和深度介绍分布式的书。两本书都不厚，个人推荐都通读一遍。</p>
+<p><strong>Spring</strong>，这是 Java 必学的。Spring 的使用其实不难，网上也有不少教程。Spring 的源码我个人认为是值得一读的，我的博客中就有解读源码的<a href="http://huzb.me/tags/Spring/" target="_blank" rel="noopener">文章</a>。</p>
+<p><strong>Netty</strong>，这同样也是一个 Java 中非常重要的框架，入门我推荐《Netty in Action》，这本书同样不厚，建议通读。Netty 源码也值得一读，我的博客中也有<a href="http://huzb.me/tags/Netty/" target="_blank" rel="noopener">相关文章</a>。</p>
+<p><strong>RPC</strong>，这个还是以实战为主。我推荐极客时间的《RPC 实战与核心原理》。</p>
+<h2 id="项目-实习"><a href="#项目-实习" class="headerlink" title="项目/实习"></a>项目/实习</h2><p>很多学校的实验室不放实习，并且有很多实验室偏理论研究，可能没有很多对找工作有帮助的项目，这难免会让一部分同学焦虑。我一开始也很焦虑，但现在回过头来看的话，其实这种焦虑大可不必。先不说大部分实习生也没有做很有价值的事情（俗称打杂），就校招而言，整体基调都是以基础和学习能力为主，因此大家不必因为导师不放实习或者实验室没有项目而焦虑。我可以推荐几个在实验室就能完成的，并且很有含金量的项目。</p>
+<p><strong>1）阿里中间件性能挑战赛</strong>，现在也叫云原生编程挑战赛。这个比赛是让你给中间件加功能，听起来吓人，但只要能全程跟完，最后拿到前 100 并不是太难的事情，只要你是前 100，你就可以在简历上写自己进入了前 3%。而且做完这个比赛，起码说明你对一到两个中间件有比较深的了解，这就很加分了。并且这个比赛虽然是阿里的比赛，但国内互联网都认可，而且含金量很高，基本上听你说做过这个比赛，都会有兴趣跟你聊一聊。</p>
+<p><strong>2）谷歌/阿里编程之夏。</strong>同样是给开源项目加功能。编程之夏的好处是会有企业导师指导，只要你能坚持下来，首先你会对一个开源项目比较了解，其次你的开源经历足以体现你的技术热情，而且面试官也会很有兴趣和你聊一聊这段经历。</p>
+<p><strong>3）mit6.824。</strong>这是 mit 的分布式课程，这门课程会让你完成一个分布式系统。这门课我没有上过，但我看到有同学写了，而且面试的情况非常好，至少这个系统能展现你的分布式架构能力，而这种能力在校招生中是非常稀缺的。</p>
+<h2 id="笔面试经验"><a href="#笔面试经验" class="headerlink" title="笔面试经验"></a>笔面试经验</h2><p>首先是笔试，笔试这一块的话，有不少同学可能会让实验室同学帮忙。我个人是建议还是独立完成会比较好。因为对于大部分公司，笔试只作为简历筛选的辅助标准。稍微用点心把 leetcode 刷够 100 道，那么如果笔试是 3 道题的话，A1.5 道是没问题的，这就足够过关了。不用追求全 AC，我个人的体感是面试官不怎么看笔试成绩，他如果对算法有要求，那他会在面试过程中让你现场写。相反如果笔试抱团被发现，那么后果是十分严重的。因此笔试阶段去冒险，我个人认为是没必要的。</p>
+<p>然后是面试，面试里面需要注意的就是突出重点，特别是讲项目这块，主要是讲技术难点。这里我犯过一个错，就是把工作量和技术难点搞混淆了，我们在工作中，可能有 95%的时间在CRUD，另外花了 5%的时间稍微优化了一下性能，但面试的时候，比例可能就要反过来，CRUD 讲 5%的时间就行，优化那块可以讲 95%的时间。关于面试还有一点就是务必要多练，特别是实验室不让实习的同学，春招最好也投一下，练一下面试。面试这块练习过和没练习过差别还是挺大的。</p>
+<h2 id="面经"><a href="#面经" class="headerlink" title="面经"></a>面经</h2><p>最后发一下我的阿里面经</p>
+<p>一面（偏重于基础）<br>1、Java 中的 CMS 回收器和 G1 回收器有什么区别？<br>2、BIO、NIO、AIO 的区别？<br>3、线程和协程的区别<br>4、数据库底层使用什么数据结构？为什么要用 B+ 数，和 B 数有什么区别？<br>5、rocketmq 为什么快？<br>6、netty 中的事件循环可以说一下吗？<br>7、并发队列的无锁化可以怎么实现？<br>8、乐观锁和悲观锁的区别可以说一下吗？<br>9、线上机器出问题后，有什么办法去定位问题？<br>10、http 和 https 的区别</p>
+<p>二面（代码面+少量项目）<br>1、给一个文件，文件里面每行是不同的单词，内存足够多，要求实现一种数据结构，可以快速查询某个单词在哪一行。（我用了字典树）<br>2、Redis 的缓存风险，怎么防范的<br>3、mysql 优化做了哪些工作</p>
+<p>三面（大老板面，这一面题量巨大，我面了 1 小时 40 分钟，但题目都是基础题…）<br>1.说出十种设计模式<br>2.说一下面向对象的 solid 原则<br>3.我们为什么要有设计模式，说说你的理解<br>4.spring 中有哪些设计模式<br>5.缓存中间件有哪些<br>6.redis 和 mysql 怎么做数据一致性<br>7.redis 怎么做持久化<br>8.Java 多态的实现<br>9.父类有一个公有方法，私有方法，静态方法，公有方法能否重写，私有能否重写，静态方法能否重写<br>10.公开的方法能重写，底层的 JVM 里面是怎么做到的？<br>11.Java 用过什么线程池<br>12.Java 线程池简单介绍一下<br>13.ThreadPoolExcutor 的核心参数<br>14.corepoolsize 和 maxpoolsize 分别是什么，假如我把 corepoolsize 和 maxpoolsize 分别设置为  5 和 10，假设任务计算时间很长，我往里面连续放入 20 个任务，按时间顺序会发生什么<br>15.任务队列有好多种类型，有哪些类型<br>16.为什么不推荐用 Java 预设的线程池<br>17.线程池里的具体的数量，如何去定<br>18.对锁的了解<br>19.乐观锁与悲观锁的区别<br>20.介绍一下 cas<br>21.Jvm 中的 cas 是怎么实现的？操作系统中的呢？<br>22.synchronized 关键字的底层实现机制<br>23.volatile 关键字<br>24.可见性和原子性有什么区别<br>25.内存屏障的原理<br>26.Java GC 过程<br>27.什么时候触发 full gc<br>28.对象什么时候晋升老年代<br>29.垃圾回收算法有哪些<br>30.ZGC 为什么零停机<br>31.http 和 https 的差异<br>32.https 具体流程<br>33.http1.0 http1.1 http2各自有什么不同<br>34.TCP/UDP 的差异<br>35.TCP 拥塞控制算法<br>36.BBR 为什么比传统算法好<br>37.自己搭建过 BBR 的网络吗<br>38.TCP 有连接上限吗<br>39.如何基于 udp 实现 http 协议<br>40.负载均衡有哪些算法<br>41.一致性哈希讲一下<br>42.在哪些层面可以做负载均衡<br>43.nginx 和 lvs 负载均衡的区别是什么<br>44.知道 lvs 是谁写的吗（这个纯属闲聊…）<br>45.平时有什么兴趣爱好？</p>
+<p>四面（交叉面，这一面主要是项目相关）<br>1.狂问项目<br>2.狂问比赛<br>3.领域驱动设计了解多少？<br>4.你这个根本不是 DDD…</p>
+<p>最后祝大家都能拿到满意的 offer，也祝我顺利毕业~</p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2021/06/06/我的Java自学之路（校招攻略）/" title="我的Java自学之路（校招攻略）" target="_blank" rel="external">http://yoursite.com/2021/06/06/我的Java自学之路（校招攻略）/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>电子科大计算机在读</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2020/09/03/常见限流算法和开源实现/" title="常见限流算法与开源实现"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <!-- <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script> -->
+  <script src="//geektutu.github.io/hexo-theme-geektutu/js/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    accessToken: '67dae45dd170aa59e679ea5ba783dc4444c21d92',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
