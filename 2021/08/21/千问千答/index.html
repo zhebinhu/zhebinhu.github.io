@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform">
+    <meta http-equiv="Cache-Control" content="no-siteapp">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no,email=no,adress=no">
+    <!-- Color theme for statusbar -->
+    <meta name="theme-color" content="#000000">
+    <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+    <meta http-equiv="window-target" content="_top">
+    
+    
+    <title>
+        
+        千问千答 |
+        
+        huzb的博客</title>
+    <meta name="description" content="千问千答版块会记录下平时学习和工作中想到的碎片化的问题，并尝试在 10 句话以内解答这些问题。 Java 基础1、Java 特性Integer == int发生了什么？当一个基础数据类型与封装类进行==、+、-、*、/运算时，会将封装类进行拆箱，对基础数据类型进行运算。特别注意，当封装类与封装类进行==时，不会拆箱，比较的是地址。因此封装类之间应该用 equals 比较。 java 创建对象的 5">
+<meta name="keywords" content="Java,Linux,计算机网络,MySQL,Spring,Netty">
+<meta property="og:type" content="article">
+<meta property="og:title" content="千问千答">
+<meta property="og:url" content="http://yoursite.com/2021/08/21/千问千答/index.html">
+<meta property="og:site_name" content="huzb的博客">
+<meta property="og:description" content="千问千答版块会记录下平时学习和工作中想到的碎片化的问题，并尝试在 10 句话以内解答这些问题。 Java 基础1、Java 特性Integer == int发生了什么？当一个基础数据类型与封装类进行==、+、-、*、/运算时，会将封装类进行拆箱，对基础数据类型进行运算。特别注意，当封装类与封装类进行==时，不会拆箱，比较的是地址。因此封装类之间应该用 equals 比较。 java 创建对象的 5">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/集合类继承关系.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/SpringBoot启动流程.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/Java对象头.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/方法区结构.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/内存间交互操作.png">
+<meta property="og:image" content="http://yoursite.com/2021/08/21/千问千答/osi七层模型.png">
+<meta property="og:updated_time" content="2021-08-22T11:19:05.460Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="千问千答">
+<meta name="twitter:description" content="千问千答版块会记录下平时学习和工作中想到的碎片化的问题，并尝试在 10 句话以内解答这些问题。 Java 基础1、Java 特性Integer == int发生了什么？当一个基础数据类型与封装类进行==、+、-、*、/运算时，会将封装类进行拆箱，对基础数据类型进行运算。特别注意，当封装类与封装类进行==时，不会拆箱，比较的是地址。因此封装类之间应该用 equals 比较。 java 创建对象的 5">
+<meta name="twitter:image" content="http://yoursite.com/2021/08/21/千问千答/集合类继承关系.png">
+    <!-- Canonical links -->
+    <link rel="canonical" href="http://yoursite.com/2021/08/21/千问千答/index.html">
+    
+    
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+    
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    
+</head>
+
+
+<body class="main-center" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/zhebinhu" target="_blank">
+          <img class="img-circle img-rotate" src="/images/avatar.jpg" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">huzb</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md">念念不忘，必有回响</h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> HangZhou, China</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav ">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎来到 huzb 的个人博客！</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a><span class="tag-list-count">10</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">9</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Netty/">Netty</a><span class="tag-list-count">7</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/">Redis</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Sentinel/">Sentinel</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spring/">Spring</a><span class="tag-list-count">14</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/zookeeper/">zookeeper</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/分布式/">分布式</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/备忘录/">备忘录</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/密码学/">密码学</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/收藏/">收藏</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算广告/">计算广告</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/计算机网络/">计算机网络</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/读书笔记/">读书笔记</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget-body tagcloud">
+      <a href="/tags/Java/" style="font-size: 13.83px;">Java</a> <a href="/tags/Linux/" style="font-size: 13.17px;">Linux</a> <a href="/tags/MySQL/" style="font-size: 13.67px;">MySQL</a> <a href="/tags/Netty/" style="font-size: 13.5px;">Netty</a> <a href="/tags/Redis/" style="font-size: 13.33px;">Redis</a> <a href="/tags/Sentinel/" style="font-size: 13px;">Sentinel</a> <a href="/tags/Spring/" style="font-size: 14px;">Spring</a> <a href="/tags/zookeeper/" style="font-size: 13px;">zookeeper</a> <a href="/tags/分布式/" style="font-size: 13.17px;">分布式</a> <a href="/tags/备忘录/" style="font-size: 13px;">备忘录</a> <a href="/tags/密码学/" style="font-size: 13px;">密码学</a> <a href="/tags/收藏/" style="font-size: 13.17px;">收藏</a> <a href="/tags/计算广告/" style="font-size: 13px;">计算广告</a> <a href="/tags/计算机网络/" style="font-size: 13.33px;">计算机网络</a> <a href="/tags/读书笔记/" style="font-size: 13px;">读书笔记</a>
+    </div>
+  </div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/06/">六月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">九月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">十月 2019</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">九月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">六月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/04/">四月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/03/">三月 2019</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/09/">九月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">八月 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">五月 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/04/">四月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2021/08/21/千问千答/" class="title">千问千答</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-08-21T06:46:10.000Z" itemprop="datePublished">2021-08-21</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2021/06/06/从零开始的Java自学之路（校招攻略）/" class="title">从零开始的Java自学之路（校招攻略）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2021-06-06T12:12:18.000Z" itemprop="datePublished">2021-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/09/03/常见限流算法和开源实现/" class="title">常见限流算法与开源实现</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-09-03T10:54:52.000Z" itemprop="datePublished">2020-09-03</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2020/02/08/计算广告基础/" class="title">计算广告基础</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2020-02-08T06:41:32.000Z" itemprop="datePublished">2020-02-08</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                
+              </p>
+              <p class="item-title">
+                <a href="/2019/10/30/Spring-Boot源码浅析——内嵌容器/" class="title">Spring Boot 源码浅析——内嵌容器</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2019-10-30T14:46:18.000Z" itemprop="datePublished">2019-10-30</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse in" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-基础"><span class="toc-text">Java 基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Java-特性"><span class="toc-text">1、Java 特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Integer-int发生了什么？"><span class="toc-text">Integer == int发生了什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#java-创建对象的-5-种方法？"><span class="toc-text">java 创建对象的 5 种方法？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#java-内部类引用外部对象为什么只能-final？"><span class="toc-text">java 内部类引用外部对象为什么只能 final？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#java-中的线程通信机制？"><span class="toc-text">java 中的线程通信机制？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-中断响应？"><span class="toc-text">Java 中断响应？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK8-的-Lambda？"><span class="toc-text">JDK8 的 Lambda？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JDK8-对-GC-作了什么改进？"><span class="toc-text">JDK8 对 GC 作了什么改进？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#switch-case-可以使用哪些类型的参数？"><span class="toc-text">switch-case 可以使用哪些类型的参数？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#threadlocal-实现？"><span class="toc-text">threadlocal 实现？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#反射为什么慢？"><span class="toc-text">反射为什么慢？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#泛型中-T、？和-Object-的区别？"><span class="toc-text">泛型中 T、？和 Object 的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-线程状态"><span class="toc-text">Java 线程状态</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、并发"><span class="toc-text">2、并发</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-并发包包括哪些部分？"><span class="toc-text">Java 并发包包括哪些部分？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AQS-共享锁和非共享锁的区别？"><span class="toc-text">AQS 共享锁和非共享锁的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#forkjoin-原理"><span class="toc-text">forkjoin 原理?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#join-方法的本质？"><span class="toc-text">join() 方法的本质？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ReentrantLock-和-synchronized-的区别？"><span class="toc-text">ReentrantLock 和 synchronized 的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#synchronized、sleep、wait-和-lock-底层原理？"><span class="toc-text">synchronized、sleep、wait 和 lock 底层原理？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程池的参数，分别代表什么？"><span class="toc-text">线程池的参数，分别代表什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程池拒绝策略有哪些？"><span class="toc-text">线程池拒绝策略有哪些？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线程池运行流程？"><span class="toc-text">线程池运行流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-自带的线程池有哪些？"><span class="toc-text">Java 自带的线程池有哪些？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、工具"><span class="toc-text">3、工具</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#array-sort-的内部逻辑？"><span class="toc-text">array.sort 的内部逻辑？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、集合"><span class="toc-text">4、集合</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#集合类继承关系？"><span class="toc-text">集合类继承关系？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hashmap-和-concurrenthashmap-的区别？"><span class="toc-text">hashmap 和 concurrenthashmap 的区别？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-中间件"><span class="toc-text">Java 中间件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Netty"><span class="toc-text">1、Netty</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fastThreadLocal-内部实现"><span class="toc-text">fastThreadLocal 内部实现?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Netty-如何进行拆包？"><span class="toc-text">Netty 如何进行拆包？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Netty-写入流程？"><span class="toc-text">Netty 写入流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Netty-中的零拷贝？"><span class="toc-text">Netty 中的零拷贝？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#水平触发和边沿触发？"><span class="toc-text">水平触发和边沿触发？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Tomcat"><span class="toc-text">2、Tomcat</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat-为什么要自定义类加载器？"><span class="toc-text">Tomcat 为什么要自定义类加载器？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#listener-filter-和-Interceptor-的调用顺序？"><span class="toc-text">listener, filter 和 Interceptor 的调用顺序？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Servlet-生命周期"><span class="toc-text">Servlet 生命周期</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat-接收请求的方式有哪些？"><span class="toc-text">Tomcat 接收请求的方式有哪些？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat-的最大连接数怎么设置？"><span class="toc-text">Tomcat 的最大连接数怎么设置？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat-的热部署原理？"><span class="toc-text">Tomcat 的热部署原理？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Tomcat-的线程池策略？"><span class="toc-text">Tomcat 的线程池策略？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、Dubbo"><span class="toc-text">3、Dubbo</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-基本概念介绍"><span class="toc-text">Dubbo 基本概念介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-的-spi-机制"><span class="toc-text">Dubbo 的 spi 机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-的-ioc-机制"><span class="toc-text">Dubbo 的 ioc 机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-的-aop-机制"><span class="toc-text">Dubbo 的 aop 机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-的服务是如何发布的？"><span class="toc-text">Dubbo 的服务是如何发布的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-的服务是如何引用的？"><span class="toc-text">Dubbo 的服务是如何引用的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dubbo-如何保证连通性、健壮性、伸缩性？"><span class="toc-text">Dubbo 如何保证连通性、健壮性、伸缩性？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、MyBatis"><span class="toc-text">4、MyBatis</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#mybatis-的-xml-转换成-dao-的流程？"><span class="toc-text">mybatis 的 xml 转换成 dao 的流程？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、Spring"><span class="toc-text">5、Spring</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SpringBoot-启动流程？"><span class="toc-text">SpringBoot 启动流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SpringBoot-自动配置原理？"><span class="toc-text">SpringBoot 自动配置原理？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、MQ"><span class="toc-text">6、MQ</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#rocketmq-消费进度如何保存？"><span class="toc-text">rocketmq 消费进度如何保存？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-虚拟机"><span class="toc-text">Java 虚拟机</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常用的jvm指令"><span class="toc-text">常用的jvm指令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#频繁-full-gc-怎么解决？"><span class="toc-text">频繁 full gc 怎么解决？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#如何定位线程死锁？"><span class="toc-text">如何定位线程死锁？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#为什么-jvm-调优经常会将-Xms-和-Xmx-参数设置成一样？"><span class="toc-text">为什么 jvm 调优经常会将 -Xms 和 -Xmx 参数设置成一样？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#线上-CPU-占用过高问题排查？"><span class="toc-text">线上 CPU 占用过高问题排查？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#新生代何时进入老生代？"><span class="toc-text">新生代何时进入老生代？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#虚拟机何时进行类加载？"><span class="toc-text">虚拟机何时进行类加载？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#class-文件结构？"><span class="toc-text">class 文件结构？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#full-gc-触发条件？"><span class="toc-text">full gc 触发条件？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#jvm-一个空对象占用多少空间？"><span class="toc-text">jvm 一个空对象占用多少空间？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-对象头"><span class="toc-text">Java 对象头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-内存模型"><span class="toc-text">Java 内存模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-锁膨胀的时机？"><span class="toc-text">Java 锁膨胀的时机？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-锁膨胀过程？"><span class="toc-text">Java 锁膨胀过程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-虚拟机栈中包含哪些内容？"><span class="toc-text">Java 虚拟机栈中包含哪些内容？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-运行时能获取泛型吗？"><span class="toc-text">Java 运行时能获取泛型吗？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-方法区结构"><span class="toc-text">Java 方法区结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Java-有哪些-gc-类型？"><span class="toc-text">Java 有哪些 gc 类型？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#可达性分析是广度优先还是深度优先？"><span class="toc-text">可达性分析是广度优先还是深度优先？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#空间分配担保机制是什么？"><span class="toc-text">空间分配担保机制是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JMM-内存间交互操作"><span class="toc-text">JMM 内存间交互操作</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#操作系统"><span class="toc-text">操作系统</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#epoll-和-select-的区别？"><span class="toc-text">epoll 和 select 的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pagecache-是如何分配的？"><span class="toc-text">pagecache 是如何分配的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#进程和线程的区别？"><span class="toc-text">进程和线程的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#进程间通信方式？"><span class="toc-text">进程间通信方式？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#水平触发和边沿触发的区别？"><span class="toc-text">水平触发和边沿触发的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#死锁的四个条件？"><span class="toc-text">死锁的四个条件？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#计算机网络"><span class="toc-text">计算机网络</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#osi-七层模型"><span class="toc-text">osi 七层模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ARP-流程？"><span class="toc-text">ARP 流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DHCP-流程？"><span class="toc-text">DHCP 流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DNS-和负载均衡？"><span class="toc-text">DNS 和负载均衡？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#https-握手流程？"><span class="toc-text">https 握手流程？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务器大量-TIME-WAIT-怎么解决？"><span class="toc-text">服务器大量 TIME_WAIT 怎么解决？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据结构与算法"><span class="toc-text">数据结构与算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#红黑树的性质？"><span class="toc-text">红黑树的性质？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#跳表和红黑树？"><span class="toc-text">跳表和红黑树？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库"><span class="toc-text">数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#count-1-和count-的区别？"><span class="toc-text">count(1)和count()的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#datetime和timestamp的区别？"><span class="toc-text">datetime和timestamp的区别？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#explain-各字段含义？"><span class="toc-text">explain 各字段含义？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mysql-主从数据一致？"><span class="toc-text">mysql 主从数据一致？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#redis-为什么快？"><span class="toc-text">redis 为什么快？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#为什么要分库分表？"><span class="toc-text">为什么要分库分表？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据库连接为什么消耗大？"><span class="toc-text">数据库连接为什么消耗大？</span></a></li></ol></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-千问千答" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      千问千答
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/08/21/千问千答/" class="article-date">
+	  <time datetime="2021-08-21T06:46:10.000Z" itemprop="datePublished">2021-08-21</time>
+	</a>
+</span>
+        
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link" href="/tags/Java/">Java</a>, <a class="article-tag-link" href="/tags/Linux/">Linux</a>, <a class="article-tag-link" href="/tags/MySQL/">MySQL</a>, <a class="article-tag-link" href="/tags/Netty/">Netty</a>, <a class="article-tag-link" href="/tags/Spring/">Spring</a>, <a class="article-tag-link" href="/tags/计算机网络/">计算机网络</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/08/21/千问千答/#comments" class="article-comment-link">评论</a></span>
+        
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p>千问千答版块会记录下平时学习和工作中想到的碎片化的问题，并尝试在 10 句话以内解答这些问题。</p>
+<h2 id="Java-基础"><a href="#Java-基础" class="headerlink" title="Java 基础"></a>Java 基础</h2><h3 id="1、Java-特性"><a href="#1、Java-特性" class="headerlink" title="1、Java 特性"></a>1、Java 特性</h3><h4 id="Integer-int发生了什么？"><a href="#Integer-int发生了什么？" class="headerlink" title="Integer == int发生了什么？"></a>Integer == int发生了什么？</h4><p>当一个基础数据类型与封装类进行==、+、-、*、/运算时，会将封装类进行拆箱，对基础数据类型进行运算。<br>特别注意，当封装类与封装类进行==时，不会拆箱，比较的是地址。因此封装类之间应该用 equals 比较。</p>
+<h4 id="java-创建对象的-5-种方法？"><a href="#java-创建对象的-5-种方法？" class="headerlink" title="java 创建对象的 5 种方法？"></a>java 创建对象的 5 种方法？</h4><p>使用new关键字<br>使用Class类的newInstance方法<br>使用Constructor类的newInstance方法<br>使用clone方法<br>使用反序列化</p>
+<h4 id="java-内部类引用外部对象为什么只能-final？"><a href="#java-内部类引用外部对象为什么只能-final？" class="headerlink" title="java 内部类引用外部对象为什么只能 final？"></a>java 内部类引用外部对象为什么只能 final？</h4><p>java 内部类可以引用外部方法的局部变量，实际上是把外部方法的局部变量作为参数传给了内部类的构造函数，即内部类中会有一个隐藏的成员变量作为外部变量的副本，为了保证一致性，只能用 final 修饰。为什么内部类要保存一份局部变量的副本，是因为内部类的生命周期可能比局部变量长，比如把内部类的实例作为方法的结果返回，这时局部变量已经没了，只能去内部类里找。</p>
+<p>java1.8 开始，新增了 effectively final 功能：当内部类或匿名内部类用到外部方法局部变量时，在外部方法中可以不显示加 final 修饰符，由系统默认添加。</p>
+<h4 id="java-中的线程通信机制？"><a href="#java-中的线程通信机制？" class="headerlink" title="java 中的线程通信机制？"></a>java 中的线程通信机制？</h4><p>thread.join(), wait/notify, await/signal,CountdownLatch, CyclicBarrier, FutureTask, synchronize,PipedInputStream/PipedOutputStream</p>
+<h4 id="Java-中断响应？"><a href="#Java-中断响应？" class="headerlink" title="Java 中断响应？"></a>Java 中断响应？</h4><p>通过调用一个线程的 interrupt() 来中断该线程，对于非阻塞状态的线程而言，仅会将该线程打上 interrupted 标记，但不会强制停止该线程。<br>如果该线程处于 wait()、sleep() 或 join() 状态，那么就会抛出 InterruptedException，从而提前结束该线程。如果是阻塞在 channel，则会关闭 channel 并抛出 ClosedByInterruptException 异常；如果阻塞在 selector，则会调用 wakeup()，并设置 interrupted 标记，但不会抛出异常。Lock.lockInterruptibly() 也会抛出 LockInterruptedException。如果阻塞在 Lock.lock() 或 synchronized，则仅会打 interrupted 标记，但不会中断，也不会抛异常。</p>
+<blockquote>
+<p>本质上 synchronized、sleep、wait、lock 最终都是借助于 pthread_cond_timedwait 实现阻塞，因此在系统层面都可以被唤醒。但由于 synchronized 和 Lock.lock() 没有做 interrupted 标记检测，所以无法被中断。 </p>
+</blockquote>
+<h4 id="JDK8-的-Lambda？"><a href="#JDK8-的-Lambda？" class="headerlink" title="JDK8 的 Lambda？"></a>JDK8 的 Lambda？</h4><p>Lambda 表达式：(参数) -&gt; 表达式，Lambda 表达式可以隐式地分配给函数式接口</p>
+<p>方法引用：类::方法，直接表示一个方法，可以分配给函数式接口</p>
+<p>函数式接口：函数式接口(@FunctionalInterface)就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口。函数式接口可以被隐式转换为 Lambda 表达式。</p>
+<p>接口默认方法：default</p>
+<h4 id="JDK8-对-GC-作了什么改进？"><a href="#JDK8-对-GC-作了什么改进？" class="headerlink" title="JDK8 对 GC 作了什么改进？"></a>JDK8 对 GC 作了什么改进？</h4><p>虚拟机团队在 JDK8 的 HotSpot 中，把永久代从 Java 堆中移除了，并把类的元数据直接保存在本地内存区域（堆外内存），称之为元空间。（类的元数据包括类的信息、常量池、静态变量、字节码等）（永久代中存储的类的信息和 Class 类不一样，类的 Class 对象一直都在堆中，Class 对象会维护一个指向永久代类信息的指针）</p>
+<p>同时，在 JDK7 中静态成员变量(存储于定义类型的 Class 对象末尾隐藏字段)、字符串常量池从方法区被移到堆内存，接受 gc。</p>
+<p>好处：对永久代的调优过程非常困难，永久代的大小很难确定，其中涉及到太多因素，如类的总数、常量池大小和方法数量等，而且永久代的数据可能会随着每一次 Full GC 而发生移动。而在 JDK8 中，类的元数据保存在本地内存中，元空间的最大可分配空间就是系统可用内存空间，可以避免永久代的内存溢出问题。</p>
+<p>缺点：需要监控内存的消耗情况，一旦发生内存泄漏，会占用大量的本地内存。</p>
+<h4 id="switch-case-可以使用哪些类型的参数？"><a href="#switch-case-可以使用哪些类型的参数？" class="headerlink" title="switch-case 可以使用哪些类型的参数？"></a>switch-case 可以使用哪些类型的参数？</h4><p>switch-case 可以使用 byte、short、int、char、字符串和枚举类型作为参数。其中 byte、short、char会被转换成 int。long、double 和 float 不能使用，因为无法转换成 int。</p>
+<h4 id="threadlocal-实现？"><a href="#threadlocal-实现？" class="headerlink" title="threadlocal 实现？"></a>threadlocal 实现？</h4><p>ThreadLocal 将自身作为key，和需要保存的value一起存入到当前线程的 threadlocalmap 中。</p>
+<p>threadlocalmap 的 key 是一个 threadLocal  变量，threadlocalmap 对它的引用是一个弱引用，也就是说，如果除了 threadlocalmap 以外没有指向 threadLocal 的引用，那么这个 threadlocal 就会被回收。</p>
+<p>threadlocalmap 本质是张哈希表。为了增加计算效率，ThreadLocal 类维护了一个静态变量 nextHashCode，每一个 threadlocal 实例都会获得属于自己的 hashcode，这是通过对 nextHashCode 不断加 0x61c88647 实现的(为啥是0x61c88647 呢我也不知道，可能会比较均匀吧)。threadlocalmap 使用线性探测法解决哈希冲突：每个 threadlocal 在插入时会检查数组的当前位置的情况，如果为 null 直接插入（为 null 表示弱引用被 gc 掉了），不为 null 则顺序查找下一个，直到找到空位置为止。</p>
+<p>当 threadlocalmap 内元素超过最大大小的 3/4 时会进行扩容，新 map 大小为 2 倍。扩容时从第一个entry 开始，依次往新 map 里迁移，当中会丢弃掉 key 为 null 的。</p>
+<h4 id="反射为什么慢？"><a href="#反射为什么慢？" class="headerlink" title="反射为什么慢？"></a>反射为什么慢？</h4><p>每个实际的Java方法只有一个对应的Method对象作为root，。这个root是不会暴露给用户的，而是每次在通过反射获取Method对象时新创建Method对象把root包装起来再给用户。在第一次调用一个实际Java方法对应得Method对象的invoke()方法之前，实现调用逻辑的MethodAccessor对象还没创建；等第一次调用时才新创建MethodAccessor并更新给root，然后调用MethodAccessor.invoke()真正完成反射调用。（相当于Method.invoke()是委托给MethodAccessor来做的，但它是懒加载的）</p>
+<p>实际的MethodAccessor实现有两个版本，一个是Java实现的，另一个是native code实现的。Java实现的版本在初始化时需要较多时间，但长久来说性能较好；native版本正好相反，启动时相对较快，但运行时间长了之后速度就比不过Java版了。这是HotSpot的优化方式带来的性能特性，同时也是许多虚拟机的共同点：跨越native边界会对优化有阻碍作用，它就像个黑箱一样让虚拟机难以分析也将其内联，于是运行时间长了之后反而是托管版本的代码更快些。<br>为了权衡两个版本的性能，Sun的JDK使用了“inflation”的技巧：让Java方法在被反射调用时，开头若干次使用native版，等反射调用次数超过阈值时则生成一个专用的MethodAccessor实现类，生成其中的invoke()方法的字节码，以后对该Java方法的反射调用就会使用Java版。 </p>
+<p>所以反射在调用次数少的情况下性能会比较差。</p>
+<h4 id="泛型中-T、？和-Object-的区别？"><a href="#泛型中-T、？和-Object-的区别？" class="headerlink" title="泛型中 T、？和 Object 的区别？"></a>泛型中 T、？和 Object 的区别？</h4><p>T 是用在声明中，表示几个地方的需要的参数是同一类型。如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Box</span>&lt;<span class="title">T</span>&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> List&lt;T&gt; item;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>？用在定义中，起限制作用，比如：<br>List&lt;? extends Fruit&gt; list<br>表示这个 list 只可能是 Fruit 子类的 list，比如 List&lt;Apple></p>
+<p>Object表示可以匹配任何类</p>
+<p>List&lt;? extends Fruit&gt; list 只能从里面取对象，存的话只能存 null。因为存的时候只知道这是一个存放 Fruit 子类的集合，但具体是 Apple 还是 Banana 不知道。Apple 肯定不能放在 Banana 容器中，因此不能存。但取的时候一定可以把里面的元素转成 Fruit。</p>
+<p>List&lt;? super Fruit&gt; list 只能往里面存对象，取的话只能取成 Object。因为取的时候只知道这是一个 Fruit 的父类，但不知道它在继承树上的位置，只有子类转成父类，不能父类转成子类。所以只有转成Object 这个所有对象的父类，才是安全的。存的时候可以直接存成 Fruit，因为 Fruit 可以转成他的任何父类。</p>
+<p>List&lt;?&gt;表示只能往里面放 null</p>
+<p>PECS（Producer Extends Consumer Super）原则：Extends 只读不写，Super 只写不读。</p>
+<p>List&lt;? extends Fruit&gt; 和 List&lt;? super Fruit&gt; 的一个常见的使用场景是用于定义一个方法的入参，这种方式会将外部传入的可写可读的 List 转换成功能受限的 List，来确保方法体内对这个 List 的正确使用。</p>
+<h4 id="Java-线程状态"><a href="#Java-线程状态" class="headerlink" title="Java 线程状态"></a>Java 线程状态</h4><p>1、初始状态（NEW）<br>实现 Runnable 接口和继承 Thread 可以得到一个线程类，new 一个实例出来，线程就进入了初始状态。</p>
+<p>2、可运行状态（RUNNABLE）<br>可运行状态表示该线程可以随时被 cpu 运行，更准确地讲，该状态包含“正在被 cpu 运行”和“等待操作系统资源”两种情况。这里的操作系统资源是指 cpu、io 等操作系统级别的资源。由于虚拟机不知道操作系统内部的情况，因此对 Java 而言，这些线程是随时可能被执行的。这和操作系统级别的线程状态不一样（举个例子，IO 阻塞在操作系统层面是 BLOCKED 状态，但在 Java 层面是 RUNNABLE 状态）。</p>
+<p>3、阻塞状态（BLOCKED）<br>该状态表示线程正在等待 synchronized 锁。</p>
+<p>4、等待状态（WAITING）<br>wait()、join()、LockSupport.park()（Lock 包底层依赖），会进入这个状态，表示一直等待直到某个条件的触发。</p>
+<p>5、有限等待状态（TIMED_WAITING）<br>sleep()、wait(timeout)、join(timeout)、LockSupport.parkNanos 和 LockSupport.parkUnitl（Lock 包底层依赖），会进入这个状态，表示有限时间内的等待。</p>
+<p>6、终止状态（TERMINATED）<br>表示该线程已经结束。</p>
+<h3 id="2、并发"><a href="#2、并发" class="headerlink" title="2、并发"></a>2、并发</h3><h4 id="Java-并发包包括哪些部分？"><a href="#Java-并发包包括哪些部分？" class="headerlink" title="Java 并发包包括哪些部分？"></a>Java 并发包包括哪些部分？</h4><p>1、locks部分：包含在 java.util.concurrent.locks 包中，提供显式锁(互斥锁和速写锁)相关功能；<br>2、atomic部分：包含在 java.util.concurrent.atomic 包中，提供原子变量类相关的功能，是构建非阻塞算法的基础；<br>3、executor部分：散落在 java.util.concurrent 包中，提供线程池相关的功能；<br>4、collections部分：散落在 java.util.concurrent 包中，提供并发容器相关功能；<br>5、tools部分：散落在 java.util.concurrent 包中，提供同步工具类，如信号量、闭锁、栅栏等功能；</p>
+<h4 id="AQS-共享锁和非共享锁的区别？"><a href="#AQS-共享锁和非共享锁的区别？" class="headerlink" title="AQS 共享锁和非共享锁的区别？"></a>AQS 共享锁和非共享锁的区别？</h4><p>acquire 和 acquireShared 的区别：acquireShared 在获取锁后会调用 doReleaseShared() 唤醒下一个节点；acquire 不会，只会唤醒一个<br>release 和 releaseShared 的区别：releaseShared需要确保线程安全，因为可能会有几个线程同时释放；release不需要保证线程安全，因为一定是独占的</p>
+<h4 id="forkjoin-原理"><a href="#forkjoin-原理" class="headerlink" title="forkjoin 原理?"></a>forkjoin 原理?</h4><p>1、ForkJoinPool 的每个工作线程都维护着一个工作队列（WorkQueue），这是一个双端队列（Deque），里面存放的对象是任务（ForkJoinTask）。<br>2、每个工作线程在运行中通过 fork() 产生新的子任务时，会放入工作队列的队尾，并且工作线程在处理自己的工作队列时，使用的是先进后出方式，也就是说每次从队尾取出任务来执行。<br>3、当调用 ForkJoinTask 的 fork() 时，如果没有空闲线程，会尝试创建（如果还没创建满）或唤醒（如果有等待的线程）一个线程（这里要分清楚，fork() 后的任务是放在原工作线程的队列里，但同时也会创建或唤醒一个其他的工作线程）。<br>3、每个工作线程在运行中调用子任务的 join() 来获取任务结果，此时，会检查任务的完成状态，如果已经完成就直接返回（被其它工作线程窃取）；如果任务尚未完成，则完成它；如果任务已被其他的工作线程偷走，则以先进先出的方式窃取这个小偷队列的任务执行，以期帮助它早日完成欲 join 的任务；如果偷走任务的小偷也已经把自己的任务全部做完，正在等待需要 join 的任务时，则递归地找到小偷的小偷，帮助它完成它的任务。<br>4、除了每个工作线程自己拥有的工作队列以外，ForkJoinPool 自身也拥有工作队列，这些工作队列的作用是用来接收由外部线程（非 ForkJoinThread 线程）提交过来的任务，而这些工作队列被称为 submitting queue。submitting queue 和其他 work queue 一样，是工作线程”窃取“的对象，因此当其中的任务被一个工作线程成功窃取时，就意味着提交的任务真正开始进入执行阶段。<br>5、工作线程完成了自己队列中的任务后，会从其它队列中偷一个任务。如果没有任务可偷则会一直等待（park）。</p>
+<blockquote>
+<p>ForkJoinPool 和 Threadpool 有什么区别？ForkJoinPool 是每个工作线程都有工作队列，每个工作线程创建的任务放在自己的工作队列中，不会出现竞争的情况。只有在工作线程偷取其它工作队列的任务时才会发生竞争。相比 Threadpool 提高了并发性能。</p>
+</blockquote>
+<h4 id="join-方法的本质？"><a href="#join-方法的本质？" class="headerlink" title="join() 方法的本质？"></a>join() 方法的本质？</h4><p>1、如何使用？<br>Thread myThread = new Thread();<br>myThread.start();<br>myThread.join();<br>则原线程会等待直到 myThread 执行完。<br>2、如何实现？<br>join() 方法上带了myThread 对象的 synchronized 锁，内部会执行 wait() 操作。当 myThread 执行完之后，jvm 会自动调用 notify() 唤醒原线程。</p>
+<h4 id="ReentrantLock-和-synchronized-的区别？"><a href="#ReentrantLock-和-synchronized-的区别？" class="headerlink" title="ReentrantLock 和 synchronized 的区别？"></a>ReentrantLock 和 synchronized 的区别？</h4><p>1）lockInterruptiby() 的使用，允许线程在等待锁的过程中中断。<br>2）可使用 tryLock 进行尝试锁定<br>3）可实现公平锁<br>4）锁可以绑定多个条件，用 condition 绑定<br>5）线程阻塞在进入 synchronized 关键字修饰的方法或代码块(获取锁)时的状态称为阻塞状态。但是阻塞在 Lock 接口的线程状态却是等待状态，因为 Lock 接口对于阻塞的实现使用的是 unsafe.park 和 unsafe.unpark</p>
+<h4 id="synchronized、sleep、wait-和-lock-底层原理？"><a href="#synchronized、sleep、wait-和-lock-底层原理？" class="headerlink" title="synchronized、sleep、wait 和 lock 底层原理？"></a>synchronized、sleep、wait 和 lock 底层原理？</h4><p>synchronized、sleep、wait、lock 在系统层面都是借助于 pthread_cond_timedwait 实现阻塞，其中 synchronized 和 wait 比较特殊的是，需要结合 ObjectMonitor 使用，ObjectMonitor 中有同步队列和等待队列，类似于AQS。</p>
+<h4 id="线程池的参数，分别代表什么？"><a href="#线程池的参数，分别代表什么？" class="headerlink" title="线程池的参数，分别代表什么？"></a>线程池的参数，分别代表什么？</h4><p>1、corePoolSize 核心线程数，指保留的线程池大小（不超过maximumPoolSize值时，线程池中最多有corePoolSize 个线程工作）。<br>2、maximumPoolSize 指的是线程池的最大大小（线程池中最大有maximumPoolSize个线程可运行）。<br>3、keepAliveTime 指的是空闲线程结束的超时时间（当一个线程不工作时，过keepAliveTime 长时间将停止该线程）。<br>4、unit 是一个枚举，表示 keepAliveTime 的单位（有NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS，7个可选值）。<br>5、workQueue 表示存放任务的队列（存放需要被线程池执行的线程队列）。<br>6、handler 拒绝策略（添加任务失败后如何处理该任务）<br>7、threadFactory 线程工厂（如何创建新线程）</p>
+<h4 id="线程池拒绝策略有哪些？"><a href="#线程池拒绝策略有哪些？" class="headerlink" title="线程池拒绝策略有哪些？"></a>线程池拒绝策略有哪些？</h4><p>1、AbortPolicy：java 线程池默认的拒绝策略，不执行此任务，而且直接抛出一个运行时异常，切记ThreadPoolExecutor.execute 需要 try-catch，否则程序会直接退出。<br>2、DiscardPolicy：直接抛弃，任务不执行，空方法<br>3、DiscardOldestPolicy：从队列里面抛弃 head 的一个任务，将此任务添加入队列。<br>4、CallerRunsPolicy：还给原线程自己执行，会阻塞入口<br>5、用户自定义拒绝策略：实现 RejectedExecutionHandler，自己定义策略模式</p>
+<h4 id="线程池运行流程？"><a href="#线程池运行流程？" class="headerlink" title="线程池运行流程？"></a>线程池运行流程？</h4><ul>
+<li>线程池刚创建时，里面没有一个线程。任务队列是作为参数传进来的。不过，就算队列里面有任务，线程池也不会马上执行它们。</li>
+</ul>
+<ul>
+<li>当调用 execute() 方法添加一个任务时，线程池会做如下判断：<br>  a. 如果正在运行的线程数量小于 corePoolSize，那么马上创建线程运行这个任务；<br>  b. 如果正在运行的线程数量大于或等于 corePoolSize，那么将这个任务放入队列。<br>  c. 如果这时候队列满了，而且正在运行的线程数量小于 maximumPoolSize，那么还是要创建线程运行这个任务；<br>  d. 如果队列满了，而且正在运行的线程数量大于或等于 maximumPoolSize，那么线程池会抛出异常，告诉调用者“我不能再接受任务了”。</li>
+<li>当一个线程完成任务时，它会从队列中取下一个任务来执行。</li>
+<li>当一个线程无事可做，超过一定的时间（keepAliveTime）时，线程池会判断，如果当前运行 的线程数大于 corePoolSize，那么这个线程就被停掉。所以线程池的所有任务完成后，它最终会收缩到 corePoolSize 的大小。</li>
+</ul>
+<h4 id="Java-自带的线程池有哪些？"><a href="#Java-自带的线程池有哪些？" class="headerlink" title="Java 自带的线程池有哪些？"></a>Java 自带的线程池有哪些？</h4><p>1、CachedThreadPool：这种线程池没有等待队列（队列长度为 0）内部没有核心线程，线程的数量是有没限制的。<br>2、FixedThreadPool：该线程池的最大线程数等于核心线程数。等待队列长度无限。<br>3、SingleThreadPool：有且仅有一个工作线程执行任务。等待队列长度不限。<br>4、ScheduledThreadPool：设置了核心线程数。等待队列长度无限，会按任务启动时间排序，若不到时间则会阻塞。</p>
+<blockquote>
+<p>不要使用 Java 自带的线程池。因为 CachedThreadPool 会无限创建线程，FixedThreadPool、SingleThreadPool、ScheduledThreadPool 会无限增加队列长度，会导致线程数溢出或内存溢出。</p>
+</blockquote>
+<h3 id="3、工具"><a href="#3、工具" class="headerlink" title="3、工具"></a>3、工具</h3><h4 id="array-sort-的内部逻辑？"><a href="#array-sort-的内部逻辑？" class="headerlink" title="array.sort 的内部逻辑？"></a>array.sort 的内部逻辑？</h4><p>基本数据类型（无需稳定）：<br>小于286——双轴快排<br>大于286——归并排序（类似于timsort，只不过run之间使用快排）</p>
+<p>对象（需要稳定）：<br>小于32——二分插入排序（先确定起始有序序列长度）<br>大于32——timsort（1.扫描数组，确定其中的单调上升段和严格单调下降段，将严格下降段反转。称之为run。 2.定义最小run长度，短于此的run通过二分插入排序合并为长度高于最小run长度； 3.反复归并一些相邻run，过程中需要避免归并长度相差很大的run，直至整个排序完成；）</p>
+<h3 id="4、集合"><a href="#4、集合" class="headerlink" title="4、集合"></a>4、集合</h3><h4 id="集合类继承关系？"><a href="#集合类继承关系？" class="headerlink" title="集合类继承关系？"></a>集合类继承关系？</h4><p><img src="/2021/08/21/千问千答/集合类继承关系.png" width="70%"></p>
+<h4 id="hashmap-和-concurrenthashmap-的区别？"><a href="#hashmap-和-concurrenthashmap-的区别？" class="headerlink" title="hashmap 和 concurrenthashmap 的区别？"></a>hashmap 和 concurrenthashmap 的区别？</h4><p>大方向上，HashMap 里面是一个数组，然后数组中每个元素是一个单向链表。链表的每个节点是 Entry 的实例，Entry 包含四个属性：key, value, hash 值和用于单向链表的 next。<br>capacity：当前数组容量，始终保持 2^n，可以扩容，扩容后数组大小为当前的 2 倍。<br>loadFactor：负载因子，默认为 0.75。<br>当调用 put 方法往里面添加的 1 时候，会先找到对应的数组下标，然后遍历数组对应的链表，看是否有重复的 key 已经存在，如果有，直接覆盖。<br>如果不存在重复的 key，就把 entry 添加到链表中，1.8 以前使用头插法插到链表头，在 resize 的时候会出现死循环的问题，1.8 以后使用尾插法插到表尾。如果插入时 hashmap 大小已到阈值且数组位置不为空（发生碰撞），则扩容。数组扩容会新建一个更大的数组，然后把原来数组中的值迁移到新数组。<br>1.8 以后如果单个链表的长度大于8，还会将链表转成红黑树。</p>
+<p>几个有意思的点：<br>1、初始化计算容量时，需要求最接近 n 的 2^m 的数，这是通过反复的移位和或来实现的。n |= n&gt;&gt;&gt;1;n |= n&gt;&gt;&gt;2;n |= n&gt;&gt;&gt;4;n |= n&gt;&gt;&gt;8;n |= n&gt;&gt;&gt;16; 将时间复杂度降为常数。<br>2、求哈希值时，会右移 16 位做异或，这是为了使哈希值更均匀<br>3、扩容时，需要计算某个值是放在原来的桶里还是新的桶里，这里不需要重新取余，而是计算 hash&amp;n是否为 1，为 1 放在新桶，为 0 放在旧桶。</p>
+<p>ConcurrentHashMap 是支持并发的 HashMap。原理是对链表的头节点加锁。锁的类型是 synchronized。put 和 remove 时会加锁，get 时不会。链表头节点通过 cas 创建。扩容时会暂停 put 和 remove 但 get 不受影响。扩容不是一次完成的，而是根据 cpu 的数量把数组分成了几个部分，每个线程完成对一个部分的迁移。迁移时，第一个负责迁移的线程会新建一个数组，然后把一部分节点迁移到新数组中。迁移完的链表的头结点会线程会把一个 hash 值为 -1 的空节点插入到已经完成迁移的链表头，这个空节点中有指向新数组的指针。当有一个新线程 put 和 remove 定位到这个链表时，它会获取两个信息：1、链表已被迁移；2、数组正在扩容。于是这个新线程就会参与迁移的工作，等迁移完之后再进行修改。所有迁移工作完成后，当前数组会指向新的数组。</p>
+<p>ConcurrentHashMap 的分桶 count 操作：<br>1）底层数据结构由一个 volatile long 变量 baseCount 和一个 CounterCell 型数组 CounterCells 组成<br>2）CounterCell 本质上也是一个 long 型变量，只不过为了避免伪共享，会填充数据到一个缓冲行的长度<br>3）更新 count 时，会首先检查有没有 CounterCells，没有表示并发少，使用 CAS 更新 baseCount<br>4）如果更新失败，则在 CounterCells 数组中随机选一个桶做 cas 操作<br>5）如果 cas 失败，且数组大小不超过 cpu 数量，会增加 CounterCells 的大小；如果数组大小达到 cpu 数量，则会继续循环 cas</p>
+<h2 id="Java-中间件"><a href="#Java-中间件" class="headerlink" title="Java 中间件"></a>Java 中间件</h2><h3 id="1、Netty"><a href="#1、Netty" class="headerlink" title="1、Netty"></a>1、Netty</h3><h4 id="fastThreadLocal-内部实现"><a href="#fastThreadLocal-内部实现" class="headerlink" title="fastThreadLocal 内部实现?"></a>fastThreadLocal 内部实现?</h4><p>不再使用 hashcode 查找地址，而是使用一个唯一递增的 index 确定位置。好处是不会出现哈希冲突，加快了查找效率；坏处是会浪费很多空间，因为 index 全局递增，如果全局有 1000 个 threadlocal，其中有一个线程只用到了第 1000 号 threadlocal，它也必须把自己的 map 扩容到 1024（容量必须是2的幂）。本质上是空间换时间。</p>
+<h4 id="Netty-如何进行拆包？"><a href="#Netty-如何进行拆包？" class="headerlink" title="Netty 如何进行拆包？"></a>Netty 如何进行拆包？</h4><p>为什么要拆包?1)因为tcp发包和收包是按流进行的。发包时不是一个一个数据包发送，而是等缓冲区满了一起发送；收包时也不是一个一个接收，而是定期从缓冲区接收。2)数据包有最大长度1460，超过这个长度的包会被拆成两个。这就要求应用层把流重组成包。</p>
+<p>拆包的工作在ByteToMessageDecoder这个类中，这是一个ChannelInboundHandler，一般定义在head节点的下一个节点，ByteToMessageDecoder内部有一个累加器，会保存目前为止所有没有重组的数据。每次读事件达到时，ByteToMessageDecoder会把读到的数据流添加在累加器末尾，然后用decode()方法读取这些数据，看是否能重组成包，如果能重组成包，就会把相关部分的数据从累加器中取出。decode()的输入是ByteBuf，表示还未重组的数据；返回是个List<object>，这个Object就是拆出的包，一次decode可能返回多个Object。如果拿到了拆分出来的包，ByteToMessageDecoder会把Object传播出去；如果没有能拆出来的包，说明累加器里的数据还不能拼成一个完整的包，需要等下次读事件到来。</object></p>
+<p>Netty 中的默认拆包器分有四种：基于固定长度的拆包器；基于行的拆包器；基于分隔符的拆包器；基于长度域的拆包器</p>
+<h4 id="Netty-写入流程？"><a href="#Netty-写入流程？" class="headerlink" title="Netty 写入流程？"></a>Netty 写入流程？</h4><p>写入数据放在 bytebuf 中，封装成 entry 以链表形式保存在写入缓冲区中。<br>写入缓冲区不能超过 64K，超过会设置为不可写并抛错。写入缓冲区小于 32K 时会设置为可写。</p>
+<p>flush时会自旋刷16次entry到channel（刷16次entry不代表刷16个，有可能出现刷入一部分后刷满的情况），有以下几种情况：<br>1）把所有entry刷完了，直接退出且清除可写事件监听。<br>2）channel缓冲区被写满了，退出，监听可写事件。当 eventloop 轮询到 channel 可写时会自动继续刷新。<br>3）刷了16次还没刷完，把剩下的任务封装成异步事件加入异步队列，清除可写事件监听（防止重复刷新）。</p>
+<h4 id="Netty-中的零拷贝？"><a href="#Netty-中的零拷贝？" class="headerlink" title="Netty 中的零拷贝？"></a>Netty 中的零拷贝？</h4><p>Java 中的零拷贝分为两种，一种是 socketChannel.write(mappedByteBuffer)  的形式，一种是 fileChannel.transferTo(socketChannel) 的形式。前者是从缓冲区到 channel，后者是从 channel 到 channel。</p>
+<p>Netty 的零拷贝和 Java 意义上的不太一样，它由三部分组成：<br>1、Netty 的接收和发送使用了堆外内存，避免了从 JVM 到堆外内存的拷贝。<br>2、Netty 提供了 CompositeByteBuf 类, 它提供了 Composite (组合) 和 Slice (拆分)，在逻辑上将一个 ByteBuf 拆分成多个 ByteBuf 或者将多个 ByteBuf 组合成一个 ByteBuf, 避免了各个 ByteBuf 之间的拷贝。<br>3、通过 FileRegion 包装的 FileChannel.tranferTo 实现文件传输（tranferTo 可以直接将文件从磁盘送到网卡）, 可以直接将文件缓冲区的数据发送到目标 Channel, 避免了从内核态到用户态再到内核态的拷贝。</p>
+<h4 id="水平触发和边沿触发？"><a href="#水平触发和边沿触发？" class="headerlink" title="水平触发和边沿触发？"></a>水平触发和边沿触发？</h4><p>水平触发（LT）是指 Selector 会响应 fd 中存量的数据<br>边沿触发（ET）是指 Selector 只会响应 fd 中每轮新增的数据</p>
+<p>Netty 为了使每次轮询负载均衡，限制了每次从 fd 中读取数据的最大值，造成一次读事件处理并不会读完 fd 中的所有数据。在 NioServerSocketChannel 中，由于其工作在 LT 模式下，所以不需要做特殊处理，在处理完一个事件后直接从 SelectionKey 中移除该事件即可，如果有未读完的数据，下次轮询仍会获得该事件。而在 EpollServerSocketChannel 中，由于其工作在 ET 模式下，如果一次事件处理不把数据读完，需要手动地触发一次事件作为补偿，否则下次轮询将不会有触发的事件。</p>
+<h3 id="2、Tomcat"><a href="#2、Tomcat" class="headerlink" title="2、Tomcat"></a>2、Tomcat</h3><h4 id="Tomcat-为什么要自定义类加载器？"><a href="#Tomcat-为什么要自定义类加载器？" class="headerlink" title="Tomcat 为什么要自定义类加载器？"></a>Tomcat 为什么要自定义类加载器？</h4><p>a)、要保证部署在 tomcat 上的每个应用依赖的类库相互独立，不受影响。<br>b)、由于 tomcat 是采用 java 语言编写的，它自身也有类库依赖，为了安全考虑，tomcat 使用的类库要与部署的应用的类库相互独立。<br>c)、有些类库 tomcat 与部署的应用可以共享，比如说 servlet-api，使用 maven 编写 web 程序时，servlet-api 的范围是 provided，表示打包时不打包这个依赖，因为我们都知道服务器已经有这个依赖了。<br>d)、部署的应用之间的类库可以共享。这听起来好像与第一点相互矛盾，但其实这很合理，类被类加载器加载到虚拟机后，会生成代表该类的 class 对象存放在永久代区域，这时候如果有大量的应用使用 spring 来管理，如果 spring 类库不能共享，那每个应用的 spring 类库都会被加载一次，将会是很大的资源浪费。</p>
+<h4 id="listener-filter-和-Interceptor-的调用顺序？"><a href="#listener-filter-和-Interceptor-的调用顺序？" class="headerlink" title="listener, filter 和 Interceptor 的调用顺序？"></a>listener, filter 和 Interceptor 的调用顺序？</h4><p>Listener - Filter - Interceptor - Servlet</p>
+<blockquote>
+<p>Listener是基于观察模式实现的，用于监听 request 域，session 域，application 域的产生，销毁和属性的变化<br>Filter 是基于函数回调和责任链实现的，用于过滤请求<br>Interceptor 是 springMVC 基于 AOP 实现的，底层使用动态代理，可以在请求处理前后使用，依赖框架</p>
+</blockquote>
+<h4 id="Servlet-生命周期"><a href="#Servlet-生命周期" class="headerlink" title="Servlet 生命周期"></a>Servlet 生命周期</h4><p>servlet实例化（根据web.xml的配置，容器初始化或第一次URL访问时，单例）- 执行init方法 - 调用service执行客户端请求 - 调用destroy销毁（容器关闭、手动销毁、重新装载新实例时） - 垃圾回收</p>
+<h4 id="Tomcat-接收请求的方式有哪些？"><a href="#Tomcat-接收请求的方式有哪些？" class="headerlink" title="Tomcat 接收请求的方式有哪些？"></a>Tomcat 接收请求的方式有哪些？</h4><p>Tomcat支持三种接收请求的处理方式：BIO、NIO、APR<br>BIO 模式：阻塞式 I/O 操作，表示 Tomcat 使用的是传统 Java I/O 操作(即 java.io 包及其子包)。<br>NIO 模式：是 Java SE 1.4 及后续版本提供的一种新的 I/O 操作方式(即 java.nio 包及其子包)。是一个基于缓冲区、并能提供非阻塞 I/O 操作的 Java API。<br>APR 模式：简单理解，就是从操作系统级别解决异步 IO 问题，大幅度的提高服务器的处理和响应性能， 也是 Tomcat 运行高并发应用的首选模式。启用这种模式稍微麻烦一些，需要安装一些依赖库。</p>
+<h4 id="Tomcat-的最大连接数怎么设置？"><a href="#Tomcat-的最大连接数怎么设置？" class="headerlink" title="Tomcat 的最大连接数怎么设置？"></a>Tomcat 的最大连接数怎么设置？</h4><p>tomcat使用线程池处理请求，最大连接数=acceptCount+maxConnections<br>其中：</p>
+<ul>
+<li>acceptCount 表示内核中的tcp的完全连接队列大小，默认100</li>
+<li>maxConnections 表示tomcat接受的连接数大小，默认10000</li>
+<li>maxThreads 表示处理请求的最大线程数，默认150</li>
+</ul>
+<p>maxThreads的设置既与应用的特点有关，也与服务器的CPU核心数量有关。一般来说，maxThreads数量应该远大于CPU核心数量；而且CPU核心数越大，maxThreads应该越大；应用中CPU越不密集（IO越密集），maxThreads应该越大，以便能够充分利用CPU。当然，maxThreads的值并不是越大越好，如果maxThreads过大，那么CPU会花费大量的时间用于线程的切换，整体效率会降低。</p>
+<p>maxConnections的设置与Tomcat的运行模式有关。如果tomcat使用的是BIO（tomcat7及以前），那么maxConnections的值应该与maxThreads一致；如果tomcat使用的是NIO（tomcat8以后），maxConnections值应该远大于maxThreads。IO模型可以通过<connector>元素中的protocol属性指定</connector></p>
+<p>其它参数：</p>
+<ul>
+<li>maxIdleTime 超时时间</li>
+<li>minSpareThreads 最小线程数</li>
+</ul>
+<h4 id="Tomcat-的热部署原理？"><a href="#Tomcat-的热部署原理？" class="headerlink" title="Tomcat 的热部署原理？"></a>Tomcat 的热部署原理？</h4><p>热部署的方式：一个 tomcat 进程可以同时运行多个应用，如果我们要修改应用 A 的某些代码，只需要替换 webApps 目录下的对应 war 包就可以，不需要重启 tomcat，也不会影响其它应用。</p>
+<p>热部署如何实现？<br>1、要有一个线程定期扫描某个文件路径，监视磁盘的变化。<br>2、当发现某个 war 包被替换后，tomcat 会先 stop 该应用（将该应用的容器置为 null，将类加载器置为 null），然后创建一个新的类加载器，重新创建新的应用容器。</p>
+<p>为什么不会影响到其它应用？<br>为了避免热部署影响到其它应用，以及支持不同应用使用不同版本的第三方库，tomcat 需要支持这样一种功能：同一个名称的 class 文件可以加载成多个 class 对象。这需要用到 tomcat 的类隔离机制。tomcat 自定义了一套类加载机制，每个应用有自己的类加载器，当一个类需要加载时，会首先交给tomcat 的类加载器，tomcat 的类加载器会看这个类是否在自己的应用目录下，如果在的话，会直接自己加载而不是委托给父类（打破了双亲委派机制）。这样即使不同应用目录下有同名的类，也可以在内存中共存。当发生热更新时，tomcat 会为这个应用创建一个新的类加载器，这样就能重新加载所有的类了。</p>
+<p>为什么我们的用户代码中不需要指定类加载器就能自动使用 tomcat 的类加载器？<br>这得益于类加载的“全盘负责”机制。当一个类是由某个类加载器加载的时候，它所引用的所有类，包括它的成员变量和方法中创建的所有类，都会默认由该类加载器加载。在 tomcat 中，因为应用容器是由 tomcat 的类加载器加载的，所以容器中所有的组件以及这些组件的间接引用都会由 tomcat 的类加载器加载。</p>
+<h4 id="Tomcat-的线程池策略？"><a href="#Tomcat-的线程池策略？" class="headerlink" title="Tomcat 的线程池策略？"></a>Tomcat 的线程池策略？</h4><ul>
+<li>maxThreads 表示处理请求的最大线程数，默认150</li>
+<li>minSpareThreads 最小线程数，默认10</li>
+<li>maxIdleTime 线程池超时时间</li>
+</ul>
+<p>业务处理默认使用 tomcat 内部实现的 StandardThreadExecutor 线程池</p>
+<p>StandardThreadExecutor 和普通线程池一样有最小线程数、最大线程数、超时时间等。但和普通线程池不一样的是它默认使用 TaskQueue 作为任务队列，TaskQueue 是一个无界队列，当接收任务时的策略如下：<br>1、如果当前线程数小于最小线程数，直接创建线程处理任务<br>2、如果当前线程数超过最小线程数，但有空闲线程（线程数大于正在处理的任务数），将任务放入队列<br>3、如果当前线程数超过最小线程数，且没有空闲线程，则判断当前线程是否小于最大线程数，如果小于则创建线程处理任务<br>4、如果当前线程数超过最大线程数，将任务放入队列</p>
+<h3 id="3、Dubbo"><a href="#3、Dubbo" class="headerlink" title="3、Dubbo"></a>3、Dubbo</h3><h4 id="Dubbo-基本概念介绍"><a href="#Dubbo-基本概念介绍" class="headerlink" title="Dubbo 基本概念介绍"></a>Dubbo 基本概念介绍</h4><p>1、ProxyFactory<br>实现了所有服务接口的的透明化代理。有两个方法，getInvoker 服务端使用，将实现类封装成一个Invoker。getProxy 客户端使用，创建接口的代理对象。</p>
+<p>2、Invoker<br>封装了一个服务的相关信息，是一个服务可执行体。</p>
+<p>3、Invocation<br>是会话域，它持有调用过程中的变量，比如方法名，参数等。</p>
+<p>4、Protocol<br>Protocol是一个服务域，他是Invoker引用和暴露的主要入口，它负责Invoker的生命周期管理。</p>
+<p>5、Exporter<br>具体执行Invoker的生命周期</p>
+<p>6、Exchange<br>封装请求响应模式，同步转异步</p>
+<p>7、Transport<br>transport 网络传输层，抽象mina、netty的统一接口</p>
+<h4 id="Dubbo-的-spi-机制"><a href="#Dubbo-的-spi-机制" class="headerlink" title="Dubbo 的 spi 机制"></a>Dubbo 的 spi 机制</h4><p>Spi机制：从配置文件中加载所有的拓展类，可得到“配置项名称”到“配置类”的映射关系表-&gt;通过反射创建实例-&gt;向实例中注入依赖(ioc)-&gt;通过反射创建 Wrapper 实例(aop)</p>
+<h4 id="Dubbo-的-ioc-机制"><a href="#Dubbo-的-ioc-机制" class="headerlink" title="Dubbo 的 ioc 机制"></a>Dubbo 的 ioc 机制</h4><p>Dubbo IOC 是通过 setXXX 方法注入依赖。Dubbo 首先会通过反射获取到实例的所有方法，然后再遍历方法列表，检测方法名是否具有 setXXX 方法特征。若有，则通过 ObjectFactory 获取依赖对象，最后通过反射调用 setter 方法将依赖设置到目标对象中。</p>
+<p>自适应拓展机制：默认情况下 Dubbo IOC 注入的是一个自适应拓展类。自适应拓展类不是具体的实例，而是一个中介，当我们要调用某个方法时，会根据传入的 URL 判断具体要使用哪个拓展类，然后创建实例。自适应拓展类的代码不是用户编写的，而是 Dubbo 生成的。Dubbo 会为拓展接口生成具有代理功能的代码。然后通过 javassist 或 jdk 编译这段代码，得到 Class 类。最后再通过反射创建代理类。</p>
+<p>可以通过 @Adaptive 指定自适应拓展类要用的 key：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Transporter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;<span class="string">"server"</span>, <span class="string">"transport"</span>&#125;)</span><br><span class="line">    <span class="function">Server <span class="title">bind</span><span class="params">(URL url, ChannelHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;<span class="string">"client"</span>, <span class="string">"transport"</span>&#125;)</span><br><span class="line">    <span class="function">Client <span class="title">connect</span><span class="params">(URL url, ChannelHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>对于 bind() 方法，Adaptive 实现先查找 server key，如果该 Key 没有值则找 transport key 值，来决定代理到哪个实际扩展点。</p>
+<h4 id="Dubbo-的-aop-机制"><a href="#Dubbo-的-aop-机制" class="headerlink" title="Dubbo 的 aop 机制"></a>Dubbo 的 aop 机制</h4><p>Dubbo AOP 是通过 Wrapper 类实现。ExtensionLoader 在加载扩展点时，如果加载到的扩展点有拷贝构造函数，则判定为扩展点 Wrapper 类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">XxxProtocolWrapper</span> <span class="keyword">implements</span> <span class="title">Protocol</span> </span>&#123;</span><br><span class="line">    Protocol impl;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">XxxProtocolWrapper</span><span class="params">(Protocol protocol)</span> </span>&#123; impl = protocol; &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 接口方法做一个操作后，再调用extension的方法</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">refer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//... 一些操作</span></span><br><span class="line">        impl.refer();</span><br><span class="line">        <span class="comment">// ... 一些操作</span></span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>加载拓展类时会保存所有的 Wrapper 类，在拓展类实例化后会对其使用 Wrapper 包装。</p>
+<h4 id="Dubbo-的服务是如何发布的？"><a href="#Dubbo-的服务是如何发布的？" class="headerlink" title="Dubbo 的服务是如何发布的？"></a>Dubbo 的服务是如何发布的？</h4><p>服务导出：<br>@Service 注解可以导出一个服务。在Spring启动的 invokeBeanFactoryPostProcessors 阶段，通过 ServiceAnnotationBeanPostProcessor 的 postProcessBeanDefinitionRegistry 方法，扫描代码中的 @Service 注解，并生成相应的 ServiceBean 的定义注册在容器中。 每一个 ServiceBean 都是一个监听器，监听容器刷新完成的事件，然后调用 export() 方法导出服务。</p>
+<p>export()的过程：通过生成字节码的方式生成Invoker-&gt;将服务发布到本地(jvm)-&gt;将服务发布到注册中心-&gt;启动Netty服务器（第一个服务发布时）<a href="https://segmentfault.com/a/1190000014520742" target="_blank" rel="noopener">dubbo服务发布一之服务暴露</a></p>
+<h4 id="Dubbo-的服务是如何引用的？"><a href="#Dubbo-的服务是如何引用的？" class="headerlink" title="Dubbo 的服务是如何引用的？"></a>Dubbo 的服务是如何引用的？</h4><p>服务引用：<br>Dubbo 服务引用的时机有两个，第一个是在 Spring 容器调用 ReferenceBean 的 afterPropertiesSet 方法时引用服务，第二个是在 ReferenceBean 对应的服务被注入到其他类中时引用（ReferenceBean本身也是factoryBean）。这两个引用服务的时机区别在于，第一个是饿汉式的，第二个是懒汉式的。默认情况下，Dubbo 使用懒汉式引用服务。如果需要使用饿汉式，可通过配置 <code>&lt;dubbo:reference&gt;</code> 的 init 属性开启。下面我们按照 Dubbo 默认配置进行分析，整个分析过程从 ReferenceBean 的 getObject 方法开始。当我们的服务被注入到其他类中时，Spring 会第一时间调用 getObject 方法，并由该方法执行服务引用逻辑。按照惯例，在进行具体工作之前，需先进行配置检查与收集工作。接着根据收集到的信息决定服务用的方式，有三种，第一种是引用本地 (JVM) 服务，第二是通过直连方式引用远程服务，第三是通过注册中心引用远程服务。不管是哪种引用方式，最后都会得到一个 Invoker 实例。如果有多个注册中心，多个服务提供者，这个时候会得到一组 Invoker 实例，此时需要通过集群管理类 Cluster 将多个 Invoker 合并成一个实例。合并后的 Invoker 实例已经具备调用本地或远程服务的能力了，但并不能将此实例暴露给用户使用，这会对用户业务代码造成侵入。此时框架还需要通过代理工厂类 (ProxyFactory) 为服务接口生成代理类（通过代码生成），并让代理类去调用 Invoker 逻辑。避免了 Dubbo 框架代码对业务代码的侵入，同时也让框架更容易使用。（以上为xml通过<code>&lt;dubbo:reference&gt;</code>配置，会生成一个 ReferenceBean 类型的 FactoryBean）</p>
+<p>注解式使用 @Reference 注解即可实现服务引用，该服务引用在属性注入阶段，扫描 @Reference 注解（和扫描@Autowired 注解一样）并进行注入，在注入时通过 new 的方式创建 ReferenceBean，然后调用  ReferenceBean 的 getObject 方法。</p>
+<h4 id="Dubbo-如何保证连通性、健壮性、伸缩性？"><a href="#Dubbo-如何保证连通性、健壮性、伸缩性？" class="headerlink" title="Dubbo 如何保证连通性、健壮性、伸缩性？"></a>Dubbo 如何保证连通性、健壮性、伸缩性？</h4><p>dubbo架构节点角色说明：<br>Provider: 暴露服务的服务提供方。<br>Consumer: 调用远程服务的服务消费方。<br>Registry: 服务注册与发现的注册中心。<br>Monitor: 统计服务的调用次调和调用时间的监控中心。<br>Container: 服务运行容器。</p>
+<p>调用关系说明：<br>服务容器负责启动，加载，运行服务提供者。<br>服务提供者在启动时，向注册中心注册自己提供的服务。<br>服务消费者在启动时，向注册中心订阅自己所需的服务。<br>注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。<br>服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。<br>服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。</p>
+<p>连通性：<br>注册中心负责服务地址的注册与查找，相当于目录服务，服务提供者和消费者只在启动时与注册中心交互，注册中心不转发请求，压力较小<br>监控中心负责统计各服务调用次数，调用时间等，统计先在内存汇总后每分钟一次发送到监控中心服务器，并以报表展示<br>服务提供者向注册中心注册其提供的服务，并汇报调用时间到监控中心，此时间不包含网络开销<br>服务消费者向注册中心获取服务提供者地址列表，并根据负载算法直接调用提供者，同时汇报调用时间到监控中心，此时间包含网络开销<br>注册中心，服务提供者，服务消费者三者之间均为长连接，监控中心除外<br>注册中心通过长连接感知服务提供者的存在，服务提供者宕机，注册中心将立即推送事件通知消费者<br>注册中心和监控中心全部宕机，不影响已运行的提供者和消费者，消费者在本地缓存了提供者列表<br>注册中心和监控中心都是可选的，服务消费者可以直连服务提供者</p>
+<p>健状性：<br>监控中心宕掉不影响使用，只是丢失部分采样数据<br>数据库宕掉后，注册中心仍能通过缓存提供服务列表查询，但不能注册新服务<br>注册中心对等集群，任意一台宕掉后，将自动切换到另一台<br>注册中心全部宕掉后，服务提供者和服务消费者仍能通过本地缓存通讯<br>服务提供者无状态，任意一台宕掉后，不影响使用<br>服务提供者全部宕掉后，服务消费者应用将无法使用，并无限次重连等待服务提供者恢复</p>
+<p>伸缩性：<br>注册中心为对等集群，可动态增加机器部署实例，所有客户端将自动发现新的注册中心<br>服务提供者无状态，可动态增加机器部署实例，注册中心将推送新的服务提供者信息给消费者</p>
+<h3 id="4、MyBatis"><a href="#4、MyBatis" class="headerlink" title="4、MyBatis"></a>4、MyBatis</h3><h4 id="mybatis-的-xml-转换成-dao-的流程？"><a href="#mybatis-的-xml-转换成-dao-的流程？" class="headerlink" title="mybatis 的 xml 转换成 dao 的流程？"></a>mybatis 的 xml 转换成 dao 的流程？</h4><p>1、SqlSource 以及动态标签 SqlNode：Mybatis 会把每个 SQL 标签封装成 SqlSource 对象。然后根据 SQL 语句的不同，又分为动态 SQL 和静态 SQL。其中，静态 SQL 包含一段 String 类型的 sql 语句；而动态 SQL 则是由一个个 SqlNode 组成。<br>2、MappedStatement 对象：SqlSource 和全限定类名+方法名组成的 ID 一起封装成一个MappedStatement 对象，缓存在 Configuration#mappedStatements 中。<br>3、Spring 包扫描：通过包扫描把 dao 层的接口注册到 Spring 容器中，类型是 MapperFactoryBean 的 bean 工厂类型<br>4、Spring 工厂 Bean 以及动态代理：属性注入的时候注入的是 MapperFactoryBean 工厂产生的对象，它通过 JDK 动态代理，返回了一个 Dao 接口的代理对象。<br>5、SqlSession 以及执行器：调用代理对象实际上是调用 SqlSession，它会通过全限定类型+方法名拿到 MappedStatement 对象，然后通过执行器 Executor 去执行具体 SQL 并返回。</p>
+<h3 id="5、Spring"><a href="#5、Spring" class="headerlink" title="5、Spring"></a>5、Spring</h3><h4 id="SpringBoot-启动流程？"><a href="#SpringBoot-启动流程？" class="headerlink" title="SpringBoot 启动流程？"></a>SpringBoot 启动流程？</h4><p><img src="/2021/08/21/千问千答/SpringBoot启动流程.png"></p>
+<h4 id="SpringBoot-自动配置原理？"><a href="#SpringBoot-自动配置原理？" class="headerlink" title="SpringBoot 自动配置原理？"></a>SpringBoot 自动配置原理？</h4><p>从 ClassPath下扫描所有的 META-INF/spring.factories 配置文件，并将spring.factories 文件中的 EnableAutoConfiguration 对应的配置项通过反射机制实例化为对应标注了 @Configuration 的形式的IoC容器配置类，然后注入IoC容器。</p>
+<h3 id="6、MQ"><a href="#6、MQ" class="headerlink" title="6、MQ"></a>6、MQ</h3><h4 id="rocketmq-消费进度如何保存？"><a href="#rocketmq-消费进度如何保存？" class="headerlink" title="rocketmq 消费进度如何保存？"></a>rocketmq 消费进度如何保存？</h4><p>如果是广播模式消费，消息的消费进度是保存到本地，如果是集群消费模式，消息的消费进度则是保存到 Broker，但无论是保存到本地，还是保存到 Broker，消费者都会在本地留一份缓存。</p>
+<p>在主服务器没有宕机的情况下，从服务器会定时从主服务器中同步消息消费进度等信息，那现在问题来了，由于这个同步是单方面同步，即只会从服务器同步主服务器，那如果主服务器宕机了之后，消费者切换成从服务器拉取消息进行消费，如果之后主服务器启动了，从服务器在把已经消费过的偏移量同步过来，那岂不是造成同步消费了？</p>
+<p>其实消费者取在拉取消息的时候，如果消费者的缓存中存在消费进度，也会向 Broker 更新消息消费进度，所以即使是主服务器挂了，在它重新启动之后，消费者的消费进度没有丢失，依然会更新主服务器的消息消费进度，这样一来，消费端与主服务器只挂了器中一个，并不会导致消息重新被消费。</p>
+<h2 id="Java-虚拟机"><a href="#Java-虚拟机" class="headerlink" title="Java 虚拟机"></a>Java 虚拟机</h2><h4 id="常用的jvm指令"><a href="#常用的jvm指令" class="headerlink" title="常用的jvm指令"></a>常用的jvm指令</h4><p>jmap -heap [pid] 查看整个JVM内存状态<br>jmap -histo [pid] 查看JVM堆中对象详细占用情况<br>jmap -dump:format=b,file=文件名 [pid] 导出整个JVM 中内存信息</p>
+<p>jstack -l pid 生成线程堆栈快照</p>
+<p>jstat -gc <pid> 堆上垃圾回收的行为统计，可以显示gc的信息，查看gc的次数及时间</pid></p>
+<p>-XX:+PrintGCDetails 打印GC日志<br>-Xloggc:E:\gc\gc.log GC日志存储位置</p>
+<h4 id="频繁-full-gc-怎么解决？"><a href="#频繁-full-gc-怎么解决？" class="headerlink" title="频繁 full gc 怎么解决？"></a>频繁 full gc 怎么解决？</h4><p>线下：利用 jvisualvm 去查看内存使用量曲线图，如果内存使用量一直维持在较高水平，那就是堆内存不够，需要调大一点。如果频繁发生抖动，那就是程序频繁生成对象并且进行回收，优化代码，保存可重用的对象不要频繁生成。如果内存使用量一直增长，那就是发生内存泄漏或者内存碎片，需要排查代码或者把 cms 收集器调成 gc 几次就执行一次标记整理算法来搞定内存碎片。<br>另外要注意虚拟机参数的配置，比如是否只配置了 xmx 而没有配置 xms，是否只设置了 maxNewSize 而没有设置 newSize (这两个参数默认是不一样的，会发生堆收缩)。<br>如果是 cms 频繁产生大对象的话调整 newradio 的大小来增加新生代的比例也是个不错的思路。因为 cms 在老年代采用标记清除算法，会产生大量内存碎片，使得老年代剩余空间很大但是没有足够的连续空间分配给当前对象 不得不提前触发一次 full gc。<br>线上：用 jmap -dump 分析哪些类占用比较多就知道哪些类内存泄漏或者 new 的太频繁了。</p>
+<h4 id="如何定位线程死锁？"><a href="#如何定位线程死锁？" class="headerlink" title="如何定位线程死锁？"></a>如何定位线程死锁？</h4><p>先用 Jps 来查看 java 进程 id (或者 Linux 的 ps 命令)<br>再用 jstack -l pid 输出线程 dump 信息到文件<br>查看 dump 文件并分析<br>或者使用 Jconsole 提供的检测死锁功能</p>
+<h4 id="为什么-jvm-调优经常会将-Xms-和-Xmx-参数设置成一样？"><a href="#为什么-jvm-调优经常会将-Xms-和-Xmx-参数设置成一样？" class="headerlink" title="为什么 jvm 调优经常会将 -Xms 和 -Xmx 参数设置成一样？"></a>为什么 jvm 调优经常会将 -Xms 和 -Xmx 参数设置成一样？</h4><p>JVM 初始分配的内存由 -Xms 指定，默认是物理内存的 1/64；JVM 最大分配的内存由 -Xmx 指定，默认是物理内存的 1/4。默认空余堆内存小于 40% 时，JVM 就会增大堆直到 -Xmx 的最大限制；空余堆内存大于 70% 时，JVM 会减少堆直到 -Xms 的最小限制。因此服务器一般设置 -Xms、-Xmx 相等以避免在每 次 GC 后调整堆的大小。</p>
+<h4 id="线上-CPU-占用过高问题排查？"><a href="#线上-CPU-占用过高问题排查？" class="headerlink" title="线上 CPU 占用过高问题排查？"></a>线上 CPU 占用过高问题排查？</h4><p>1、通过 ps -ef 找到 java 进程 id<br>2、通过 top -Hp pid 找到该进程下各线程占用 CPU 情况，找出占用率最高的线程 id<br>3、通过”jstack 进程id | grep 线程id(16进制)”定位到具体代码</p>
+<h4 id="新生代何时进入老生代？"><a href="#新生代何时进入老生代？" class="headerlink" title="新生代何时进入老生代？"></a>新生代何时进入老生代？</h4><p>1、长期存活的对象<br>2、大对象直接进入老年代<br>3、minor gc 后，survivor 仍然放不下<br>4、动态年龄判断 ,大于等于某个年龄的对象超过了 survivor 空间一半，大于等于某个年龄的对象直接进入老年代</p>
+<h4 id="虚拟机何时进行类加载？"><a href="#虚拟机何时进行类加载？" class="headerlink" title="虚拟机何时进行类加载？"></a>虚拟机何时进行类加载？</h4><p>1、遇到 new、getstatic、putstatic、invokestatic 指令时，对应到程序中就是使用到 new 实例化对象时、读取或设置类静态字段时（非 final）、调用静态方法时。需要进行初始化。<br>2、使用 java.lang.reflect 包的方法对类进行反射调用时，需要进行初始化。<br>3、使用一个类时，若其父类还未初始化，则需先初始化其父类。<br>4、虚拟机启动时，包含 main 方法的类，虚拟机会将其初始化。<br>5、java.lang.invoke.MethodHandle 实例最后的解析结果 REF_getStatic、REF_putStatic、REF_invokeStatic 方法句柄，并且这个方法句柄对应的类没有进行初始化，则需要先进行初始化。</p>
+<blockquote>
+<p>通过子类引用父类的静态字段，不会导致子类初始化<br>通过数组定义来引用类，不会触发此类的初始化<br>常量在编译阶段会存入调用类的常量池中，本质上并没有直接引用到定义常量的类，因此不会触发定义常量的类的初始化</p>
+</blockquote>
+<h4 id="class-文件结构？"><a href="#class-文件结构？" class="headerlink" title="class 文件结构？"></a>class 文件结构？</h4><p>1、注释<br>2、常量池<br>3、接口表<br>4、字段表<br>5、方法表<br>6、属性表（代码段放在属性表里）</p>
+<h4 id="full-gc-触发条件？"><a href="#full-gc-触发条件？" class="headerlink" title="full gc 触发条件？"></a>full gc 触发条件？</h4><ol>
+<li>System.gc()方法的调用(不一定立刻触发)</li>
+<li>jmap -histo:live <pid>(查看堆中存活对象)</pid></li>
+<li>老年代代空间不足</li>
+<li>永生区空间不足</li>
+<li>统计得到的Minor GC晋升到旧生代的平均大小大于老年代的连续剩余空间</li>
+<li>堆中分配很大的对象(碎片空间足够但连续空间不足)</li>
+</ol>
+<h4 id="jvm-一个空对象占用多少空间？"><a href="#jvm-一个空对象占用多少空间？" class="headerlink" title="jvm 一个空对象占用多少空间？"></a>jvm 一个空对象占用多少空间？</h4><p>64位操作系统下：8字节（虚拟机栈中指向堆中的指针）+8字节（对象头）+8字节（堆中对象指向clazz对象的指针）<br>32位操作系统下：4字节（虚拟机栈中指向堆中的指针）+4字节（对象头）+4字节（堆中对象指向clazz对象的指针）</p>
+<h4 id="Java-对象头"><a href="#Java-对象头" class="headerlink" title="Java 对象头"></a>Java 对象头</h4><p><img src="/2021/08/21/千问千答/Java对象头.png"></p>
+<h4 id="Java-内存模型"><a href="#Java-内存模型" class="headerlink" title="Java 内存模型"></a>Java 内存模型</h4><p>Java 通过共享内存来进行线程之间的通信，而 JMM 就是控制线程通信的方式。JMM 决定一个线程对一个共享变量的写入何时对另一个线程可见。JMM 定义了线程和主内存之间的抽象关系：线程之间的共享变量存储在主内存中，每个线程都有一个私有的本地内存，本地内存存储了该线程以读/写共享变量的副本。本地内存是一个抽象概念，对应到硬件涵盖了缓存、写缓冲区、寄存器以及其它的硬件和编译器优化。<br>JMM 控制了语言级的指令重排序。Java 源代码到最终实现需要经过编译器重排序、处理器重排序和内存系统重排序三种重排序，其中对于 2、3 两种重排序，JMM的编译器会禁止特定类型的重排序，这是通过在编译时插入内存屏障实现的。<br>JMM 定义了先行发生的概念来描述操作之间的可见性。对程序员而言，需要关注一下 8 个：<br>1、程序顺序规则：一个线程的每个操作，先行发生于该线程中的后续操作。<br>2、监视器锁规则：对一个锁的解锁先行发生于对这个锁的加锁。<br>3、volatile 变量规则：对一个 volatile 域的写先行发生于任意后续对这个 volatile 域的读。<br>4、线程启动规则：Thread 的 start() 方法先行发生于此线程的每一个动作。<br>5、线程终止规则：线程中所有的操作先行发生于此线程的终止检测（如 Thread.join(),Thread.isAlive()）。<br>6、线程中断法则：一个线程调用另一个线程的 interrupt 先行发生于被中断的线程发现中断。<br>7、对象终结原则：一个对象的初始化完成（构造方法执行结束）先行发生于它的finalize()方法的开始。<br>8、传递性：A 先行发生于 B，B 先行发生于 C，则 A 先行发生于 C。</p>
+<h4 id="Java-锁膨胀的时机？"><a href="#Java-锁膨胀的时机？" class="headerlink" title="Java 锁膨胀的时机？"></a>Java 锁膨胀的时机？</h4><p>1、轻量级锁自旋次数过多<br>2、处于偏向锁状态时计算未被覆写的 hashcode<br>3、使用 wait() 时</p>
+<h4 id="Java-锁膨胀过程？"><a href="#Java-锁膨胀过程？" class="headerlink" title="Java 锁膨胀过程？"></a>Java 锁膨胀过程？</h4><p>偏向所锁，轻量级锁都是乐观锁，重量级锁是悲观锁。</p>
+<p>一个对象刚开始实例化的时候，没有任何线程来访问它的时候。它是可偏向的，意味着，它现在认为只可能有一个线程来访问它，所以当第一个线程来访问它的时候，它会偏向这个线程，此时，对象持有偏向锁。偏向第一个线程，这个线程在修改对象头成为偏向锁的时候使用 CAS 操作，并将对象头中的 ThreadID 改成自己的 ID，之后再次访问这个对象时，只需要对比 ID，不需要再使用 CAS 在进行操作。</p>
+<p> 一旦有第二个线程访问这个对象，因为偏向锁不会主动释放，所以第二个线程可以看到对象时偏向状态，这时表明在这个对象上已经存在竞争了，检查原来持有该对象锁的线程是否依然存活，如果挂了，则可以将对象变为无锁状态，然后重新偏向新的线程，如果原来的线程依然存活，则马上执行那个线程的操作栈，检查该对象的使用情况，如果仍然需要持有偏向锁，则偏向锁升级为轻量级锁，（偏向锁就是这个时候升级为轻量级锁的）。如果不存在使用了，则可以将对象回复成无锁状态，然后重新偏向。</p>
+<p>轻量级锁认为竞争存在，但是竞争的程度很轻，一般两个线程对于同一个锁的操作都会错开，或者说稍微等待一下（自旋），另一个线程就会释放锁。 但是当自旋超过一定的次数时，轻量级锁膨胀为重量级锁，重量级锁使除了拥有锁的线程以外的线程都阻塞，防止 CPU 空转。</p>
+<h4 id="Java-虚拟机栈中包含哪些内容？"><a href="#Java-虚拟机栈中包含哪些内容？" class="headerlink" title="Java 虚拟机栈中包含哪些内容？"></a>Java 虚拟机栈中包含哪些内容？</h4><p>1、局部变量表：<br>存放编译期可知的各种基本数据类型、对象引用类型和returnAddress类型（指向一条字节码指令的地址：函数返回地址）。如果是实际对象调用的方法，局部变量表第一位是this。<br>2、操作数栈：<br>局部变量表中的数据不能直接被指令使用，要通过操作数栈来进行。操作数栈中存放数据的方式跟局部变量表是一样的。比如对于加法运算，字节码会这样写：<br>iload_0 //从局部变量表取第0个入栈<br>iload_1 //从局部变量表取第1个入栈<br>iadd      //将栈顶两个元素出栈，相加后将结果压栈<br>istore_2 //将栈顶元素存入局部变量表第2个位置</p>
+<p>3、动态连接：<br>每个栈帧都包含一个指向运行时常量池的引用，持有这个引用是为了支持方法调用过程中的动态连接。字节码中的方法调用指令以常量池中指向方法的符号引用为参数。这些指向方法的符号引用，一部分会在类加载阶段或第一次使用的时候转化为直接引用，称为静态解析（这种解析能成立的前提是方法在程序真正运行之前就有一个可确定的调用版本，并且这个调用版本在运行期是不可改变的。在Java中符合这个要求的方法包括静态方法和私有方法）；另一部分将在每一次的运行期间转化为直接引用，这部分称为动态连接。</p>
+<p>4、方法返回地址：<br>正常退出时是调用者的PC计数器的值，异常退出时要通过异常处理器来确定，栈帧中不会保存这部分信息。</p>
+<h4 id="Java-运行时能获取泛型吗？"><a href="#Java-运行时能获取泛型吗？" class="headerlink" title="Java 运行时能获取泛型吗？"></a>Java 运行时能获取泛型吗？</h4><p>位于声明一侧的，源码里写了什么到运行时就能看到什么；<br>位于使用一侧的，源码里写什么到运行时都没了。<br>“声明一侧”包括泛型类型（泛型类与泛型接口）声明、带有泛型参数的方法和域的声明。注意局部变量的声明不算在内，那个属于“使用”一侧。</p>
+<h4 id="Java-方法区结构"><a href="#Java-方法区结构" class="headerlink" title="Java 方法区结构"></a>Java 方法区结构</h4><p><img src="/2021/08/21/千问千答/方法区结构.png"></p>
+<h4 id="Java-有哪些-gc-类型？"><a href="#Java-有哪些-gc-类型？" class="headerlink" title="Java 有哪些 gc 类型？"></a>Java 有哪些 gc 类型？</h4><p>Minor GC 从年轻代空间（包括 Eden 和 Survivor 区域）回收内存。<br>Major GC 是清理老年代。<br>Mixed GC 是在G1收集器中独有的，用于收集整个young gen以及部分old gen的GC。<br>Full GC 是清理整个堆空间—包括年轻代、老年代及永久代（元数据空间）。</p>
+<h4 id="可达性分析是广度优先还是深度优先？"><a href="#可达性分析是广度优先还是深度优先？" class="headerlink" title="可达性分析是广度优先还是深度优先？"></a>可达性分析是广度优先还是深度优先？</h4><p>新生代深度，老生代广度<br>原因：<br>新生代对象少，老年代对象多<br>深度优先DFS一般采用递归方式实现，处理tracing的时候，可能会导致栈空间溢出，所以一般采用广度优先来实现tracing（递归情况下容易爆栈）。<br>广度优先的拷贝顺序使得GC后对象的空间局部性（memory locality）变差（相关变量散开了）。<br>广度优先搜索法一般无回溯操作，即入栈和出栈的操作，所以运行速度比深度优先搜索算法法要快些。<br>深度优先搜索法占内存少但速度较慢，广度优先搜索算法占内存多但速度较快。</p>
+<h4 id="空间分配担保机制是什么？"><a href="#空间分配担保机制是什么？" class="headerlink" title="空间分配担保机制是什么？"></a>空间分配担保机制是什么？</h4><p>在发生Minor GC之前，虚拟机会先检查老年代最大可用的连续空间是否大于新生代所有对象空间，如果大于，直接进行Minor GC；如果不大于，则会查看是否允许担保失败，如果允许，会继续检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果大于，则尝试进行一次Minor GC；如果小于，则进行一次Full GC。</p>
+<h4 id="JMM-内存间交互操作"><a href="#JMM-内存间交互操作" class="headerlink" title="JMM 内存间交互操作"></a>JMM 内存间交互操作</h4><p><img src="/2021/08/21/千问千答/内存间交互操作.png"></p>
+<h2 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h2><h4 id="epoll-和-select-的区别？"><a href="#epoll-和-select-的区别？" class="headerlink" title="epoll 和 select 的区别？"></a>epoll 和 select 的区别？</h4><p>select 能支持的文件描述符数是有限的，最大 1024 个，并且每次调用前都需要将其监听的读集、写集、错误集从用户态向内核态拷贝，返回后又拷贝回去，而且，select 返回的时候是将所有的文件描述符返回，也就意味着一旦有个事件触发，只能通过遍历的方式才能找到具体是哪一个事件，效率比较低、开销也比较大，但是也有好处，就是他的超时的单位是微秒级别；<br>poll 和 select 差不多，区别在于 poll 的 fd 是用链表来存放的，所以没有数量限制。<br>epoll 能支持的文件描述符数很大，可以上万，他的高效由 3 个部分组成：红黑树、双向链表、回调函数，每次将监听事件拷贝到内核后就存放在红黑树中，以 EventPoll 的结构体存在，如果有相应的事件发生，对应的回调函数就会触发，进而就会将该事件拷贝至双向链表中返回，而且，epoll 每次返回的都是有事件发生的事件，不是所有时间，所以比较高效，总的来说 epoll 适用于连接数较多，活跃数较少的场景、而 select 适用于连接数不多，但大多都活跃的场景。</p>
+<h4 id="pagecache-是如何分配的？"><a href="#pagecache-是如何分配的？" class="headerlink" title="pagecache 是如何分配的？"></a>pagecache 是如何分配的？</h4><p>Linux 内核中文件预读算法的具体过程是这样的：对于每个文件的第一个读请求，系统读入所请求的页面并读入紧随其后的少数几个页面(不少于一个页面，通常是三个页面)，这时的预读称为同步预读。对于第二次读请求，如果所读页面不在 Cache 中，即不在前次预读的 group 中，则表明文件访问不是顺序访问，系统继续采用同步预读；如果所读页面在 Cache 中，则表明前次预读命中，操作系统把预读 group 扩大一倍，并让底层文件系统读入 group 中剩下尚不在 Cache 中的文件数据块，这时的预读称为异步预读。无论第二次读请求是否命中，系统都要更新当前预读 group 的大小。此外，系统中定义了一个 window，它包括前一次预读的 group 和本次预读的 group。任何接下来的读请求都会处于两种情况之一：第一种情况是所请求的页面处于预读 window 中，这时继续进行异步预读并更新相应的 window 和 group；第二种情况是所请求的页面处于预读 window 之外，这时系统就要进行同步预读并重置相应的window 和 group。</p>
+<p>Linux内核中文件 Cache 替换的具体过程是这样的：刚刚分配的 Cache 项链入到 inactive_list 头部，并将其状态设置为 active，当内存不够需要回收 Cache 时，系统首先从尾部开始反向扫描 active_list 并将状态不是 referenced 的项链入到 inactive_list 的头部，然后系统反向扫描 inactive_list，如果所扫描的项的处于合适的状态就回收该项，直到回收了足够数目的 Cache 项。</p>
+<h4 id="进程和线程的区别？"><a href="#进程和线程的区别？" class="headerlink" title="进程和线程的区别？"></a>进程和线程的区别？</h4><p>进程是资源管理的最小单位，线程是程序执行的最小单位。实际的实现上，用户态的线程对操作系统是不可见的，线程由应用程序自己定义和调度。Linux 内核没有单独的线程数据结构，线程进程使用的数据结构都是 task_struct，但同一个进程组下的线程可以共享一些资源，且这种共享的状态能被内核感知到。这些共享的资源包括：进程地址空间，打开的文件描述符，信号的处理器等。同时线程也保存了自己的资源，比如一些寄存器（比如段寄存器），栈指针等。操作系统在调度时会检查被调度的两个进程是否属于同一个进程组，是的话就只需要修改一下寄存器和栈指针等私有资源就好。最大头的进程地址空间不用切换，所以快很多。</p>
+<h4 id="进程间通信方式？"><a href="#进程间通信方式？" class="headerlink" title="进程间通信方式？"></a>进程间通信方式？</h4><p>1、匿名管道：半双工的通信，数据只能单向流动、只能在具有亲缘关系的进程间使用<br>2、命名管道：在文件系统中以文件名的形式存在，以文件的形式写入和读取数据<br>3、信号量：信号量是一个计数器，可以用来控制多个进程对共享资源的访问。<br>4、消息队列：消息的链表，存放在内核中并由消息队列标识符标识，收程序可以通过消息类型有选择地接收数据<br>5、信号：软中断。处理过程跟中断很像。发生在中断（比如时钟）返回的时候，或者内核态返回用户态的时候<br>6、共享内存：映射一段能被其他进程所访问的内存，这段共享内存由一个进程创建，但多个进程都可以访问。共享内存是最快的 IPC 方式<br>7、套接字：可以在不同机器上通信</p>
+<h4 id="水平触发和边沿触发的区别？"><a href="#水平触发和边沿触发的区别？" class="headerlink" title="水平触发和边沿触发的区别？"></a>水平触发和边沿触发的区别？</h4><p>epoll 对文件描述符的操作有两种模式：LT（level trigger）和 ET（edge trigger）。LT 模式是默认模式，LT 模式与 ET 模式的区别如下：<br>LT 模式：当 epoll_wait 检测到描述符事件发生并将此事件通知应用程序，应用程序可以不立即处理该事件。下次调用 epoll_wait 时，会再次响应应用程序并通知此事件。<br>ET 模式：当 epoll_wait 检测到描述符事件发生并将此事件通知应用程序，应用程序必须立即处理该事件。如果不处理，下次调用 epoll_wait 时，不会再次响应应用程序并通知此事件。<br>ET 模式在很大程度上减少了 epoll 事件被重复触发的次数，因此效率要比 LT 模式高。epoll 工作在 ET 模式的时候，必须使用非阻塞套接口，以避免由于一个文件句柄的阻塞读/阻塞写操作把处理多个文件描述符的任务饿死。</p>
+<h4 id="死锁的四个条件？"><a href="#死锁的四个条件？" class="headerlink" title="死锁的四个条件？"></a>死锁的四个条件？</h4><p>互斥：每个资源只能被一个进程使用<br>占有且等待：一个进程因请求资源而阻塞时，对已获得的资源保持不放。<br>非抢占：进程已获得的资源，在末使用完之前，不能强行剥夺。<br>循环等待：若干进程之间形成一种头尾相接的循环等待资源关系。</p>
+<h2 id="计算机网络"><a href="#计算机网络" class="headerlink" title="计算机网络"></a>计算机网络</h2><h4 id="osi-七层模型"><a href="#osi-七层模型" class="headerlink" title="osi 七层模型"></a>osi 七层模型</h4><p><img src="/2021/08/21/千问千答/osi七层模型.png" width="90%"></p>
+<h4 id="ARP-流程？"><a href="#ARP-流程？" class="headerlink" title="ARP 流程？"></a>ARP 流程？</h4><p>假设主机 A 和主机 B 通信<br>1、用子网掩码计算是否在同一网段<br>2、若在同一网段，先找缓存表查看 MAC 地址<br>3、缓存表中找不到，使用广播查找 B，B 应答之后，A 会更新缓存表<br>4、若不在同一网段，将包发给网关，网关根据 IP 地址判断下一跳的位置</p>
+<h4 id="DHCP-流程？"><a href="#DHCP-流程？" class="headerlink" title="DHCP 流程？"></a>DHCP 流程？</h4><p>用户可以使用 ifconfig 自己配置一个IP，但如果不在同一网段（一个计算机网络中使用同一物理层设备（传输介质，中继器，集线器等）直接通讯的那一部分，IP AND 子网掩码后相同），会交给网关，但网关必须要和当前至少一张网卡在同一网段，所以不能任意配置 IP 地址。</p>
+<p>一般 IP 地址由网络管理员负责，但如果用户较多的话会比较麻烦。DHCP 就是为了解决这个问题而诞生。网络管理员只需要配置 IP 池，DHCP 会自动为用户分配 IP。</p>
+<p>DHCP 使用 UDP 通信的应用层协议。分为以下几个步骤：<br>1、发现阶段（DHCP 客户端在网络中广播发送 DHCP DISCOVER 请求报文，发现 DHCP 服务器，请求 IP 地址租约）（源 ip:0.0.0.0,目的 mac:255.255.255.255）<br>2、提供阶段（DHCP 服务器通过 DHCP OFFER 报文向 DHCP 客户端提供 IP 地址预分配）<br>3、选择阶段（DHCP 客户端通过 DHCP REQUEST 报文以广播方式确认选择第一个 DHCP 服务器为它提供 IP 地址自动分配服务）<br>4、确认阶段（被选择的 DHCP 服务器通过 DHCP ACK 报文把在 DHCP OFFER 报文中准备的 IP 地址租约给对应 DHCP 客户端）<br>5、续租阶段（租期过 50% 以后，DHCP 客户端向为其提供 IP 的 DHCP 服务端发送 DHCP request 消息包，服务器回应 DHCP ACK 消息包，包含新的租期以及其它已经更新的 TCP/IP 参数）<br>6、重新登录，DHCP 客户机每次重新登录网络时，就不需要再发送 DHCP discover 发现信息了，而是直接发送包含前一次所分配的 IP 地址的 DHCP request 请求信息。当 DHCP 服务器收到这一信息后，它会尝试让 DHCP 客户机继续使用原来的 IP 地址，并回答一个 DHCP ack 确认信息。如果此 IP 地址已无法再分配给原来的 DHCP 客户机使用时（比如此 IP 地址已分配给其它 DHCP 客户机使用），则 DHCP 服务器给 DHCP 客户机回答一个 DHCP nack 否认信息。当原来的 DHCP 客户机收到此 DHCP nack 否认信息后，它就必须重新发送 DHCP discover 发现信息来请求新的 IP 地址。</p>
+<h4 id="DNS-和负载均衡？"><a href="#DNS-和负载均衡？" class="headerlink" title="DNS 和负载均衡？"></a>DNS 和负载均衡？</h4><p>DNS 用于将网址解析为 IP 地址。<br>客户端会向本地 DNS 服务器请求 IP，本地服务器又会递归地向根域名服务器（解析所有域名）、顶级域名服务器（解析某个顶级域名，如.com）和权威域名服务器（在这里拿到结果，如 <a href="http://www.163.com）" target="_blank" rel="noopener">www.163.com）</a></p>
+<p>在域名和 IP 的映射中可以做负载均衡。负载均衡分为简单负载均衡和全局负载均衡。</p>
+<p>简单负载均衡是指 DNS 服务器中一个地址对应多个 IP，第一个用户请求的时候返回第一个 IP，第二个用户请求的时候返回第二个 IP，以此类推</p>
+<p>全局负载均衡可以指定用户访问特定的运营商和特定地方的数据中心。如上海的访问上海的，北京的访问北京的。全局负载均衡需要在访问权威域名服务器之后，再请求全局负载均衡器。全局负载均衡器会根据本地 DNS 服务器的运营商和位置，返回若干个最接近的IP地址给本地 DNS 服务器。客户端在得到这些 IP 地址之后可以用随机或轮询的方式选择一个进行访问。</p>
+<h4 id="https-握手流程？"><a href="#https-握手流程？" class="headerlink" title="https 握手流程？"></a>https 握手流程？</h4><p>客户端发送第一个握手，包含一个随机数，以及对协议的支持情况(版本、加密方法、压缩方法等)<br>服务器返回证书，以及服务端生成随机数<br>客户端校验证书，生成一个新的随机数，用证书中的公钥加密后发给服务端<br>服务端确认消息，双方根据上述三个随机数生成后续会话的密钥</p>
+<h4 id="服务器大量-TIME-WAIT-怎么解决？"><a href="#服务器大量-TIME-WAIT-怎么解决？" class="headerlink" title="服务器大量 TIME_WAIT 怎么解决？"></a>服务器大量 TIME_WAIT 怎么解决？</h4><p>服务器处理大量连接并主动关闭连接时，将导致服务器端存在大量的处于TIME_WAIT状态的socket。<br>因为主动关闭方会进入 TIME_WAIT 的状态，然后在保持这个状态 2MSL（max segment lifetime）时间（1到4分钟）之后，彻底关闭回收资源（被占用的是一个五元组：（协议，本地IP，本地端口，远程IP，远程端口）。对于 Web 服务器，协议是 TCP，本地 IP 通常也只有一个，本地端口默认的 80 或者 443。只剩下远程 IP 和远程端口可以变了。如果远程 IP 是相同的话，就只有远程端口可以变了。这个只有几万个）。<br>所以如果大量关闭，资源还没来得及回收，会导致大量 TIME_WAIT。<br>解决方案是修改 linux 内核，允许将 TIME-WAIT sockets 重新用于新的 TCP 连接（tcp_tw_reuse=1），并开启 TCP 连接中 TIME-WAIT sockets 的快速回收（tcp_tw_recycle = 1），这些默认都是关闭的。</p>
+<h2 id="数据结构与算法"><a href="#数据结构与算法" class="headerlink" title="数据结构与算法"></a>数据结构与算法</h2><h4 id="红黑树的性质？"><a href="#红黑树的性质？" class="headerlink" title="红黑树的性质？"></a>红黑树的性质？</h4><p>性质1. 节点是红色或黑色。<br>性质2. 根节点是黑色。<br>性质3 每个叶节点（NIL节点，空节点）是黑色的。<br>性质4 每个红色节点的两个子节点都是黑色。(从每个叶子到根的所有路径上不能有两个连续的红色节点)<br>性质5. 从任一节点到其每个叶子的所有路径都包含相同数目的黑色节点。<br>这五个性质决定了红黑树任意一个节点的左右子树高度差不超过较小的那个。</p>
+<h4 id="跳表和红黑树？"><a href="#跳表和红黑树？" class="headerlink" title="跳表和红黑树？"></a>跳表和红黑树？</h4><p>共同点：两者查找速度差不多<br>跳表优点：插入快，因为不需要旋转调整；并发插入时只需锁住少数节点；双向链表方便范围查询；实现简单<br>跳表缺点：重复存储分层节点，消耗内存<br>红黑树优点：内存消耗小<br>红黑树缺点：并发时插入时需要锁住大量节点</p>
+<h2 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h2><h4 id="count-1-和count-的区别？"><a href="#count-1-和count-的区别？" class="headerlink" title="count(1)和count()的区别？"></a>count(1)和count()的区别？</h4><p>COUNT(<em>)：统计表中行数<br>COUNT(N)：统计表中行数，等于COUNT(</em>)<br>COUNT(列名)：统计某一行非空行数<br>COUNT(DISTINCT 列名)：统计某一行非空且不相同的行数</p>
+<p>如果该表只有一个主键索引，没有任何二级索引的情况下，那么COUNT(<em>)和COUNT(1)都是通过主键索引来统计行数的。如果该表有二级索引，则COUNT(1)和COUNT(</em>)都会通过占用空间最小的字段的二级索引进行统计。这是因为二级索引占用空间小得多，统计时只要把少数数据页读到内存即可完成统计。</p>
+<h4 id="datetime和timestamp的区别？"><a href="#datetime和timestamp的区别？" class="headerlink" title="datetime和timestamp的区别？"></a>datetime和timestamp的区别？</h4><p>datetime</p>
+<ol>
+<li>占用8个字节</li>
+<li>允许为空值，可以自定义值，系统不会自动修改其值。</li>
+<li>实际格式储存</li>
+<li>与时区无关</li>
+<li>不可以设定默认值，所以在不允许为空值的情况下，必须手动指定datetime字段的值才可以成功插入数据。</li>
+<li>可以在指定datetime字段的值的时候使用now()变量来自动插入系统的当前时间。<br>结论：datetime类型适合用来记录数据的原始的创建时间，因为无论你怎么更改记录中其他字段的值，datetime字段的值都不会改变，除非你手动更改它。</li>
+</ol>
+<p>timestamp</p>
+<ol>
+<li>占用4个字节</li>
+<li>允许为空值，但是不可以自定义值，所以为空值时没有任何意义。</li>
+<li>TIMESTAMP 值不能早于 1970 或晚于 2037。这说明一个日期，例如’1968-01-01’，虽然对于DATETIME或DATE值是有效的，但对于TIMESTAMP值却无效，如果分配给这样一个对象将被转换为0。</li>
+<li>值以UTC格式保存</li>
+<li>时区转化 ，存储时对当前的时区进行转换，检索时再转换回当前的时区。</li>
+<li>默认值为 CURRENT_TIMESTAMP()，其实也就是当前的系统时间。</li>
+<li>数据库会自动修改其值，所以在插入记录时不需要指定 timestamp 字段的名称和 timestamp 字段的值，你只需要在设计表的时候添加一个 timestamp 字段即可，插入后该字段的值会自动变为当前系统时间。</li>
+<li>以后任何时间修改表中的记录时，对应记录的 timestamp 值会自动被更新为当前的系统时间。<br>结论：timestamp 类型适合用来记录数据的最后修改时间，因为只要你更改了记录中其他字段的值，timestamp 字段的值都会被自动更新。<h4 id="explain-各字段含义？"><a href="#explain-各字段含义？" class="headerlink" title="explain 各字段含义？"></a>explain 各字段含义？</h4>id-&gt;SELECT识别符。这是SELECT的查询序列号<br>select_type -&gt; 查询类型，simple（简单查询，不包含子查询和union）、primary（包含union或子查询，最外层的部分标记为primary）、union（位于union中第二个及其以后的子查询被标记为union）等等<br>table-&gt;对应正在访问的表名<br>type-&gt;访问类型，是较为重要的一个指标，system/const（系统常数）、ref/eq_ref（匹配索引中的某一行或某几行）、range（范围查询）、index（对索引全表扫描）、ALL（全表扫描）<br>possible_keys-&gt;显示使用了哪些索引，但列出来的索引可能后续没用<br>key-&gt;显示实际使用的索引<br>rows-&gt;扫描行数<br>Extra-&gt;额外信息，如using index表示使用了索引<h4 id="mysql-主从数据一致？"><a href="#mysql-主从数据一致？" class="headerlink" title="mysql 主从数据一致？"></a>mysql 主从数据一致？</h4>1、异步复制：主库在执行完客户端提交的事务后会立即将结果返给给客户端，并不关心从库是否已经接收并处理，这样就会有一个问题，主如果crash掉了，此时主上已经提交的事务可能并没有传到从库上，如果此时，强行将从提升为主，可能导致“数据不一致”。早期MySQL(5.5以前)仅仅支持异步复制。</li>
+</ol>
+<p>2、半同步复制：MySQL在5.5中引入了半同步复制，主库在应答客户端提交的事务前需要保证至少一个从库接收并写到relay log中。（如果从库应答超时则退化成异步复制）<br>可能的问题：<br>1）用户A在主库提交了一条插入数据的事务，主库在commit后等待从库的应答，此时用户B查询了该条数据，得到了查询的结果。此时主库宕机，从库还未收到主库的这一条事务，从库被切换成了主库，用户B在从库上继续完成事务，发现结果不一致。<br><a href="https://juejin.im/post/5d2d7dd5f265da1b961337a0" target="_blank" rel="noopener">https://juejin.im/post/5d2d7dd5f265da1b961337a0</a></p>
+<p>解决方案：5.7以后mysql引入了无损（Loss-Less）半同步复制，将从库的ack提到了主库的commit之前。确保了主库提交时其中一个从库一定接收了事务。这样做不会再有上述的问题。</p>
+<p>3、全同步复制：MySQL在应答客户端提交的事务前需要保证所有从库接收。</p>
+<h4 id="redis-为什么快？"><a href="#redis-为什么快？" class="headerlink" title="redis 为什么快？"></a>redis 为什么快？</h4><p>1、完全基于内存<br>2、数据结构简单，对数据操作也简单<br>3、采用单线程，避免了不必要的上下文切换和竞争条件<br>4、使用多路I/O复用模型，非阻塞IO</p>
+<h4 id="为什么要分库分表？"><a href="#为什么要分库分表？" class="headerlink" title="为什么要分库分表？"></a>为什么要分库分表？</h4><p>分库分表是什么？目的是什么？<br>水平分表：把一个表的数据弄到多个表上去，每个表的结构一样。减少单表大小，加快SQL执行的速度。<br>垂直分表：把一个有很多字段的表拆成多个表，每个表的结构不一样。抽出热点字段，提高缓存利用率。<br>分库：把拆分出的表部署到不同的库里。提高磁盘容量；增加缓存容量；提高并发性；异地部署提高网络性能。</p>
+<p>常用的分库分表中间件：<br>sharding-jdbc:client层方案，在client端记录所有库表地址，由client根据策略自行路由。没有代理层转发，网络成本低，性能高；运维成本低。不方便升级，升级时需要修改每个系统上的版本。<br>mycat:代理层方案，由代理层统一转发路由请求。多一次代理层的网络通信；运维成本高。方便升级，直接在代理层升级即可。</p>
+<h4 id="数据库连接为什么消耗大？"><a href="#数据库连接为什么消耗大？" class="headerlink" title="数据库连接为什么消耗大？"></a>数据库连接为什么消耗大？</h4><p>数据库连接建立过程：建立TCP连接，通过三次握手实现；服务器发送给客户端握手信息，客户端响应该握手消息；客户端发送认证包，用于用户验证，验证成功后，服务器返回OK响应，之后开始执行命令；用户验证成功之后，会进行一些连接变量的设置，比如字符集、是否自动提交事务等，其间会有多次数据的交互。完成了这些步骤后，才会执行真正的数据查询和更新等操作。完成一次连接，数据在客户端和服务器之间需要至少往返7次，最少耗时200ms。</p>
+
+      
+    </div>
+    <!--<div class="article-footer">-->
+      <!--<blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="http://yoursite.com/2021/08/21/千问千答/" title="千问千答" target="_blank" rel="external">http://yoursite.com/2021/08/21/千问千答/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/zhebinhu" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="/images/avatar.jpg" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/zhebinhu" target="_blank"><span class="text-dark">huzb</span><small class="ml-1x">念念不忘，必有回响</small></a></h3>
+        <div>阿里 Java 程序员</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+-->
+    <!--</div>-->
+  </article>
+  
+    
+  <section id="comments">
+  	
+           
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    
+    <li class="next">
+      <a href="/2021/06/06/从零开始的Java自学之路（校招攻略）/" title="从零开始的Java自学之路（校招攻略）"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <!--<footer class="footer" itemscope itemtype="http://schema.org/WPFooter">-->
+	<!---->
+    <!--<div class="copyright">-->
+    	<!---->
+        <!--<div class="publishby">-->
+        	<!--Theme by <a href="https://github.com/cofess" target="_blank"> cofess </a>base on <a href="https://github.com/cofess/hexo-theme-pure" target="_blank">pure</a>.-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</footer>-->
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+<script src="/js/plugin.min.js"></script>
+<script src="/js/application.js"></script>
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <!-- <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css"> -->
+  <!-- <script src="//cdn.jsdelivr.net/npm/gitalk@1.4.0/dist/gitalk.min.js"></script> -->
+  <script src="//geektutu.github.io/hexo-theme-geektutu/js/gitalk.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/blueimp-md5@2.10.0/js/md5.min.js"></script>
+  <script type="text/javascript">
+  var gitalk = new Gitalk({
+    clientID: '0ff941a9de6ccc9b531d',
+    clientSecret: 'b3e1139623fa9be863ba8822cd647043a26856bc',
+    accessToken: '67dae45dd170aa59e679ea5ba783dc4444c21d92',
+    repo: 'zhebinhu.github.io',
+    owner: 'zhebinhu',
+    admin: ['zhebinhu'],
+    id: md5(location.pathname),
+    distractionFreeMode: true
+  })
+  gitalk.render('comments')
+  </script>
+
+
+      
+
+
+
+
+
+
+
+</body>
+</html>
