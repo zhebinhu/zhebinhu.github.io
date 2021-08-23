@@ -91,7 +91,7 @@ T0、T1、T2 表示创建 undo log 的事务。undo log 中保存的是每一行
 6、通过 undo log 回滚未提交的事务
 
 ## 6、binlog 和 redo log 的一致性
-MySQL 主从复制之间依赖 binlog，而 binlog 文件的写入在 commit 之前，如果写完 binlog 文件后主库宕机，再次启动时会回滚事务。但此时从库已经执行，则会造成主备数据不一致。所以在开启binlog 后，如何保证 binlog 和 redo log 的一致性呢？为此，MySQL 引入二阶段提交（two phase commit or 2pc），MySQL 内部会自动将普通事务当做一个 XA 事务（内部分布式事物）来处理：
+MySQL 主从复制之间依赖 binlog，而 binlog 文件的写入在 commit 之前，如果写完 binlog 文件后主库宕机，再次启动时会回滚事务。但此时从库已经执行，则会造成主备数据不一致。所以在开启 binlog 后，如何保证 binlog 和 redo log 的一致性呢？为此，MySQL 引入二阶段提交（two phase commit or 2pc），MySQL 内部会自动将普通事务当做一个 XA 事务（内部分布式事物）来处理：
 
 – 自动为每个事务分配一个唯一的ID（XID）。
 

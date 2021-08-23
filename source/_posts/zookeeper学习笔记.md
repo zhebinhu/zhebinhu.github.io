@@ -2,7 +2,7 @@
 title: Zookeeper 学习笔记
 tags: 
 	- 分布式
-	- Zookeeper
+	- zookeeper
 toc: true
 date: 2019-07-14 16:09:36
 ---
